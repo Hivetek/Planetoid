@@ -11,12 +11,15 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="jquery.min.js"></script>
         <script src="script.js"></script>
+        <script src="grahamscan.js"></script>
     </head>
     <body>
-        <input type="file" id="files" name="files[]" multiple />
-        <output id="list"></output>
         <canvas id="canvas">
             Your browser does not support canvas. 
         </canvas>
+        <div id="stats">
+            <p id="vertcount">Vertices: 0</p>
+            <p id="hullcount">Hulls: 0</p>
+        </div>
     </body>
 </html>
