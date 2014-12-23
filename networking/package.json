@@ -1,0 +1,13 @@
+{
+    "name": "planetoid",
+    "version": "0.0.1",
+    "description": "A spiritual successor to Nade Planet.",
+    "dependencies": {
+        "primus": ">=2.4.12",
+        "ws": ">=0.6.3"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Hivetek/Planetoid.git"
+    }
+}
