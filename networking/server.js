@@ -12,18 +12,11 @@ var server = http.createServer(/* request handler */)
 primus.on("connection", function(spark) {
     console.log("New connection");
 
-    // Stats
-    console.log(spark.headers);
-    console.log(spark.address);
-    console.log(spark.query);
-    console.log(spark.id);
-    console.log(spark.request);
-
     spark.on("data", function(data) {
         console.log(data);
     });
 
-    spark.write("Hej");
+    //spark.write("Hej");
 });
 
 // Start listening
