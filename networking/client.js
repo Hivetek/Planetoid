@@ -12,8 +12,8 @@ var timeScale;
 var paused;
 
 var cube = {
-    x: 100,
-    y: 100
+    x: 0,
+    y: 0
 };
 
 var cube_server = {
@@ -87,6 +87,11 @@ function update() {
     // Actual updating
     cube.x = mx;
     cube.y = my;
+
+    primus.write({
+        mx: mx,
+        my: my
+    });
 }
 
 function draw() {
@@ -191,7 +196,23 @@ function primus_init() {
         });
 
         primus.on("data", function(data) {
-            console.log(data);
+            if (!data) return;
+            if (data.hasOwnProperty("init")) {
+                console.log("Initial state:");
+                var c = data["init"]["cube"];
+                console.log(c);
+                cube.x = c.x;
+                cube.y = c.y;
+                cube_server.x = c.x;
+                cube_server.y = c.y;
+            }
+            if (data.hasOwnProperty("update")) {
+                var c = data["update"]["cube"];
+                cube.x = c.x;
+                cube.y = c.y;
+                cube_server.x = c.x;
+                cube_server.y = c.y;
+            }
         });
     }).fail(function(jqxhr, settings, exception) {
         console.error("Could not load Primus client library: " + primus_lib_url);
