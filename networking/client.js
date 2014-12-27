@@ -93,12 +93,10 @@ function update() {
     cube.x += (mag/l) * vx;
     cube.y += (mag/l) * vy;
 
-    setTimeout(function lag(){
-        primus.write({
-            mx: mx,
-            my: my
-        });
-    }, 200);
+    primus.write({
+        mx: mx,
+        my: my
+    });
 }
 
 function draw() {
