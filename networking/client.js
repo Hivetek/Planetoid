@@ -88,10 +88,12 @@ function update() {
     cube.x = mx;
     cube.y = my;
 
-    primus.write({
-        mx: mx,
-        my: my
-    });
+    setTimeout(function lag(){
+        primus.write({
+            mx: mx,
+            my: my
+        });
+    }, 200);
 }
 
 function draw() {

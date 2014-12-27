@@ -14,7 +14,7 @@ var cube = {
     y: 100
 };
 
-var tickrate = 1000;
+var tickrate = 1000/60; // Target at 60 fps 
 
 function loop() {
     primus.write({update: {
@@ -30,9 +30,11 @@ primus.on("connection", function(spark) {
     console.log("New connection");
 
     spark.on("data", function(data) {
-        // Update server cube the save way it is updated on the client
-        cube.x = data.mx
-        cube.y = data.my;
+        setTimeout(function lag() {
+            // Update server cube the save way it is updated on the client
+            cube.x = data.mx
+            cube.y = data.my;
+        }, 200); 
     });
 
     // Write the initial/current state of the cube to the client
