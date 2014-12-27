@@ -1,11 +1,6 @@
 (function(exports) {
 
-var config = {};
-
-config.hostname = "localhost";
-config.protocol = "http";
-config.port = 1337;
-config.transformer = "websockets";
+var engine = {};
 
 exports.engine = engine;
 
