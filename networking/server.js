@@ -24,6 +24,10 @@ function loop() {
     setTimeout(loop, tickrate);
 }
 
+function sqr(x) {
+    return x*x;
+}
+
 loop();
 
 primus.on("connection", function(spark) {
@@ -32,8 +36,14 @@ primus.on("connection", function(spark) {
     spark.on("data", function(data) {
         setTimeout(function lag() {
             // Update server cube the save way it is updated on the client
-            cube.x = data.mx
-            cube.y = data.my;
+            
+            var vx = data.mx-cube.x;
+            var vy = data.my-cube.y;
+            var l = Math.sqrt(sqr(vx) + sqr(vy));
+            l = Math.max(l, 0.1);
+            var mag = Math.min(5, l);
+            cube.x += (mag/l) * vx;
+            cube.y += (mag/l) * vy;
         }, 200); 
     });
 

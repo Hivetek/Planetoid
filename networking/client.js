@@ -85,8 +85,13 @@ function update() {
     prmd = rmd;
 
     // Actual updating
-    cube.x = mx;
-    cube.y = my;
+    var vx = mx-cube.x;
+    var vy = my-cube.y;
+    var l = Math.sqrt(sqr(vx) + sqr(vy));
+    l = Math.max(l, 0.1);
+    var mag = Math.min(5, l);
+    cube.x += (mag/l) * vx;
+    cube.y += (mag/l) * vy;
 
     setTimeout(function lag(){
         primus.write({
@@ -219,6 +224,10 @@ function primus_init() {
     }).fail(function(jqxhr, settings, exception) {
         console.error("Could not load Primus client library: " + primus_lib_url);
     });
+}
+
+function sqr(x) {
+    return x*x;
 }
 
 $(document).ready(function(){
