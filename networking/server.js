@@ -9,6 +9,12 @@ var Primus = require('primus')
 var server = http.createServer(/* request handler */)
   , primus = new Primus(server, {transformer: config.transformer});
 
+// Primus plugins
+primus.use("emitter",       require("primus-emitter"));
+primus.use("spark-latency", require("primus-spark-latency"));
+
+
+// State
 var cube = {
     x: 100,
     y: 100
@@ -17,9 +23,9 @@ var cube = {
 var tickrate = 1000/60; // Target at 60 fps 
 
 function loop() {
-    primus.write({update: {
+    primus.send("update", {
         cube: cube
-    }});
+    });
 
     setTimeout(loop, tickrate);
 }
@@ -33,7 +39,7 @@ loop();
 primus.on("connection", function(spark) {
     console.log("New connection");
 
-    spark.on("data", function(data) {
+    spark.on("input", function(data) {
         // Update server cube the save way it is updated on the client
 
         var vx = data.mx-cube.x;
@@ -46,9 +52,9 @@ primus.on("connection", function(spark) {
     });
 
     // Write the initial/current state of the cube to the client
-    spark.write({init: {
+    spark.send("init", {
         cube: cube
-    }});
+    });
 });
 
 // Start listening

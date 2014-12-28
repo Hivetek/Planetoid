@@ -4,6 +4,8 @@
     "description": "A spiritual successor to Nade Planet.",
     "dependencies": {
         "primus": ">=2.4.12",
+        "primus-emitter": ">=3.0.3",
+        "primus-spark-latency": ">=0.1.1",
         "ws": ">=0.6.3"
     },
     "repository": {
