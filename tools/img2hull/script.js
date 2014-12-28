@@ -8,6 +8,8 @@ var DRAW_VERTS = true;
 var min_angle = 5;
 var min_dist = 5;
 
+var initialized = false;
+
 function getPixel(data, w, x, y) {
     var i = (w * y) + x;
     i *= 4;
@@ -75,18 +77,30 @@ function simplify(points, angle, dist) {
     return points;
 }
 
-function img2hull() {
-    //Clear arrays
-    var CoG = []; 
-    var pixels = []; 
-    var convexpoints = [];
+function updatePoints() {
+    min_angle = document.getElementById('angle_input').value;
+    if (initialized) {
+        drawImage();
+        img2hull();
+    }
+}
 
-    var data;
+function drawImage() {
     w = img.width;
     h = img.height;
     canvas.width = w;
     canvas.height = h;
     ctx.drawImage(img, 0, 0);
+}
+
+function img2hull() {
+    //Clear arrays
+    var CoG = [];
+    var pixels = [];
+    var convexpoints = [];
+
+    var data;
+
     data = ctx.getImageData(0, 0, w, h);
 
     for (var y = 0; y < h; y++) {
@@ -176,10 +190,13 @@ function init() {
     img = new Image();
 
     img.onload = function() {
+        drawImage();
         img2hull();
+        initialized = true;
     };
 
     document.getElementById('file').addEventListener('change', handleFileSelect, false);
+    document.getElementById('angle_input').addEventListener('change', updatePoints, false);
 }
 
 $(document).ready(function() {

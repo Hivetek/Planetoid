@@ -29,5 +29,4 @@ function handleFileSelect(evt) {
         // Read in the image file as a data URL.
         reader.readAsDataURL(f);
     }
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }

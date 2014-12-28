@@ -17,8 +17,17 @@ and open the template in the editor.
     <body>
         <div id="wrap">
             <div id="top">
-                <h1>IMG2HULL</h1>
-                <input type="file" id="file" name="file"/>
+                <div class="left half">
+                    <h1>IMG2HULL</h1>
+                    <input type="file" id="file" name="file"/>
+                </div>
+                <div class="right half">
+                    <form>
+                        <h3>Simplify meshes:</h3>
+                        <p>Min. angle:</p>
+                        <input id="angle_input" name="min_angle" type="range" min="0" max="25" value="5" step="1">
+                    </form>
+                </div>
             </div>
             <div id="middle">
                 <div id="stats">
