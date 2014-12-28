@@ -6,14 +6,45 @@
 
 html, body {
     width: 100%;
+    background: #636363;
+}
+
+#top, #bottom {
+    padding: 16px;
+    width: 100%;
+    height: 64px;
+    background: #4a4a4a;
+}
+
+#top {
+    box-shadow: 0 5px 8px rgba(0,0,0,0.4);
+}
+
+#bottom {
+    box-shadow: 0 -5px 8px rgba(0,0,0,0.4);
+    margin-top: 32px;
+}
+
+#top h1 {
+    color: #FFF;
+    text-shadow: 2px 3px 5px rgba(0,0,0,0.6);
+    margin-bottom: 8px;
 }
 
 #canvas {
     border: 1px solid #000;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    background: #FFF;
+    box-shadow: 0 5px 8px rgba(0,0,0,0.4);
 }
 
 #stats {
-    position: absolute;
-    top: 16px;
-    left: 16px;
+    width: 100%;
+    height: 32px;
+    padding: 16px;
+    font-weight: bold;
+    color: #FFF;
 }
+

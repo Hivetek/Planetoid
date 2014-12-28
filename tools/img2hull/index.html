@@ -12,14 +12,26 @@ and open the template in the editor.
         <script src="jquery.min.js"></script>
         <script src="script.js"></script>
         <script src="grahamscan.js"></script>
+        <script src="files.js"></script>
     </head>
     <body>
-        <canvas id="canvas">
-            Your browser does not support canvas. 
-        </canvas>
-        <div id="stats">
-            <p id="vertcount">Vertices: 0</p>
-            <p id="hullcount">Hulls: 0</p>
+        <div id="wrap">
+            <div id="top">
+                <h1>IMG2HULL</h1>
+                <input type="file" id="file" name="file"/>
+            </div>
+            <div id="middle">
+                <div id="stats">
+                    <p id="vertcount">Vertices: 0</p>
+                    <p id="hullcount">Hulls: 0</p>
+                </div>
+                <canvas id="canvas">
+                    Your browser does not support canvas. 
+                </canvas>
+            </div>
+        </div>
+        <div id="bottom">
+
         </div>
     </body>
 </html>
