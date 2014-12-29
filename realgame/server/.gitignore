@@ -1,0 +1,7 @@
+!node_modules
+node_modules/*
+!node_modules/app
+!node_modules/shared
+!node_modules/static
+!node_modules/server
+!node_modules/client
