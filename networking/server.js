@@ -3,6 +3,9 @@
 // Libraries
 var Primus = require('primus')
   , RingBuffer = require('./ringbuffer')
+  , browserify = require('browserify')
+  , express = require('express')
+  , staticServer = express()
   , http = require('http');
 
 // Config
@@ -21,12 +24,12 @@ primus.use("emitter",       require("primus-emitter"));
 primus.use("spark-latency", require("primus-spark-latency"));
 
 
-var tickrate = 1000/60; // Target at 60 fps 
+
 
 function loop() {
     primus.send("update", shared.state);
 
-    setTimeout(loop, tickrate);
+    setTimeout(loop, config.serverTickrate);
 }
 
 function sqr(x) {
@@ -50,3 +53,12 @@ primus.on("connection", function(spark) {
 
 // Start listening
 server.listen(config.port);
+
+staticServer.get("/bundle.js", function(req, res) {
+    res.setHeader('content-type', 'application/javascript');
+    var b = browserify(__dirname + '/build.js').bundle();
+    b.on('error', console.error);
+    b.pipe(res);
+});
+
+staticServer.listen(config.staticPort);
