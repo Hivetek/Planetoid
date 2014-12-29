@@ -34,6 +34,9 @@ var cube_server = {
 };
 
 function init() {
+    // Init shared
+    shared = shared(new RingBuffer(config.inputBufferSize));
+
     canvas = document.getElementById('canvas');
     var offset = 5;
     canvas.width = $(document).width()-offset;

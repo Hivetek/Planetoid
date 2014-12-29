@@ -1,8 +1,15 @@
 'use strict';
 
+// Libraries
 var Primus = require('primus')
-  , http = require('http')
-  , config = require('./config').config;
+  , RingBuffer = require('./ringbuffer')
+  , http = require('http');
+
+// Config
+var config = require('./config').config;
+
+// Own modules
+var shared = require('./shared').shared(new RingBuffer(config.inputBufferSize));
 
 //console.log(config);
 
