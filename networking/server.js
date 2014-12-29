@@ -21,18 +21,10 @@ primus.use("emitter",       require("primus-emitter"));
 primus.use("spark-latency", require("primus-spark-latency"));
 
 
-// State
-var cube = {
-    x: 100,
-    y: 100
-};
-
 var tickrate = 1000/60; // Target at 60 fps 
 
 function loop() {
-    primus.send("update", {
-        cube: cube
-    });
+    primus.send("update", shared.state);
 
     setTimeout(loop, tickrate);
 }
@@ -49,19 +41,11 @@ primus.on("connection", function(spark) {
     spark.on("input", function(input) {
         // Update server cube the save way it is updated on the client
 
-        var vx = input.mouse.x-cube.x;
-        var vy = input.mouse.y-cube.y;
-        var l = Math.sqrt(sqr(vx) + sqr(vy));
-        l = Math.max(l, 0.1);
-        var mag = Math.min(5, l);
-        cube.x += (mag/l) * vx;
-        cube.y += (mag/l) * vy;
+        shared.state = shared.update(shared.state, input, undefined);
     });
 
     // Write the initial/current state of the cube to the client
-    spark.send("init", {
-        cube: cube
-    });
+    spark.send("init", shared.state);
 });
 
 // Start listening

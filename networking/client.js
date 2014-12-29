@@ -11,31 +11,41 @@ var deltaTime;
 var timeScale;
 var paused;
 
-var input = {
-    mouse: {
-        left: false,
-        right: false,
-        x: 0,
-        y: 0
-    }
-};
-
-var state = {
-    cube: {
-        x: 0,
-        y: 0
-    }
-};
-
 
 var cube_server = {
-    x: state.cube.x,
-    y: state.cube.y
+    x: 0,
+    y: 0
 };
 
 function init() {
     // Init shared
-    shared = shared(new RingBuffer(config.inputBufferSize));
+    _shared = shared(new RingBuffer(config.inputBufferSize));
+
+    update.input(function(oldInput, newInput) {
+        newInput.mouse = {};
+
+        newInput.mouse.x = newmx;
+        newInput.mouse.y = newmy;
+
+        // Controls
+        pmx = mx;
+        pmy = my;
+        mx = newmx;
+        my = newmy;
+
+        if (!plmd && lmd) {
+            leftClick();
+        }
+
+        if (!prmd && rmd) {
+            rightClick();
+        }
+
+        plmd = lmd;
+        prmd = rmd;
+
+        return newInput;
+    });
 
     canvas = document.getElementById('canvas');
     var offset = 5;
@@ -69,7 +79,7 @@ function loop() {
     timeScale = deltaTime / (1000 / fps);
 
     if (!paused)
-        update(state);
+        update(state, undefined, primus);
     
     draw();
     
@@ -81,53 +91,8 @@ function loop() {
     });
 }
 
-function update(state) {
-    var input = updateInput();
-    primus.send("input", input);
-    var oldState = state;
-    var state = updateState(oldState, input);
-}
 
-function updateInput() {
 
-    input.mouse.x = newmx;
-    input.mouse.y = newmy;
-
-    // Controls
-    pmx = mx;
-    pmy = my;
-    mx = newmx;
-    my = newmy;
-
-    if (!plmd && lmd) {
-        leftClick();
-    }
-
-    if (!prmd && rmd) {
-        rightClick();
-    }
-
-    plmd = lmd;
-    prmd = rmd;
-
-    return input;
-}
-
-function updateState(s, input, time) {
-    var newState = {};
-    newState.cube = {x:0, y:0};
-
-    // Actual updating
-    var vx = input.mouse.x-s.cube.x;
-    var vy = input.mouse.y-s.cube.y;
-    var l = Math.sqrt(sqr(vx) + sqr(vy));
-    l = Math.max(l, 0.1);
-    var mag = Math.min(5, l);
-    newState.cube.x += (mag/l) * vx;
-    newState.cube.y += (mag/l) * vy;
-
-    return newState;
-}
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -234,16 +199,14 @@ function primus_init() {
             console.log("Initial state:");
             var c = data["cube"];
             console.log(c);
-            state.cube.x = c.x;
-            state.cube.y = c.y;
+            state = data;
             cube_server.x = c.x;
             cube_server.y = c.y;
         });
 
         primus.on("update", function(data) {
             var c = data["cube"];
-            state.cube.x = c.x;
-            state.cube.y = c.y;
+            state = data;
             cube_server.x = c.x;
             cube_server.y = c.y;
         });
