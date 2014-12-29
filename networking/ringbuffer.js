@@ -94,7 +94,7 @@ RingBuffer.prototype.peekLast = function() {
  * @api public
  */
 RingBuffer.prototype.deq = function() {
-    var element = this.peek();
+    var element = this.peekFirst();
 
     this._size--;
     this._first = (this._first + 1) % this.capacity;
