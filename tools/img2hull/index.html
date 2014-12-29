@@ -10,9 +10,10 @@ and open the template in the editor.
         <title>Planetoid</title>
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="jquery.min.js"></script>
-        <script src="script.js"></script>
         <script src="grahamscan.js"></script>
         <script src="files.js"></script>
+        <script src="hull.js"></script>
+        <script src="script.js"></script>
     </head>
     <body>
         <div id="wrap">
@@ -24,8 +25,10 @@ and open the template in the editor.
                 <div class="right half">
                     <form>
                         <h3>Simplify meshes:</h3>
-                        <p>Min. angle:</p>
+                        <p id="angle_label">Min. angle: 5°</p>
                         <input id="angle_input" name="min_angle" type="range" min="0" max="25" value="5" step="1">
+                        <p id="dist_label">Min. distance: 5px</p>
+                        <input id="dist_input" name="min_dist" type="range" min="0" max="25" value="5" step="1">
                     </form>
                 </div>
             </div>
@@ -40,7 +43,10 @@ and open the template in the editor.
             </div>
         </div>
         <div id="bottom">
-
+            <form>
+                <input id="filename" type="text" value="map.hull">
+                <input id="downloadfile" type="button" value="Export">
+            </form>
         </div>
     </body>
 </html>

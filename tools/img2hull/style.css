@@ -13,15 +13,16 @@ html, body {
 #top, #bottom {
     padding: 16px;
     width: 100%;
-    height: 64px;
     background: #4a4a4a;
 }
 
 #top {
+    height: 96px;
     box-shadow: 0 5px 8px rgba(0,0,0,0.4);
 }
 
 #bottom {
+    height: 64px;
     box-shadow: 0 -5px 8px rgba(0,0,0,0.4);
     margin-top: 32px;
 }
@@ -59,4 +60,8 @@ html, body {
 
 .half {
     width: 50%;
+}
+
+input {
+    color: #000;
 }

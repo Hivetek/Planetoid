@@ -79,6 +79,11 @@ function simplify(points, angle, dist) {
 
 function updatePoints() {
     min_angle = document.getElementById('angle_input').value;
+    min_dist = document.getElementById('dist_input').value;
+
+    $("#angle_label").html("Min. angle: " + min_angle + "°");
+    $("#dist_label").html("Min. distance: " + min_dist + "px");
+
     if (initialized) {
         drawImage();
         img2hull();
@@ -95,9 +100,9 @@ function drawImage() {
 
 function img2hull() {
     //Clear arrays
-    var CoG = [];
-    var pixels = [];
-    var convexpoints = [];
+    CoG = [];
+    pixels = [];
+    convexpoints = [];
 
     var data;
 
@@ -184,6 +189,28 @@ function img2hull() {
     $("#hullcount").html("Hulls: " + convexpoints.length);
 }
 
+function exportJSON() {
+    if (initialized) {
+        var hulls = [];
+        var i = 0;
+        for (var key in CoG) {
+            hulls[i] = new Hull(CoG[key].x, CoG[key].y, convexpoints[i]);
+            i++;
+        }
+        console.log(hulls);
+        var json = JSON.stringify(hulls);
+
+        var a = document.createElement('a');
+        a.href = 'data:attachment/json,' + json;
+        a.target = '_blank';
+        a.download = $("#filename").val();
+
+        document.body.appendChild(a);
+
+        a.click();
+    }
+}
+
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -197,6 +224,8 @@ function init() {
 
     document.getElementById('file').addEventListener('change', handleFileSelect, false);
     document.getElementById('angle_input').addEventListener('change', updatePoints, false);
+    document.getElementById('dist_input').addEventListener('change', updatePoints, false);
+    document.getElementById('downloadfile').addEventListener('click', exportJSON, false);
 }
 
 $(document).ready(function() {

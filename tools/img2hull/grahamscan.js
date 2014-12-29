@@ -109,7 +109,16 @@ function grahamScan(points) {
             }
         }
 
-        return p;
+        var newPoints = [];
+
+        for (var i = 0; i < p.length; i++) {
+            newPoints[i] = {
+                x: p[i].x,
+                y: p[i].y
+            };
+        }
+
+        return newPoints;
     } else {
         return points;
     }
