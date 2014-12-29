@@ -23,9 +23,15 @@ function init() {
 
     update.input(function(oldInput, newInput) {
         newInput.mouse = {};
+        newInput.keyboard = {};
 
         newInput.mouse.x = newmx;
         newInput.mouse.y = newmy;
+        
+        newInput.keyboard.left = !!keys[37];
+        newInput.keyboard.up = !!keys[38];
+        newInput.keyboard.right = !!keys[39];
+        newInput.keyboard.down = !!keys[40];
 
         // Controls
         pmx = mx;
@@ -48,9 +54,8 @@ function init() {
     });
 
     canvas = document.getElementById('canvas');
-    var offset = 5;
-    canvas.width = $(document).width()-offset;
-    canvas.height = $(document).height()-offset;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
     ctx = canvas.getContext('2d');
 
     input.mouse.x = pmx = mx = newmx = canvas.width / 2;
@@ -106,12 +111,12 @@ function draw() {
     var w2 = w / 2;
 
     ctx.beginPath();
-    ctx.rect(state.cube.x - w2, state.cube.y - w2, w, w);
+    ctx.arc(state.cube.x, state.cube.y, 10, 0, Math.PI*2, false);
     ctx.fillStyle = 'rgba(255,0,0,0.5)';
     ctx.fill();
 
     ctx.beginPath();
-    ctx.rect(cube_server.x - w2, cube_server.y - w2, w, w);
+    ctx.arc(state.cube.x, state.cube.y, 10, 0, Math.PI*2, false);
     ctx.fillStyle = 'rgba(0,0,255,0.5)';
     ctx.fill();
 }
@@ -163,6 +168,7 @@ $(window).mousedown(function(event) {
 });
 
 window.addEventListener('keydown', function(event) {
+    //console.log(event.keyCode);
     keys[event.keyCode] = true;
 }, false);
 window.addEventListener('keyup', function(event) {
