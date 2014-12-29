@@ -1,7 +1,9 @@
 (function(exports) {
 
-var engine = {};
+var core = {};
 
-exports.engine = engine;
+core.state.
+
+exports.core = core;
 
 })(typeof global === "undefined" ? window : module.exports);
