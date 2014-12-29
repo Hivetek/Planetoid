@@ -1,4 +1,11 @@
 /**
+ * Based on RingBufferJS by janogonzalez
+ * License: MIT
+ * npm:     https://www.npmjs.com/package/ringbufferjs
+ * GitHub:  https://github.com/janogonzalez/ringbufferjs
+ */
+
+/**
  * Initializes a new empty `RingBuffer` with the given `capacity`, when no
  * value is provided uses the default capacity (50).
  *
@@ -7,11 +14,21 @@
  * @api public
  */
 function RingBuffer(capacity) {
-  this._elements = new Array(capacity || 50);
-  this._first = 0;
-  this._last = 0;
-  this._size = 0;
+    this._elements = new Array(capacity || 64);
+    this._first = 0;
+    this._end = 0;
+    this._size = 0;
 }
+
+/**
+ * Returns the size of the queue.
+ *
+ * @return {Number}
+ * @api public
+ */
+Object.defineProperty(RingBuffer.prototype, "size", { get: function() {
+    return this._size;
+}});
 
 /**
  * Returns the capacity of the ring buffer.
@@ -19,9 +36,9 @@ function RingBuffer(capacity) {
  * @return {Number}
  * @api public
  */
-RingBuffer.prototype.capacity = function() {
-  return this._elements.length;
-};
+Object.defineProperty(RingBuffer.prototype, "capacity", { get: function() {
+    return this._elements.length;
+}});
 
 /**
  * Returns whether the ring buffer is empty or not.
@@ -29,9 +46,9 @@ RingBuffer.prototype.capacity = function() {
  * @return {Boolean}
  * @api public
  */
-RingBuffer.prototype.isEmpty = function() {
-  return this.size() === 0;
-};
+Object.defineProperty(RingBuffer.prototype, "isEmpty", { get: function() {
+    return this.size === 0;
+}});
 
 /**
  * Returns whether the ring buffer is full or not.
@@ -39,8 +56,21 @@ RingBuffer.prototype.isEmpty = function() {
  * @return {Boolean}
  * @api public
  */
-RingBuffer.prototype.isFull = function() {
-  return this.size() === this.capacity();
+Object.defineProperty(RingBuffer.prototype, "isFull", { get: function() {
+    return this.size === this.capacity;
+}});
+
+/**
+ * Peeks at the top element of the queue.
+ *
+ * @return {Object}
+ * @throws {Error} when the ring buffer is empty.
+ * @api public
+ */
+RingBuffer.prototype.peekFirst = function() {
+    if (this.isEmpty) throw new Error('RingBuffer is empty');
+
+    return this._elements[this._first];
 };
 
 /**
@@ -50,10 +80,10 @@ RingBuffer.prototype.isFull = function() {
  * @throws {Error} when the ring buffer is empty.
  * @api public
  */
-RingBuffer.prototype.peek = function() {
-  if (this.isEmpty()) throw new Error('RingBuffer is empty');
+RingBuffer.prototype.peekLast = function() {
+    if (this.isEmpty) throw new Error('RingBuffer is empty');
 
-  return this._elements[this._first];
+    return this._elements[this._end];
 };
 
 /**
@@ -64,12 +94,12 @@ RingBuffer.prototype.peek = function() {
  * @api public
  */
 RingBuffer.prototype.deq = function() {
-  var element = this.peek();
+    var element = this.peek();
 
-  this._size--;
-  this._first = (this._first + 1) % this.capacity();
+    this._size--;
+    this._first = (this._first + 1) % this.capacity;
 
-  return element;
+    return element;
 };
 
 /**
@@ -80,33 +110,23 @@ RingBuffer.prototype.deq = function() {
  * @api public
  */
 RingBuffer.prototype.enq = function(element) {
-  this._end = (this._first + this.size()) % this.capacity();
-  this._elements[this._end] = element;
+    this._end = (this._first + this.size) % this.capacity;
+    this._elements[this._end] = element;
 
-  if (this.isFull()) {
-    this._first = (this._first + 1) % this.capacity();
-  } else {
-    this._size++;
-  }
+    if (this.isFull) {
+        this._first = (this._first + 1) % this.capacity;
+    } else {
+        this._size++;
+    }
 
-  return this.size();
-};
-
-/**
- * Returns the size of the queue.
- *
- * @return {Number}
- * @api public
- */
-RingBuffer.prototype.size = function() {
-  return this._size;
+    return this.size;
 };
 
 /**
  * Expose `RingBuffer`.
  */
 if (typeof global === "undefined") {
-    window.RingBuffer = RingBuffer;
+    window.RingBuffer = RingBuffer; // Browser
 } else {
-    module.exports = RingBuffer;
+    module.exports = RingBuffer; // NodeJS
 }
