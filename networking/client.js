@@ -11,14 +11,26 @@ var deltaTime;
 var timeScale;
 var paused;
 
-var cube = {
-    x: 0,
-    y: 0
+var input = {
+    mouse: {
+        left: false,
+        right: false,
+        x: 0,
+        y: 0
+    }
 };
 
+var state = {
+    cube: {
+        x: 0,
+        y: 0
+    }
+};
+
+
 var cube_server = {
-    x: cube.x,
-    y: cube.y
+    x: state.cube.x,
+    y: state.cube.y
 };
 
 function init() {
@@ -28,8 +40,8 @@ function init() {
     canvas.height = $(document).height()-offset;
     ctx = canvas.getContext('2d');
 
-    pmx = mx = newmx = canvas.width / 2;
-    pmy = my = newmy = canvas.width / 2;
+    input.mouse.x = pmx = mx = newmx = canvas.width / 2;
+    input.mouse.y = pmy = my = newmy = canvas.width / 2;
 
     lmd = rmd = false;
     
@@ -54,7 +66,7 @@ function loop() {
     timeScale = deltaTime / (1000 / fps);
 
     if (!paused)
-        update();
+        update(state);
     
     draw();
     
@@ -66,7 +78,18 @@ function loop() {
     });
 }
 
-function update() {
+function update(state) {
+    var input = updateInput();
+    primus.send("input", input);
+    var oldState = state;
+    var state = updateState(oldState, input);
+}
+
+function updateInput() {
+
+    input.mouse.x = newmx;
+    input.mouse.y = newmy;
+
     // Controls
     pmx = mx;
     pmy = my;
@@ -84,19 +107,23 @@ function update() {
     plmd = lmd;
     prmd = rmd;
 
+    return input;
+}
+
+function updateState(s, input, time) {
+    var newState = {};
+    newState.cube = {x:0, y:0};
+
     // Actual updating
-    var vx = mx-cube.x;
-    var vy = my-cube.y;
+    var vx = input.mouse.x-s.cube.x;
+    var vy = input.mouse.y-s.cube.y;
     var l = Math.sqrt(sqr(vx) + sqr(vy));
     l = Math.max(l, 0.1);
     var mag = Math.min(5, l);
-    cube.x += (mag/l) * vx;
-    cube.y += (mag/l) * vy;
+    newState.cube.x += (mag/l) * vx;
+    newState.cube.y += (mag/l) * vy;
 
-    primus.send("input", {
-        mx: mx,
-        my: my
-    });
+    return newState;
 }
 
 function draw() {
@@ -111,7 +138,7 @@ function draw() {
     var w2 = w / 2;
 
     ctx.beginPath();
-    ctx.rect(cube.x - w2, cube.y - w2, w, w);
+    ctx.rect(state.cube.x - w2, state.cube.y - w2, w, w);
     ctx.fillStyle = 'rgba(255,0,0,0.5)';
     ctx.fill();
 
@@ -204,16 +231,16 @@ function primus_init() {
             console.log("Initial state:");
             var c = data["cube"];
             console.log(c);
-            cube.x = c.x;
-            cube.y = c.y;
+            state.cube.x = c.x;
+            state.cube.y = c.y;
             cube_server.x = c.x;
             cube_server.y = c.y;
         });
 
         primus.on("update", function(data) {
             var c = data["cube"];
-            cube.x = c.x;
-            cube.y = c.y;
+            state.cube.x = c.x;
+            state.cube.y = c.y;
             cube_server.x = c.x;
             cube_server.y = c.y;
         });

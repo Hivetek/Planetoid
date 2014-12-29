@@ -39,11 +39,11 @@ loop();
 primus.on("connection", function(spark) {
     console.log("New connection");
 
-    spark.on("input", function(data) {
+    spark.on("input", function(input) {
         // Update server cube the save way it is updated on the client
 
-        var vx = data.mx-cube.x;
-        var vy = data.my-cube.y;
+        var vx = input.mouse.x-cube.x;
+        var vy = input.mouse.y-cube.y;
         var l = Math.sqrt(sqr(vx) + sqr(vy));
         l = Math.max(l, 0.1);
         var mag = Math.min(5, l);
