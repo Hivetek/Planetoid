@@ -4,6 +4,14 @@ function Player(x, y, game) {
     this.fuel = 100;
     this.vx = 0;
     this.vy = 0;
+    this.oldInput = {
+        keyboard: {
+            left: false,
+            up: false,
+            right: false,
+            down: false
+        }
+    };
     this.game = game;
     this.config = {
         r: 16,
@@ -46,25 +54,12 @@ Player.prototype.update = function(input) {
         var speedVector = VectorMath.project({x: this.vx, y: this.vy}, {x: -gravity.y, y: gravity.x});
         this.vx = speedVector.x;
         this.vy = speedVector.y;
-        
-        /*if (this.vx > this.config.friction)
-            this.vx -= this.config.friction;
-        else if (this.vx < -this.config.friction)
-            this.vx += this.config.friction;
-        else
-            this.vx = 0;
-        if (this.vy > this.config.friction)
-            this.vy -= this.config.friction;
-        else if (this.vy < -this.config.friction)
-            this.vy += this.config.friction;
-        else
-            this.vy = 0;*/
-        
+
         this.vx += this.config.landAccel * gravity.y * (input.keyboard.right - input.keyboard.left);
         this.vy += this.config.landAccel * gravity.x * (input.keyboard.left - input.keyboard.right);
-        this.vx -= this.vx*this.config.friction;
-        this.vy -= this.vy*this.config.friction;
-        if (input.keyboard.up && !input.keyboard.old.up) {//jump
+        this.vx -= this.vx * this.config.friction;
+        this.vy -= this.vy * this.config.friction;
+        if (input.keyboard.up && !this.oldInput.keyboard.up) {//jump
             this.x -= gravity.x;
             this.y -= gravity.y;
             this.vx -= gravity.x * this.config.jumpSpeed;
@@ -89,6 +84,8 @@ Player.prototype.update = function(input) {
 
     this.x += this.vx;
     this.y += this.vy;
+    
+    this.oldInput = input;
 };
 Player.prototype.draw = function() {
 

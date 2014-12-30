@@ -7,6 +7,9 @@ var lmd, rmd, plmd, prmd;
 var lastTime;
 var deltaTime;
 var paused;
+var physTick = 16;
+var targetFPS = 60;
+var timeAccumulator = 0;
 
 var player, game;
 var drawCalls = [];
@@ -16,7 +19,7 @@ function init() {
     game = {
         gravity: 1.0,
         timescale: 1.0,
-        planetSize: 1932, 
+        planetSize: 1932,
         planetX: 960,
         planetY: 2300,
         cameraX: 0,
@@ -27,13 +30,7 @@ function init() {
             left: false,
             up: false,
             right: false,
-            down: false,
-            old: {
-                left: false,
-                up: false,
-                right: false,
-                down: false
-            }
+            down: false
         }
     };
     canvas = document.getElementById('canvas');
@@ -62,7 +59,9 @@ function init() {
 function loop() {
     //console.time("loop");
     deltaTime = getTime() - lastTime;
+    console.log(deltaTime);
     timeScale = deltaTime / (1000 / fps);
+    timeAccumulator += deltaTime;
 
     if (!paused)
         update();
@@ -83,11 +82,6 @@ function update() {
     mx = newmx;
     my = newmy;
 
-    input.keyboard.old.left = input.keyboard.left;
-    input.keyboard.old.up = input.keyboard.up;
-    input.keyboard.old.right = input.keyboard.right;
-    input.keyboard.old.down = input.keyboard.down;
-
     input.keyboard.left = !!keys[37] || !!keys[65];
     input.keyboard.up = !!keys[38] || !!keys[87];
     input.keyboard.right = !!keys[39] || !!keys[68];
@@ -102,12 +96,19 @@ function update() {
     }
 
     player.update(input);
-    
-    game.cameraX = player.x-canvas.width/2;
-    game.cameraY = player.y-canvas.height/2;
-    
+
+    game.cameraX = player.x - canvas.width / 2;
+    game.cameraY = player.y - canvas.height / 2;
+
     plmd = lmd;
     prmd = rmd;
+}
+
+function updatePhysics() {
+    while(timeAccumulator > physTick){
+        player.update(input);
+        timeAccumulator -= physTick;
+    }
 }
 
 function draw() {
@@ -121,19 +122,19 @@ function draw() {
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 20, 100, 10);
-    
+
     ctx.fillStyle = "#B2B2B2";
-    ctx.fillRect(955-game.cameraX, 200-game.cameraY, 10, 268);
-    
+    ctx.fillRect(955 - game.cameraX, 200 - game.cameraY, 10, 268);
+
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(game.planetX-game.cameraX, game.planetY-game.cameraY, game.planetSize, 0, Math.PI * 2, false);
+    ctx.arc(game.planetX - game.cameraX, game.planetY - game.cameraY, game.planetSize, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = "#00FF00";
     ctx.beginPath();
-    ctx.arc(player.x-game.cameraX, player.y-game.cameraY, player.config.r, 0, Math.PI * 2, false);
+    ctx.arc(player.x - game.cameraX, player.y - game.cameraY, player.config.r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 }
@@ -150,8 +151,8 @@ function rightClick() {
 }
 
 function getTime() {
-    //return performance.now() + startTime; //highest precision
-    return Date.now(); //Higest performance
+    return performance.now(); //highest precision
+    //return Date.now(); //Higest performance
 }
 
 /*window.oncontextmenu = function(event) {
@@ -197,7 +198,7 @@ window.requestAnimFrame = (function() {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
             function(callback) {
-                window.setTimeout(callback, 1000.0 / 60);
+                window.setTimeout(callback, 1000.0 / targetFPS);
             };
 })();
 
