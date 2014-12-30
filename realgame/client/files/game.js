@@ -10,10 +10,19 @@ function Game() {
     // - Creates input short-hand (game.input)
     Input.init(this);
 
+    // State
+    // - Create state buffer (game.states)
+    // - Creates input short-hand (game.state)
+    State.init(this);
+
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
 }
+
+Game.prototype.init = function() {
+    console.log("Init");
+};
 
 
 Game.prototype.resize = function() {
@@ -31,4 +40,6 @@ Game.prototype.bindAllEvents = function() {
 
     // Mouse input
     this.mouse.listen();
+
+    this.events.trigger("allEventsBound", this.primus);
 };

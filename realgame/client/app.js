@@ -132,7 +132,9 @@ var App = (function() {
                 bindHTML();
 
                 game.network.init(server.url);
-                //game.init(); // Start the game
+                game.events.on("primus::open", function() {
+                    game.init(); // Start the game
+                });
             });
         });
     }
