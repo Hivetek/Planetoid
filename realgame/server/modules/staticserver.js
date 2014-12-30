@@ -35,6 +35,14 @@ staticServer.get(["/files/", "/shared/", "/resources/", "/resources/:type"], fun
     res.end();
 });
 
+staticServer.get("/module/:module", function(req, res) {
+    var mod = req.params.module;
+    res.setHeader('content-type', 'application/javascript');
+    var b = browserify(require.resolve(mod)).bundle();
+    b.on('error', console.error);
+    b.pipe(res);
+});
+
 function getFileList(dir) {
     var filelist = [];
     var file, name;
