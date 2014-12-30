@@ -261,7 +261,7 @@ var App = (function() {
         gamefiles.sourcecode = {};
         _gamefiles.sourcecode.forEach(function(element) {
             if (endsWith(element, ".js")) {
-                gamefiles.files.push(elements);
+                gamefiles.files.push(element);
             } else {
                 // Fetching file list
                 deferreds.push(fetchFilelist(element + "/").done(function(filelist) {

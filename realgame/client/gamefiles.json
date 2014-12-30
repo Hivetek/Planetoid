@@ -1,4 +1,4 @@
 {
-    "sourcecode": ["files", "shared"],
+    "sourcecode": ["bundle.js", "files", "shared"],
     "resources": ["weapons", "images", "bindings"]
 }
