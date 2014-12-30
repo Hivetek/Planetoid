@@ -1,3 +1,8 @@
+// NodeJS requires
+if (typeof global !== "undefined") {
+    var RingBuffer = require('./ringbuffer');
+}
+
 /**
  * State
  */
@@ -23,3 +28,10 @@ State.init = function(game, size) {
         }
     });
 };
+
+// Export module to either client or server
+if (typeof global === "undefined") {
+    window.State = State;
+} else {
+    module.exports = State;
+}

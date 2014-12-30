@@ -23,8 +23,8 @@ function Game() {
     this.gravity = 1.0;
     this.timescale = 1.0;
     this.planetSize = 1932;
-    this.planetX = 960;
-    this.planetY = 2300;
+    this.planetX = 0; //960;
+    this.planetY = 0; //2300;
     this.cameraX = 0;
     this.cameraY = 0;
 
@@ -46,10 +46,7 @@ Game.prototype.init = function() {
     this.resize();
     this.ctx = this.canvas.getContext('2d');
 
-    pmx = mx = newmx = this.canvas.width / 2;
-    pmy = my = newmy = this.canvas.width / 2;
-
-    this.player = new Player(mx, 0, this);
+    this.player = new Player(0, -2300, this);
 
     this.currentTime = this.getTime();
     this.lastTime = this.currentTime;

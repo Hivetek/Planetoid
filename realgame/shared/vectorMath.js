@@ -64,3 +64,9 @@ VectorMath.divide = function(v1, v2) {
 
 };
 
+// Export module to either client or server
+if (typeof global === "undefined") {
+    window.VectorMath = VectorMath;
+} else {
+    module.exports = VectorMath;
+}

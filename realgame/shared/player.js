@@ -85,3 +85,10 @@ Player.prototype.jump = function(gravity) {
 Player.prototype.draw = function() {
 
 };
+
+// Export module to either client or server
+if (typeof global === "undefined") {
+    window.Player = Player;
+} else {
+    module.exports = Player;
+}
