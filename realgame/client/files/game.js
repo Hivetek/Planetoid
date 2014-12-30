@@ -20,6 +20,10 @@ function Game() {
     this.network = new Network(this);
 }
 
+Game.prototype.init = function() {
+    console.log("Init");
+};
+
 
 Game.prototype.resize = function() {
 
@@ -36,4 +40,6 @@ Game.prototype.bindAllEvents = function() {
 
     // Mouse input
     this.mouse.listen();
+
+    this.events.trigger("allEventsBound", this.primus);
 };
