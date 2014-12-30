@@ -105,7 +105,7 @@ function update() {
 }
 
 function updatePhysics() {
-    while(timeAccumulator > physTick){
+    while (timeAccumulator > physTick) {
         player.update(input);
         timeAccumulator -= physTick;
     }
@@ -128,7 +128,13 @@ function draw() {
 
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(game.planetX - game.cameraX, game.planetY - game.cameraY, game.planetSize, 0, Math.PI * 2, false);
+    var divs = 180;
+    for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
+        if (a === 0)
+            ctx.moveTo(game.planetX + Math.cos(a) * game.planetSize-game.cameraX, game.planetY + Math.sin(a) * game.planetSize-game.cameraY);
+        else
+            ctx.lineTo(game.planetX + Math.cos(a) * game.planetSize-game.cameraX, game.planetY + Math.sin(a) * game.planetSize-game.cameraY);
+    }
     ctx.closePath();
     ctx.fill();
 
