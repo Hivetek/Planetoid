@@ -6,20 +6,49 @@ var lmd, rmd, plmd, prmd;
 
 var lastTime;
 var deltaTime;
-var timeScale;
 var paused;
 
+var player, game;
+var drawCalls = [];
+var input;
+
 function init() {
+    game = {
+        gravity: 1.0,
+        timescale: 1.0,
+        planetSize: 500,
+        planetX: 960,
+        planetY: 900,
+        cameraX: 0,
+        cameraY: 0
+    };
+    input = {
+        keyboard: {
+            left: false,
+            up: false,
+            right: false,
+            down: false,
+            old: {
+                left: false,
+                up: false,
+                right: false,
+                down: false
+            }
+        }
+    };
     canvas = document.getElementById('canvas');
-    canvas.width = mapSize;
-    canvas.height = mapSize;
+    resize();
     ctx = canvas.getContext('2d');
 
     pmx = mx = newmx = canvas.width / 2;
     pmy = my = newmy = canvas.width / 2;
 
+    player = new Player(mx, 0, game);
+    player.vx = 5 - Math.random() * 10;
+    player.vy = 5 - Math.random() * 10;
+
     lmd = rmd = false;
-    
+
     lastTime = Date.now();
     timeScale = 1.0;
 
@@ -37,11 +66,11 @@ function loop() {
 
     if (!paused)
         update();
-    
+
     draw();
-    
+
     lastTime = getTime();
-    
+
     //console.timeEnd("loop");
     requestAnimFrame(function() {
         loop();
@@ -54,6 +83,16 @@ function update() {
     mx = newmx;
     my = newmy;
 
+    input.keyboard.old.left = input.keyboard.left;
+    input.keyboard.old.up = input.keyboard.up;
+    input.keyboard.old.right = input.keyboard.right;
+    input.keyboard.old.down = input.keyboard.down;
+
+    input.keyboard.left = !!keys[37];
+    input.keyboard.up = !!keys[38];
+    input.keyboard.right = !!keys[39];
+    input.keyboard.down = !!keys[40];
+
     if (!plmd && lmd) {
         leftClick();
     }
@@ -62,35 +101,40 @@ function update() {
         rightClick();
     }
 
+    player.update(input);
+
     plmd = lmd;
     prmd = rmd;
 }
 
 function draw() {
-    ctx.clearRect(0, 0, mapSize, mapSize);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.lineWidth = "4";
-    for (var i = 0; i < players.length; i++) {
-        players[i].draw(ctx);
-    }
+    drawCalls = [];
+    drawCalls.push(player.draw());
 
-    for (var i = 0; i < explosions.length; i++) {
-        explosions[i].draw(ctx);
-    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#FF0000";
+    ctx.fillRect(20, 20, player.fuel, 10);
+
+    ctx.strokeStyle = "#000";
+    ctx.strokeRect(20, 20, 100, 10);
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(game.planetX, game.planetY, game.planetSize, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#00FF00";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.config.r, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
 }
 
-function line(x1, y1, x2, y2) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.closePath();
-}
-
-function circle(x, y, r) {
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.closePath();
+function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
 }
 
 function leftClick() {
@@ -137,6 +181,7 @@ window.addEventListener('keyup', function(event) {
 //console.log(event.keyCode);
     keys[event.keyCode] = false;
 }, false);
+window.addEventListener('resize', resize, false);
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
@@ -148,3 +193,7 @@ window.requestAnimFrame = (function() {
                 window.setTimeout(callback, 1000.0 / 60);
             };
 })();
+
+$(document).ready(function() {
+    init();
+});

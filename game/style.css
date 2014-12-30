@@ -4,9 +4,13 @@
 }
 
 html, body {
+    overflow: hidden;
     width: 100%;
+    height: 100%;
 }
 
 #canvas {
-    background: #00FF00;
+    background: #FFFFFF;
+    width: 100%;
+    min-height: 100%;
 }
