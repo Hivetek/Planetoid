@@ -74,7 +74,7 @@ RingBuffer.prototype.peekFirst = function() {
 };
 
 /**
- * Peeks at the top element of the queue.
+ * Peeks at the last element of the queue.
  *
  * @return {Object}
  * @throws {Error} when the ring buffer is empty.
@@ -85,6 +85,22 @@ RingBuffer.prototype.peekLast = function() {
 
     return this._elements[this._end];
 };
+
+
+/**
+ * Get element by index
+ *
+ * @return {Object}
+ * @throws {Error} when the ring buffer is empty.
+ * @api public
+ */
+RingBuffer.prototype.get = function(index) {
+    if (this.isEmpty) throw new Error('RingBuffer is empty');
+
+    var i = (this._first + index) % this.capacity;
+    return this._elements[i];
+};
+
 
 /**
  * Dequeues the top element of the queue.

@@ -26,7 +26,7 @@ Keyboard.prototype.is = function(key) {
         var keyCode = this.bindings.keys[key];
         return (keyCode in this.keys) && this.keys[keyCode];
     } else {
-        return (key in this.keys) && this.keys[key];
+        return !!this.keys[key];
     }
 };
 
