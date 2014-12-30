@@ -17,6 +17,10 @@ primus.on("connection", function(spark) {
         // Update server cube the save way it is updated on the client
 
     });
+    
+    spark.on("ping", function(ping){
+        spark.send("ping", ping);
+    });
 
     // Write the initial/current state of the cube to the client
     spark.send("init", {});

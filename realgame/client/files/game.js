@@ -86,27 +86,33 @@ Game.prototype.loop = function() {
     requestAnimFrame(function() {
         g.loop();
     });
-}
+};
 
 Game.prototype.update = function() {
     this.updateInput();
+
+    this.network.primus.send("input", this.input);
+    if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)){
+        this.network.pingReceived = false;
+        this.network.primus.send("ping", this.currentTime);
+    }
 
     this.updatePhysics();
 
     this.cameraX = this.player.x - this.canvas.width / 2;
     this.cameraY = this.player.y - this.canvas.height / 2;
-}
+};
 
 Game.prototype.updateInput = function() {
     this.input = new Input(this); // Capture current state of mouse and keyboard
-}
+};
 
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > this.physTick) {
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= this.physTick;
     }
-}
+};
 
 
 Game.prototype.draw = function(ctx) {
@@ -128,7 +134,7 @@ Game.prototype.draw = function(ctx) {
     ctx.fillStyle = "#000";
     ctx.beginPath();
     var divs = 180;
-    var x,y;
+    var x, y;
     for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
         x = this.planetX + Math.cos(a) * this.planetSize - this.cameraX;
         y = this.planetY + Math.sin(a) * this.planetSize - this.cameraY;
@@ -141,7 +147,7 @@ Game.prototype.draw = function(ctx) {
     ctx.fill();
 
     // Draw player
-    if(this.player.grounded)
+    if (this.player.grounded)
         ctx.fillStyle = "#00FF00";
     else
         ctx.fillStyle = "#FF0000";
@@ -188,11 +194,11 @@ Game.prototype.bindAllEvents = function() {
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback) {
-        window.setTimeout(callback, 1000.0 / targetFPS);
-    };
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1000.0 / targetFPS);
+            };
 })();
