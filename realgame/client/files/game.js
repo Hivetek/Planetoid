@@ -1,6 +1,9 @@
 function Game() {
-    this.keyboard = new Keyboard();
-    this.mouse = new Mouse();
+    // Input
+    // - Adds keyboard and mouse to game (game.mouse, game.keyboard)
+    // - Create input buffer (game.inputs)
+    // - Creates input (game.input)
+    Input.init(this);
 }
 
 

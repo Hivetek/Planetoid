@@ -49,4 +49,3 @@ Mouse.prototype.listen = function() {
     window.addEventListener('mousedown', self.down.bind(self), false);
     window.addEventListener('mouseup', self.up.bind(self), false);
 };
-
