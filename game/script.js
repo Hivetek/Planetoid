@@ -16,9 +16,9 @@ function init() {
     game = {
         gravity: 1.0,
         timescale: 1.0,
-        planetSize: 500,
+        planetSize: 1932, 
         planetX: 960,
-        planetY: 900,
+        planetY: 2300,
         cameraX: 0,
         cameraY: 0
     };
@@ -88,10 +88,10 @@ function update() {
     input.keyboard.old.right = input.keyboard.right;
     input.keyboard.old.down = input.keyboard.down;
 
-    input.keyboard.left = !!keys[37];
-    input.keyboard.up = !!keys[38];
-    input.keyboard.right = !!keys[39];
-    input.keyboard.down = !!keys[40];
+    input.keyboard.left = !!keys[37] || !!keys[65];
+    input.keyboard.up = !!keys[38] || !!keys[87];
+    input.keyboard.right = !!keys[39] || !!keys[68];
+    input.keyboard.down = !!keys[40] || !!keys[79];
 
     if (!plmd && lmd) {
         leftClick();
@@ -102,7 +102,10 @@ function update() {
     }
 
     player.update(input);
-
+    
+    game.cameraX = player.x-canvas.width/2;
+    game.cameraY = player.y-canvas.height/2;
+    
     plmd = lmd;
     prmd = rmd;
 }
@@ -118,16 +121,19 @@ function draw() {
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 20, 100, 10);
-
+    
+    ctx.fillStyle = "#B2B2B2";
+    ctx.fillRect(955-game.cameraX, 200-game.cameraY, 10, 268);
+    
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(game.planetX, game.planetY, game.planetSize, 0, Math.PI * 2, false);
+    ctx.arc(game.planetX-game.cameraX, game.planetY-game.cameraY, game.planetSize, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = "#00FF00";
     ctx.beginPath();
-    ctx.arc(player.x, player.y, player.config.r, 0, Math.PI * 2, false);
+    ctx.arc(player.x-game.cameraX, player.y-game.cameraY, player.config.r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 }
@@ -175,6 +181,7 @@ $(window).mousedown(function(event) {
 });
 
 window.addEventListener('keydown', function(event) {
+    //console.log(event.keyCode);
     keys[event.keyCode] = true;
 }, false);
 window.addEventListener('keyup', function(event) {
