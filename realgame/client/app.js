@@ -128,7 +128,7 @@ var App = (function() {
                 css: "stages/game.css"
             });
             this.execution(function() {
-                //game.bindAllEvents();
+                game.bindAllEvents();
                 bindHTML();
 
                 //game.network.init(server.url);
