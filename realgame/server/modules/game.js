@@ -1,8 +1,9 @@
 var config = require('shared/config');
+var Core = require('shared/core');
 
 var events = require('shared/events');
 var State = require('shared/state');
-var network = require("app/network");
+var Network = require("app/network");
 
 var Player = require("shared/player");
 
@@ -14,6 +15,19 @@ function Game() {
     // - trigger("event", data)
     this.events = events(this);
 
+    this.input = this.prevInput = {
+        mouse: {
+            x: 0,
+            y: 0
+        },
+        keys: {
+            up: false,
+            left: false,
+            right: false,
+            down: false
+        }
+    };
+
     // State
     // - Create state buffer (game.states)
     // - Creates input short-hand (game.state)
@@ -21,7 +35,7 @@ function Game() {
 
     // Network
     // - Connects to server using Primus
-    this.network = network;
+    this.network = new Network(this);
 
     // Phyciscs and gameplay
     this.gravity = 1.0;
@@ -46,7 +60,7 @@ Game.prototype.init = function() {
     console.log("Init");
 
     // Start listening of game server
-    network.server.listen(config.port);
+    this.network.init();
 
     this.events.trigger("init::begin");
 
@@ -75,6 +89,8 @@ Game.prototype.loop = function() {
     if (!this.paused)
         this.update();
 
+    this.network.primus.send("update", this.player.export());
+
     this.lastTime = this.currentTime;
 
     //console.timeEnd("loop");
@@ -90,15 +106,21 @@ Game.prototype.update = function() {
 
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > this.physTick) {
-        //this.player.update(this.input, this.prevInput);
+        this.player.update(Core.clone(this.input), Core.clone(this.prevInput));
         this.timeAccumulator -= this.physTick;
     }
 }
 
-Game.prototype.getTime = function() {
-    var hrTime = process.hrtime();
-    return (hrTime[0] * 1000000 + hrTime[1] / 1000);
-}
+Game.prototype.getTime = (function() {
+    function getNanoSeconds() {
+        var hrTime = process.hrtime();
+        return (hrTime[0] * 1e+9 + hrTime[1]);
+    }
+    var startTime = getNanoSeconds();
+    return function() {
+        return (getNanoSeconds() - startTime) / 1e+6;
+    };
+})()
 
 Game.prototype.start = function() {
     this.init();

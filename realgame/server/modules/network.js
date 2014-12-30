@@ -9,25 +9,36 @@ var server = http.createServer(/* request handler */)
 primus.use("emitter",       require("primus-emitter"));
 primus.use("spark-latency", require("primus-spark-latency"));
 
-// Primus connection
-primus.on("connection", function(spark) {
-    console.log("New connection");
+function Network(game) {
+    this.game = game;
+    this.server = server;
+    this.primus = primus;
+}
 
-    spark.on("input", function(input) {
-        // Update server cube the save way it is updated on the client
+Network.prototype.init = function() {
+    var self = this;
+    var g = this.game;
 
+    // Primus connection
+    primus.on("connection", function(spark) {
+        console.log("New connection");
+
+        spark.on("input", function(input) {
+            //console.log(input);
+            g.prevInput = g.input;
+            g.input = input;
+        });
+
+        spark.on("ping", function(ping){
+            spark.send("ping", ping);
+        });
+
+        // Write the initial/current state of the cube to the client
+        spark.send("init", g.player.export());
     });
-    
-    spark.on("ping", function(ping){
-        spark.send("ping", ping);
-    });
 
-    // Write the initial/current state of the cube to the client
-    spark.send("init", {});
-});
+    this.server.listen(config.port);
+};
 
 // Export module
-module.exports = {
-    server: server,
-    primus: primus
-};
+module.exports = Network;

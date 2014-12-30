@@ -1,3 +1,8 @@
+// NodeJS requires
+if (typeof global !== "undefined") {
+    var VectorMath = require('./vectorMath.js');
+}
+
 function Player(x, y, game) {
     this.x = x;
     this.y = y;
@@ -82,8 +87,30 @@ Player.prototype.jump = function(gravity) {
     this.vx -= gravity.x * this.config.jumpSpeed;
     this.vy -= gravity.y * this.config.jumpSpeed;
 };
+
 Player.prototype.draw = function() {
 
+};
+
+Player.prototype.export = function() {
+    var p = this;
+    return {
+        x: p.x,
+        y: p.y,
+        vx: p.vx,
+        vy: p.vy,
+        fuel: p.fuel,
+        grounded: p.grounded
+    };
+};
+
+Player.prototype.import = function(obj) {
+    var p = this;
+    for(var key in obj) {
+        if (obj.hasOwnProperty(key) && p.hasOwnProperty(key)) {
+            p[key] = obj[key];
+        }
+    }
 };
 
 // Export module to either client or server

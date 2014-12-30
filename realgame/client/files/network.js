@@ -10,9 +10,11 @@ function Network(game) {
 };
 
 Network.prototype.init = function(url) {
-    var g = this.game;
     var self = this;
+    var g = this.game;
+
     this.primus = new Primus(url);
+
     g.events.trigger("primus::create", this.primus);
 
     this.primus.on("open", function() {
@@ -21,15 +23,17 @@ Network.prototype.init = function(url) {
     });
 
     this.primus.on("init", function(data) {
+        g.events.trigger("primus::init", data);
         console.log("Initial state:");
         console.log(data);
-        g.events.trigger("primus::init", data);
+        g.player.import(data);
     });
 
     this.primus.on("update", function(data) {
-        console.log(data);
         g.events.trigger("primus::update", data);
+        g.player.import(data); // Creates jittering
     });
+
     this.primus.on("ping", function(ping){
         self.ping = g.currentTime-ping;
         self.lastPing = g.currentTime;
