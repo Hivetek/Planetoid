@@ -83,27 +83,33 @@ Game.prototype.loop = function() {
     requestAnimFrame(function() {
         g.loop();
     });
-}
+};
 
 Game.prototype.update = function() {
     this.updateInput();
+
+    this.network.primus.send("input", this.input);
+    if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)){
+        this.network.pingReceived = false;
+        this.network.primus.send("ping", this.currentTime);
+    }
 
     this.updatePhysics();
 
     this.cameraX = this.player.x - this.canvas.width / 2;
     this.cameraY = this.player.y - this.canvas.height / 2;
-}
+};
 
 Game.prototype.updateInput = function() {
     this.input = new Input(this); // Capture current state of mouse and keyboard
-}
+};
 
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > this.physTick) {
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= this.physTick;
     }
-}
+};
 
 
 Game.prototype.draw = function(ctx) {
@@ -111,21 +117,22 @@ Game.prototype.draw = function(ctx) {
     drawCalls.push(this.player.draw(ctx));
 
     this.clearCanvas();
-
+    
+    ctx.fillStyle = "#000";
+    ctx.font = "12px Arial";
+    ctx.fillText("Ping: "+Math.round(this.network.ping*100)/100, 20,60);
+    
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 20, this.player.fuel, 10);
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 20, 100, 10);
 
-    ctx.fillStyle = "#B2B2B2";
-    ctx.fillRect(955 - this.cameraX, 200 - this.cameraY, 10, 268);
-
     // Draw planet
     ctx.fillStyle = "#000";
     ctx.beginPath();
     var divs = 180;
-    var x,y;
+    var x, y;
     for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
         x = this.planetX + Math.cos(a) * this.planetSize - this.cameraX;
         y = this.planetY + Math.sin(a) * this.planetSize - this.cameraY;
@@ -138,7 +145,7 @@ Game.prototype.draw = function(ctx) {
     ctx.fill();
 
     // Draw player
-    if(this.player.grounded)
+    if (this.player.grounded)
         ctx.fillStyle = "#00FF00";
     else
         ctx.fillStyle = "#FF0000";
@@ -185,11 +192,11 @@ Game.prototype.bindAllEvents = function() {
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback) {
-        window.setTimeout(callback, 1000.0 / targetFPS);
-    };
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1000.0 / targetFPS);
+            };
 })();

@@ -22,8 +22,8 @@ function Player(x, y, game) {
         jumpSpeed: 6,
         thrustSide: 0.3,
         drag: 0.035,
-        thrustUp: 0.65,
-        burnRate: 0.55,
+        thrustUp: 0.6,
+        burnRate: 0.6,
         rechargeRate: 0.84
     };
 }

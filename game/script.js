@@ -95,7 +95,7 @@ function update() {
         rightClick();
     }
 
-    player.update(input);
+    updatePhysics();
 
     game.cameraX = player.x - canvas.width / 2;
     game.cameraY = player.y - canvas.height / 2;
