@@ -5,6 +5,7 @@ var browserify = require('browserify')
 
 // Express
 staticServer.use("/", express.static("../client"));
+staticServer.use("/app/", express.static("../client"));
 staticServer.use("/static/", express.static("../static"));
 
 // Use browserify to serve complete module file made to work on client
