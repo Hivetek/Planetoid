@@ -120,15 +120,16 @@ Game.prototype.draw = function(ctx) {
     drawCalls.push(this.player.draw(ctx));
 
     this.clearCanvas();
-
+    
+    ctx.fillStyle = "#000";
+    ctx.font = "12px Arial";
+    ctx.fillText("Ping: "+Math.round(this.network.ping*100)/100, 20,60);
+    
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 20, this.player.fuel, 10);
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 20, 100, 10);
-
-    ctx.fillStyle = "#B2B2B2";
-    ctx.fillRect(955 - this.cameraX, 200 - this.cameraY, 10, 268);
 
     // Draw planet
     ctx.fillStyle = "#000";
