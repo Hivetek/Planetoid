@@ -131,7 +131,7 @@ var App = (function() {
                 game.bindAllEvents();
                 bindHTML();
 
-                //game.network.init(server.url);
+                game.network.init(server.url);
                 //game.init(); // Start the game
             });
         });

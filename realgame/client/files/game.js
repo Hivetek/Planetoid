@@ -4,6 +4,10 @@ function Game() {
     // - Create input buffer (game.inputs)
     // - Creates input (game.input)
     Input.init(this);
+
+    // Network
+    // - Connects to server using Primus
+    this.network = new Network(this);
 }
 
 
