@@ -10,6 +10,11 @@ function Game() {
     // - Creates input short-hand (game.input)
     Input.init(this);
 
+    // State
+    // - Create state buffer (game.states)
+    // - Creates input short-hand (game.state)
+    State.init(this);
+
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
