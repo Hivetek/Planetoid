@@ -28,7 +28,7 @@ staticServer.get("/bundle.js", function(req, res) {
 
 // Respond with list of certian directories
 staticServer.get(["/files/", "/resources/", "/resources/:type"], function(req, res) {
-    var dir = path.join(clientPath, req.url);
+    var dir = path.dirname(path.resolve(path.join(clientPath, req.url)));
     var filelist = getFileList(dir);
     res.writeHead(200, {"Content-Type": "text/plain"});
     res.write(JSON.stringify(filelist));
@@ -37,13 +37,16 @@ staticServer.get(["/files/", "/resources/", "/resources/:type"], function(req, r
 
 function getFileList(dir) {
     var filelist = [];
+    var file, name;
     if (fs.existsSync(dir)) {
         var files = fs.readdirSync(dir);
         for(var i in files){
             if (!files.hasOwnProperty(i)) continue;
-            var name = path.join(dir, files[i]);
+            file = files[i];
+            if (file.indexOf(".") == 0) continue; // Ignore hidden files
+            name = path.join(dir, file);
             if (!fs.statSync(name).isDirectory()) {
-                filelist.push(files[i]);
+                filelist.push(file);
             }
         }
     }
