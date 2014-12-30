@@ -52,7 +52,7 @@ var App = (function() {
             this.execution(function() {
 
                 fetchSourceResourceList().done(function() {
-                    loadSourceFiles().done(function() {
+                    loadAllSourceFiles().done(function() {
                         if (typeof Game === "undefined") {
                             progressbar.error("Game constructor cannot be found.");
                             return;
@@ -257,11 +257,19 @@ var App = (function() {
         var len = 0;
         var deferreds = [];
 
-        // Fetching file list
-        deferreds.push(fetchFilelist("files/").done(function(filelist) {
-            gamefiles.files = filelist;
-            len += filelist.length;
-        }));
+        gamefiles.files = [];
+        gamefiles.sourcecode = {};
+        _gamefiles.sourcecode.forEach(function(element) {
+            if (endsWith(element, ".js")) {
+                gamefiles.files.push(elements);
+            } else {
+                // Fetching file list
+                deferreds.push(fetchFilelist(element + "/").done(function(filelist) {
+                    gamefiles.sourcecode[element] = filelist;
+                    len += filelist.length;
+                }));
+            }
+        });
 
         gamefiles.resources = {};
         // _gamefiles must be loaded
@@ -277,17 +285,47 @@ var App = (function() {
         });
     }
 
+    function loadAllSourceFiles() {
+        var deferreds = [];
+        var list = gamefiles.sourcecode;
+        var others = gamefiles.files;
+        var listOfDirs;
+
+        if ($.isPlainObject(list)) {
+            listOfDirs = Object.keys(list);
+            listOfDirs.forEach(function(type) {
+                deferreds.push(loadSourceFiles({
+                    path: type + "/", 
+                    list: list[type]
+                }));
+            });
+        }
+
+        deferreds.push(loadSourceFiles({
+            path: "",
+            list: others
+        }));
+
+        return $.when.apply($, deferreds);
+    }
+
     function loadSourceFiles(profile) {
         var deferreds = [];
         var re = new RegExp("^.*\.(js)$");
         profile = $.extend({
-            path: "files",
+            path: "files/",
             list: gamefiles.files
         }, profile);
 
         if (profile.list && $.isArray(profile.list)) {
             profile.list.forEach(function(element) {
-                var file = profile.path + "/" + element + (element.match(re) ? "" : ".js");
+                var file = profile.path + element + (element.match(re) ? "" : ".js");
+                if (file === configFile) {
+                    // If we try to load the config file, 
+                    // ignore and count as already loaded.
+                    progressbar.next();
+                    return;
+                }
                 var defer = $.ajax({
                     url: file,
                     dataType: "script",
@@ -371,6 +409,10 @@ var App = (function() {
 
         $(window).resize(resize);
         resize();
+    }
+
+    function endsWith(str, suffix) {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
     function serverSelect(rawUrl) {

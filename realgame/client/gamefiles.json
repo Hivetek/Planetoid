@@ -1,3 +1,4 @@
 {
+    "sourcecode": ["files", "shared"],
     "resources": ["weapons", "images", "bindings"]
 }

@@ -27,7 +27,7 @@ staticServer.get("/bundle.js", function(req, res) {
 });
 
 // Respond with list of certian directories
-staticServer.get(["/files/", "/resources/", "/resources/:type"], function(req, res) {
+staticServer.get(["/files/", "/shared/", "/resources/", "/resources/:type"], function(req, res) {
     var dir = path.dirname(path.resolve(path.join(clientPath, req.url)));
     var filelist = getFileList(dir);
     res.writeHead(200, {"Content-Type": "text/plain"});
