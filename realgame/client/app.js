@@ -74,7 +74,7 @@ var App = (function() {
                 css: "stages/loading.css"
             });
             this.execution(function() {
-                game.keyboard.switchBindings("dvorak"); // Set the default key bindings
+                //game.keyboard.switchBindings("dvorak"); // Set the default key bindings
 
                 if (!("serverlist" in config) || (!$.isArray(config.serverlist))) {
                     $("#serverlist").addClass("error").html("No serverlist available");
@@ -94,10 +94,6 @@ var App = (function() {
                     $("#serverlist").hide();
                 });
                 $("#serverlist").append(obj);
-
-                $("#editor-link").on("click", function() {
-                    goto("editor-loading");
-                });
 
                 $("#keyboard-link").on("click", function() {
                     modal.setHeader("Key bindings");
@@ -132,11 +128,11 @@ var App = (function() {
                 css: "stages/game.css"
             });
             this.execution(function() {
-                game.bindAllEvents();
+                //game.bindAllEvents();
                 bindHTML();
 
-                game.network.init(server.url);
-                game.init(); // Start the game
+                //game.network.init(server.url);
+                //game.init(); // Start the game
             });
         });
     }
@@ -407,7 +403,7 @@ var App = (function() {
 
         if (url.match(urlRegex)) {
             server.url = url;
-            server.socket_url = server.url + "/socket.io/socket.io.js";
+            server.socket_url = server.url + "/primus/primus.js";
 
             $.when(loadSocket(server.socket_url)).done(function() {
                 goto("game");
@@ -425,20 +421,20 @@ var App = (function() {
 
     addResourceHandler("weapons", "json", function(file, element) {
         return $.getJSON(file).done(function(data) {
-            game.weapons.add(element, data);
+            //game.weapons.add(element, data);
         });
     });
 
     addResourceHandler("images", "png", function(file, element) {
         return $.getImage(file).done(function(image) {
-            game.images.add(element, image);
+            //game.images.add(element, image);
         });
     });
 
     addResourceHandler("bindings", "json", function(file, element) {
         return $.getJSON(file).done(function(bindings) {
             var name = bindings.name || element;
-            game.keyboard.addBindings(name, bindings);
+            //game.keyboard.addBindings(name, bindings);
         });
     });
 
