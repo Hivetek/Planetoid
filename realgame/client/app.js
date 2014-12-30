@@ -28,7 +28,6 @@ var App = (function() {
     });
 
     var configDefer = $.getScript(configFile); // Load the config file and wrap it in a deferred object
-    var config;
     var gameFilesDefer = $.getJSON(gameFilesFile); // Load the config file and wrap it in a deferred object
     var gamefiles = {};
     var _gamefiles;
@@ -37,8 +36,6 @@ var App = (function() {
     var currentStage;
     var stages = {};
     var server = {};
-
-    var modelLoader;
 
     /**
      * Staging
@@ -62,8 +59,6 @@ var App = (function() {
                         }
 
                         game = new Game(); // Create a new Game instance
-
-                        modelLoader = new THREE.JSONLoader();
 
                         loadAllResources().done(function() {
                             goto("serverlist");
@@ -142,50 +137,6 @@ var App = (function() {
 
                 game.network.init(server.url);
                 game.init(); // Start the game
-            });
-        });
-
-        stage("editor-loading", function() {
-            this.presentation({
-                html: "stages/loading.html",
-                css: "stages/loading.css"
-            });
-            this.execution(function() {
-                progressbar.clear(true);
-                var len = 0;
-                if ("files" in gamefiles.editor) {
-                    len += gamefiles.editor.files.length;
-                }
-                if ("resources" in gamefiles.editor) {
-                    Object.keys(gamefiles.editor.resources).forEach(function(element) {
-                        len += Object.keys(gamefiles.resources[element]).length;
-                    });
-                }
-                progressbar.len(len);
-
-                loadSourceFiles({path: "editor", list: gamefiles.editor.files}).done(function() {
-                    loadAllResources({list: gamefiles.editor.resources}).done(function() {
-                        goto("editor");
-                    });
-                });
-            });
-        });
-
-        stage("editor", function() {
-            this.presentation({
-                html: "editor/index.html",
-                css: "editor/style.css"
-            });
-            this.execution(function() {
-                $.ajax({
-                    url: "editor/main.js",
-                    dataType: "script",
-                    crossDomain: true
-                }).done(function() {
-                    // Editor main script will now execute
-                }).error(function(error) {
-                    console.error(error);
-                });
             });
         });
     }
@@ -417,21 +368,9 @@ var App = (function() {
     }
 
     function bindHTML() {
-        $("#namebox input").focus();
 
-        $("#namebox").children("form").submit(function(event) {
-            var name = $(this).children("input").val();
-            name = name.substr(0, 24);
-            game.playerNamed(name);
-            $("#namebox").hide();
-            event.preventDefault();
-            return false;
-        });
+        function resize() {
 
-        function resize()
-        {
-            $("#namebox").css("left", (window.innerWidth / 2) - ($("#namebox").width() / 2));
-            $("#namebox").css("top", (window.innerHeight / 3) - ($("#namebox").height() / 2));
         }
 
         $(window).resize(resize);
@@ -496,19 +435,6 @@ var App = (function() {
         });
     });
 
-    addResourceHandler("geometry", "json", function(file, element) {
-        return $.getJSON(file).done(function(data) {
-            var mesh = modelLoader.parse(data).geometry;
-            game.geometry.add(element, mesh);
-        });
-    });
-
-    addResourceHandler("textures", "png", function(file, element) {
-        return $.getImage(file).done(function(image) {
-            game.images.add(element, image);
-        });
-    });
-
     addResourceHandler("bindings", "json", function(file, element) {
         return $.getJSON(file).done(function(bindings) {
             var name = bindings.name || element;
@@ -523,7 +449,7 @@ var App = (function() {
         staging(); // Define the stages
 
         $.when(configDefer, gameFilesDefer).done(function(cfg, gf) { // Load the config file
-            config = cfg[0];
+            //config = cfg[0]; // Config is updated differently now
             _gamefiles = gf[0];
             goto("loading"); // And load the first stage
         }).fail(function() {
