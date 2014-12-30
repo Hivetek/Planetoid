@@ -1,8 +1,13 @@
 function Game() {
+    // Event system
+    // - on("event" callback)
+    // - trigger("event", data)
+    this.events = events(this);
+
     // Input
     // - Adds keyboard and mouse to game (game.mouse, game.keyboard)
     // - Create input buffer (game.inputs)
-    // - Creates input (game.input)
+    // - Creates input short-hand (game.input)
     Input.init(this);
 
     // Network
