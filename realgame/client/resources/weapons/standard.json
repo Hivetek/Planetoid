@@ -1,0 +1,32 @@
+{
+    "id": "standard",
+    "name": "Standard launcher",
+    "projectile": {
+        "sprite": 3,
+        "speed": 960,
+        "speedInheritance": 0.5,
+        "weight": 1260,
+        "damping": 0.6,
+        "size": 4,
+        "damage": 4.0,
+        "sticky": 0,
+        "dieOnHit": true,
+        "bounces": 1,
+        "time": -1.0,
+        "trailLength": 15,
+        "children": false,
+        "explode": true,
+        "explosion": {
+            "size": 80,
+            "lifetime": 0.3
+        }
+    },
+    "weapon": {
+        "sprite": 0,
+        "fireDelay": 0.2,
+        "grenadesPerShot": 1,
+        "spread": 0,
+        "randomSpread": false,
+        "automatic": false
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "id": "ar15",
+    "name": "AR15",
+    "projectile": {
+        "sprite": 0,
+        "speed": 1920,
+        "speedInheritance": 0.0,
+        "weight": 0.0,
+        "damping": 0.0,
+        "size": 2,
+        "damage": 0.7,
+        "sticky": 0,
+        "dieOnHit": true,
+        "bounces": 0,
+        "time": 1.0,
+        "trailLength": 5,
+        "children": false,
+        "explode": false,
+        "explosion": {
+            "size": 0,
+            "lifetime": 0
+        }
+    },
+    "weapon": {
+        "sprite": 1,
+        "fireDelay": 0.075,
+        "grenadesPerShot": 1,
+        "spread": 6.5,
+        "randomSpread": true,
+        "automatic": true
+    }
+}

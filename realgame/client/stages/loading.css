@@ -1,0 +1,168 @@
+html, body {
+    margin: 0;
+    padding: 0; 
+
+    background: #eee;
+    background: url('noise.png');
+    
+    font-family: 'Share Tech Mono', sans-serif;
+}
+
+#wrapper {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);    
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+h1 {
+    text-align: center; 
+    font-family: 'Share Tech Mono', sans-serif; 
+    font-size: 50px
+}
+
+.error {
+    color: red;
+}
+
+#progress-wrapper {
+    padding: 5px;
+    background-color: #f3f3f3;
+    border: 1px solid #aaa;
+}
+
+progress {
+    width: 300px;
+    height: 30px;
+    
+    margin-top: 1px; /* Odd 1px off fix */
+    
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    border: none;
+    
+    background-color: #f3f3f3;
+}  
+progress::-webkit-progress-bar {  
+    background-color: #f3f3f3; 
+}  
+progress::-webkit-progress-value { 
+    background-color: #0064B4; 
+}  
+progress::-moz-progress-bar {
+    background-color: #0064B4; 
+} 
+
+#progress-text {
+    width: 300px;
+    display: none;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #f3f3f3;
+    border: 1px solid #aaa;
+}
+
+
+#wrapper #serverlist-header {
+    text-align: center;
+    font-family: 'Share Tech Mono', sans-serif;
+}
+
+#serverlist, #serverlist-message, #serverlist-custom {
+    padding: 5px;
+    background-color: #f3f3f3;
+    border: 1px solid #aaa;
+}
+
+/* === List === */
+
+.list .item {
+    margin-top: 5px; 
+    padding: 5px;
+    border: 1px solid transparent;
+}
+
+.list .item:first-child {
+    margin-top: 0px;
+}
+
+.list .item:hover {
+    cursor: pointer; 
+    background: #ccc;
+    border: 1px solid #555;
+}
+
+/* === Server list === */
+
+
+#serverlist-custom {
+    margin-top: 10px;
+    display: none;
+}
+
+#serverlist-message {
+    margin-top: 10px;
+    display: none;
+}
+
+/* === Top right box === */
+
+#topright-box {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    margin: 10px;
+    padding: 5px;
+    width: 100px;
+    border: 1px solid #aaa;
+    background-color: #f3f3f3;
+    
+}
+
+#topright-box .header {
+    padding: 5px;
+    font-weight: bold;
+}
+
+/* === Modal === */
+
+#modal {
+    display: none;
+    
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);    
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    z-index: 99;
+    
+    border: 1px solid #000;
+    background: #f3f3f3;
+    
+    min-width: 300px;
+}
+
+#modal .modal-header, #modal .modal-content, #modal .modal-footer {
+    padding: 10px; 
+}
+
+#modal .modal-header {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#modal .modal-content {
+    
+}
+
+#modal .modal-footer {
+    border-top: 1px solid #aaa;
+    text-align: right;
+}

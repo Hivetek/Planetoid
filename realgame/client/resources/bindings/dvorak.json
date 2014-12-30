@@ -1,0 +1,10 @@
+{
+    "title": "Dvorak",
+    "name": "dvorak",
+    "keys": {
+        "up": 188,
+        "down": 79,
+        "left": 65,
+        "right": 69
+    }
+}
