@@ -7,6 +7,7 @@ var fs = require('fs')
 
 var clientPath = "../client";
 
+
 // Express
 
 // Static files
@@ -20,7 +21,7 @@ staticServer.use("/client/", express.static(clientPath));
 // Use browserify to serve complete module file made to work on client
 staticServer.get("/bundle.js", function(req, res) {
     res.setHeader('content-type', 'application/javascript');
-    var b = browserify(__dirname + '/build.js').bundle();
+    var b = browserify(path.resolve("build.js")).bundle();
     b.on('error', console.error);
     b.pipe(res);
 });
