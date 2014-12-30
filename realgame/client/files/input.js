@@ -4,7 +4,8 @@
 function Input(game) {
     // Capture a snapshot of the current inputs
     this.mouse = Core.clone(game.mouse); 
-    this.keyboard = Core.clone(game.keyboard); 
+    this.keys = new Keys(game.keyboard);
+    this.timestamp = game.getTime();
 }
 
 Input.init = function(game, size) {
@@ -15,8 +16,9 @@ Input.init = function(game, size) {
     // Add a ring buffer to the game
     game.inputs = new RingBuffer(size || 64);
 
-    // Add initial input
+    // Add initial previous and current input
     game.inputs.enq(new Input(game));
+
 
     // Add a short-hand to the newest input
     Object.defineProperty(game, "input", { 
@@ -26,6 +28,13 @@ Input.init = function(game, size) {
         set: function(val) {
             game.inputs.enq(val);
             return game.inputs.peekLast();
+        }
+    });
+
+    // Add a short-hand to the previous input
+    Object.defineProperty(game, "prevInput", { 
+        get: function() {
+            return game.inputs.get(game.inputs.size-2);
         }
     });
 };
