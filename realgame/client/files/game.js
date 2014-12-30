@@ -39,7 +39,6 @@ function Game() {
 }
 
 Game.prototype.init = function() {
-    console.log("Init");
     this.events.trigger("init::begin");
 
     this.canvas = document.getElementById('canvas');
@@ -48,17 +47,14 @@ Game.prototype.init = function() {
 
     this.player = new Player(0, -2300, this);
 
-    this.currentTime = this.getTime();
-    this.lastTime = this.currentTime;
-
     this.events.trigger("init::end");
 
-
-    this.events.trigger("loop::begin");
-
     var g = this;
-    //console.timeEnd("loop");
     requestAnimFrame(function() {
+        g.events.trigger("loop::begin");
+        g.startTime = g.getTime();
+        g.currentTime = g.startTime;
+        g.lastTime = g.currentTime;
         g.loop();
     });
 };
@@ -160,11 +156,16 @@ Game.prototype.clearCanvas = function() {
 };
 
 
-Game.prototype.getTime = function() {
-    return window.performance.now ?
-            (performance.now() + performance.timing.navigationStart) :
-            Date.now();
-}
+// Will execute and determine what clock to use
+// such that we don't have to check for support for each call
+Game.prototype.getTime = (function() {
+    // Determine if performance is available
+    if (window.performance && window.performance.now) {
+        return performance.now.bind(performance);
+    } else {
+        return Date.now;
+    }
+})();
 
 
 Game.prototype.resize = function() {

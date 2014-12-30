@@ -57,7 +57,6 @@ function Game() {
 }
 
 Game.prototype.init = function() {
-    console.log("Init");
 
     // Start listening of game server
     this.network.init();
@@ -66,15 +65,13 @@ Game.prototype.init = function() {
 
     this.player = new Player(0, -2300, this);
 
-    this.currentTime = this.getTime();
-    this.lastTime = this.currentTime;
-
     this.events.trigger("init::end");
 
 
     this.events.trigger("loop::begin");
-
-    //console.timeEnd("loop");
+    this.startTime = this.getTime();
+    this.currentTime = this.startTime;
+    this.lastTime = this.currentTime;
     this.loop();
 };
 
