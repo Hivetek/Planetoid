@@ -5,6 +5,7 @@ var pmx, mx, pmy, my, newmx, newmy;
 var lmd, rmd, plmd, prmd;
 
 var lastTime;
+var currentTime;
 var deltaTime;
 var paused;
 var physTick = 16;
@@ -41,12 +42,11 @@ function init() {
     pmy = my = newmy = canvas.width / 2;
 
     player = new Player(mx, 0, game);
-    player.vx = 5 - Math.random() * 10;
-    player.vy = 5 - Math.random() * 10;
 
     lmd = rmd = false;
 
-    lastTime = Date.now();
+    currentTime = getTime();
+    lastTime = currentTime;
     timeScale = 1.0;
 
     paused = false;
@@ -58,8 +58,8 @@ function init() {
 
 function loop() {
     //console.time("loop");
-    deltaTime = getTime() - lastTime;
-    console.log(deltaTime);
+    currentTime = getTime();
+    deltaTime = currentTime - lastTime;
     timeScale = deltaTime / (1000 / fps);
     timeAccumulator += deltaTime;
 
@@ -68,7 +68,7 @@ function loop() {
 
     draw();
 
-    lastTime = getTime();
+    lastTime = currentTime;
 
     //console.timeEnd("loop");
     requestAnimFrame(function() {
@@ -131,14 +131,17 @@ function draw() {
     var divs = 180;
     for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
         if (a === 0)
-            ctx.moveTo(game.planetX + Math.cos(a) * game.planetSize-game.cameraX, game.planetY + Math.sin(a) * game.planetSize-game.cameraY);
+            ctx.moveTo(game.planetX + Math.cos(a) * game.planetSize - game.cameraX, game.planetY + Math.sin(a) * game.planetSize - game.cameraY);
         else
-            ctx.lineTo(game.planetX + Math.cos(a) * game.planetSize-game.cameraX, game.planetY + Math.sin(a) * game.planetSize-game.cameraY);
+            ctx.lineTo(game.planetX + Math.cos(a) * game.planetSize - game.cameraX, game.planetY + Math.sin(a) * game.planetSize - game.cameraY);
     }
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = "#00FF00";
+    if(player.grounded)
+        ctx.fillStyle = "#00FF00";
+    else
+        ctx.fillStyle = "#FF0000";
     ctx.beginPath();
     ctx.arc(player.x - game.cameraX, player.y - game.cameraY, player.config.r, 0, Math.PI * 2, false);
     ctx.closePath();
@@ -157,8 +160,9 @@ function rightClick() {
 }
 
 function getTime() {
-    return performance.now(); //highest precision
-    //return Date.now(); //Higest performance
+    return window.performance.now ?
+            (performance.now() + performance.timing.navigationStart) :
+            Date.now();
 }
 
 /*window.oncontextmenu = function(event) {
@@ -198,15 +202,15 @@ window.addEventListener('keyup', function(event) {
 window.addEventListener('resize', resize, false);
 
 window.requestAnimFrame = (function() {
-    return  window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function(callback) {
-                window.setTimeout(callback, 1000.0 / targetFPS);
-            };
-})();
+ return  window.requestAnimationFrame ||
+ window.webkitRequestAnimationFrame ||
+ window.mozRequestAnimationFrame ||
+ window.oRequestAnimationFrame ||
+ window.msRequestAnimationFrame ||
+ function(callback) {
+ window.setTimeout(callback, 1000.0 / targetFPS);
+ };
+ })();
 
 $(document).ready(function() {
     init();
