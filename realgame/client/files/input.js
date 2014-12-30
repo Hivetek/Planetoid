@@ -7,13 +7,13 @@ function Input(game) {
     this.keyboard = Core.clone(game.keyboard); 
 }
 
-Input.init = function(game) {
+Input.init = function(game, size) {
     // Add keyboard and mouse to game
     game.keyboard = new Keyboard();
     game.mouse = new Mouse();
 
     // Add a ring buffer to the game
-    game.inputs = new RingBuffer(64);
+    game.inputs = new RingBuffer(size || 64);
 
     // Add initial input
     game.inputs.enq(new Input(game));
