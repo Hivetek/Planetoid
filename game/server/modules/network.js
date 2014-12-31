@@ -3,7 +3,7 @@ var Primus = require('primus')
   , http = require('http');
 
 var server = http.createServer(/* request handler */)
-  , primus = new Primus(server, {transformer: config.transformer});
+  , primus = new Primus(server, {transformer: config.server.transformer});
 
 // Primus plugins
 primus.use("emitter",       require("primus-emitter"));
@@ -37,7 +37,7 @@ Network.prototype.init = function() {
         spark.send("init", g.player.export());
     });
 
-    this.server.listen(config.port);
+    this.server.listen(config.server.port);
 };
 
 // Export module

@@ -437,7 +437,7 @@ var App = (function() {
         }
 
         if (!url.match(protocolRegex)) {
-            url = config.protocol + "://" + url;
+            url = config.server.protocol + "://" + url;
         }
 
         urlSlice = url.match(urlSliceRegex);
@@ -446,7 +446,7 @@ var App = (function() {
             var domain = urlSlice[1];
             domainSlice = domain.match(portRegex);
             if (!domainSlice) {
-                url = url.replace(domain, domain.replace(/:/g, "") + ":" + config.port);
+                url = url.replace(domain, domain.replace(/:/g, "") + ":" + config.server.port);
             }
         }
 

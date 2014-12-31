@@ -8,7 +8,7 @@ var game = new Game();
 
 // Start listening for static file requests
 var staticServer = require("app/staticserver");
-staticServer.listen(config.staticPort);
+staticServer.listen(config.staticServer.port);
 
 // Start the game
 game.start();
