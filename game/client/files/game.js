@@ -8,31 +8,24 @@ function Game() {
     // - Adds keyboard and mouse to game (game.mouse, game.keyboard)
     // - Create input buffer (game.inputs)
     // - Creates input short-hand (game.input)
-    Input.init(this);
+    Input.init(this, config.game.inputBufferSize);
 
     // State
     // - Create state buffer (game.states)
     // - Creates input short-hand (game.state)
-    State.init(this);
+    State.init(this, config.game.stateBufferSize);
 
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
 
     // Phyciscs and gameplay
-    this.gravity = 1.0;
-    this.timescale = 1.0;
-    this.planetSize = 1932;
-    this.planetX = 0; //960;
-    this.planetY = 0; //2300;
     this.cameraX = 0;
     this.cameraY = 0;
 
-    this.physTick = 16;
-    this.targetFPS = 60;
     this.timeAccumulator = 0;
-
     this.timeScale = 1.0;
+
     this.fps = 60;
     this.fpsSamples = [];
     this.fpsSampleIndex = 0;
@@ -70,7 +63,7 @@ Game.prototype.loop = function() {
     this.timeAccumulator += this.deltaTime;
     
     this.fps = 1000/this.deltaTime;
-    if(this.fpsSampleIndex > 29)
+    if(this.fpsSampleIndex >= config.game.fpsSampleCount)
         this.fpsSampleIndex = 0;
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
@@ -109,9 +102,9 @@ Game.prototype.updateInput = function() {
 };
 
 Game.prototype.updatePhysics = function() {
-    while (this.timeAccumulator > this.physTick) {
+    while (this.timeAccumulator > config.game.physTick) {
         this.player.update(this.input, this.prevInput);
-        this.timeAccumulator -= this.physTick;
+        this.timeAccumulator -= config.game.physTick;
     }
 };
 
@@ -122,16 +115,20 @@ Game.prototype.draw = function(ctx) {
 
     this.clearCanvas();
     
+    // Display ping
     ctx.fillStyle = "#000";
     ctx.font = "12px Arial";
     ctx.fillText("Ping: "+Math.round(this.network.ping*100)/100, 20,60);
+
+    // Display fps
     var avgFPS = 0;
     for(var i = 0; i < this.fpsSamples.length; i++){
         avgFPS += this.fpsSamples[i];
     }
-    avgFPS = Math.round((avgFPS/30)*100)/100;
+    avgFPS = Math.round((avgFPS/this.fpsSamples.length)*100)/100;
     ctx.fillText("FPS: "+avgFPS, 20,84);
     
+    // Display player fuel
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 20, this.player.fuel, 10);
 
@@ -144,8 +141,8 @@ Game.prototype.draw = function(ctx) {
     var divs = 180;
     var x, y;
     for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
-        x = this.planetX + Math.cos(a) * this.planetSize - this.cameraX;
-        y = this.planetY + Math.sin(a) * this.planetSize - this.cameraY;
+        x = config.game.planetX + Math.cos(a) * config.game.planetSize - this.cameraX;
+        y = config.game.planetY + Math.sin(a) * config.game.planetSize - this.cameraY;
         if (a === 0)
             ctx.moveTo(x, y);
         else
@@ -212,6 +209,6 @@ window.requestAnimFrame = (function() {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
             function(callback) {
-                window.setTimeout(callback, 1000.0 / targetFPS);
+                window.setTimeout(callback, 1000.0 / config.game.targetFPS);
             };
 })();

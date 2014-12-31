@@ -13,7 +13,15 @@ config.client = {};
 
 // Game (shared between client and server)
 config.game = {};
-config.game.inputBufferSize = 16;
+config.game.inputBufferSize = 64;
+config.game.stateBufferSize = 64;
+config.game.gravity = 1.0;
+config.game.planetSize = 1932;
+config.game.planetX = 0; //960;
+config.game.planetY = 0; //2300;
+config.game.physTick = 16;
+config.game.targetFPS = 60;
+config.game.fpsSampleCount = 30;
 
 config.game.player = {};
 

@@ -1,5 +1,6 @@
 // NodeJS requires
 if (typeof global !== "undefined") {
+    var config = require('./config.js');
     var VectorMath = require('./vectorMath.js');
 }
 
@@ -26,8 +27,8 @@ function Player(x, y, game) {
 }
 
 Player.prototype.update = function(input, prevInput) {
-    var gravX = this.game.planetX - this.x;
-    var gravY = this.game.planetY - this.y;
+    var gravX = config.game.planetX - this.x;
+    var gravY = config.game.planetY - this.y;
     var gravity = {
         x: gravX,
         y: gravY
@@ -38,7 +39,7 @@ Player.prototype.update = function(input, prevInput) {
         this.vx += gravity.x * this.config.mass;
         this.vy += gravity.y * this.config.mass;
     }
-    if (d <= this.game.planetSize + this.config.r + 1) { //on the ground
+    if (d <= config.game.planetSize + this.config.r + 1) { //on the ground
         this.grounded = true;
         if (this.fuel < 100)
             this.fuel += this.config.rechargeRate;
@@ -46,7 +47,7 @@ Player.prototype.update = function(input, prevInput) {
         if (this.fuel > 100)
             this.fuel = 100;
 
-        var m = (this.game.planetSize + this.config.r) - d;
+        var m = (config.game.planetSize + this.config.r) - d;
         this.x -= gravity.x * m;
         this.y -= gravity.y * m;
 

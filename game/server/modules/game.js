@@ -38,16 +38,9 @@ function Game() {
     this.network = new Network(this);
 
     // Phyciscs and gameplay
-    this.gravity = 1.0;
-    this.timescale = 1.0;
-    this.planetSize = 1932;
-    this.planetX = 0; //960;
-    this.planetY = 0; //2300;
     this.cameraX = 0;
     this.cameraY = 0;
 
-    this.physTick = 16;
-    this.targetFPS = 60;
     this.timeAccumulator = 0;
 
     this.timeScale = 1.0;
@@ -102,9 +95,9 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.updatePhysics = function() {
-    while (this.timeAccumulator > this.physTick) {
+    while (this.timeAccumulator > config.game.physTick) {
         this.player.update(Core.clone(this.input), Core.clone(this.prevInput));
-        this.timeAccumulator -= this.physTick;
+        this.timeAccumulator -= config.game.physTick;
     }
 }
 
