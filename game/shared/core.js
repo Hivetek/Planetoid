@@ -7,9 +7,7 @@ Core.clone = function(obj) {
 };
 
 
-// Export module to either client or server
-if (typeof global === "undefined") {
-    window.Core = Core;
-} else {
+// Export module in NodeJS
+if (typeof global !== "undefined") {
     module.exports = Core;
 }

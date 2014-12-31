@@ -29,9 +29,7 @@ State.init = function(game, size) {
     });
 };
 
-// Export module to either client or server
-if (typeof global === "undefined") {
-    window.State = State;
-} else {
+// Export module in NodeJS
+if (typeof global !== "undefined") {
     module.exports = State;
 }

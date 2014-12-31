@@ -102,9 +102,7 @@ Player.prototype.import = function(obj) {
     }
 };
 
-// Export module to either client or server
-if (typeof global === "undefined") {
-    window.Player = Player;
-} else {
+// Export module in NodeJS
+if (typeof global !== "undefined") {
     module.exports = Player;
 }

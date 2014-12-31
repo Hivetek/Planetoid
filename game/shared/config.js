@@ -54,9 +54,7 @@ config.serverlist = [
     config.newServer("Localhost", "localhost")
 ];
 
-// Export module to either client or server
-if (typeof global === "undefined") {
-    window.config = config;
-} else {
+// Export module in NodeJS
+if (typeof global !== "undefined") {
     module.exports = config;
 }

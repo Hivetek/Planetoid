@@ -38,9 +38,7 @@ var events = (function(context){
 });
 
 
-// Export module to either client or server
-if (typeof global === "undefined") {
-    window.events = events;
-} else {
+// Export module in NodeJS
+if (typeof global !== "undefined") {
     module.exports = events;
 }

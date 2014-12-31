@@ -141,8 +141,6 @@ RingBuffer.prototype.enq = function(element) {
 /**
  * Expose `RingBuffer`.
  */
-if (typeof global === "undefined") {
-    window.RingBuffer = RingBuffer; // Browser
-} else {
-    module.exports = RingBuffer; // NodeJS
+if (typeof global !== "undefined") {
+    module.exports = RingBuffer;
 }
