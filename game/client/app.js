@@ -250,7 +250,9 @@ var App = (function() {
      * Helper functions
      */
     function fetchFilelist(dir) {
-        return $.getJSON(dir);
+        return $.getJSON(dir).fail(function() {
+            progressbar.error("Game file list: Could not load '" + dir + "'");
+        });
     }
 
     function fetchSourceResourceList() {
