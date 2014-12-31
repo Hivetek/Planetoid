@@ -76,6 +76,9 @@ var App = (function() {
             this.execution(function() {
                 game.keyboard.switchBindings("dvorak"); // Set the default key bindings
 
+                // Add hostname we are currently on to the beginning of the serverlist
+                config.serverlist.unshift(config.newServer("Current (" + window.location.hostname + ")", window.location.hostname));
+
                 if (!("serverlist" in config) || (!$.isArray(config.serverlist))) {
                     $("#serverlist").addClass("error").html("No serverlist available");
                     return;
