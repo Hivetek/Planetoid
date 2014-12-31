@@ -34,6 +34,8 @@ function Game() {
 
     this.timeScale = 1.0;
     this.fps = 60;
+    this.fpsSamples = [];
+    this.fpsSampleIndex = 0;
 
     this.paused = false;
 }
@@ -66,6 +68,12 @@ Game.prototype.loop = function() {
     this.deltaTime = this.currentTime - this.lastTime;
     this.timeScale = this.deltaTime / (1000 / this.fps);
     this.timeAccumulator += this.deltaTime;
+    
+    this.fps = 1000/this.deltaTime;
+    if(this.fpsSampleIndex > 29)
+        this.fpsSampleIndex = 0;
+    this.fpsSamples[this.fpsSampleIndex] = this.fps;
+    this.fpsSampleIndex++;
 
     if (!this.paused)
         this.update();
@@ -117,6 +125,12 @@ Game.prototype.draw = function(ctx) {
     ctx.fillStyle = "#000";
     ctx.font = "12px Arial";
     ctx.fillText("Ping: "+Math.round(this.network.ping*100)/100, 20,60);
+    var avgFPS = 0;
+    for(var i = 0; i < this.fpsSamples.length; i++){
+        avgFPS += this.fpsSamples[i];
+    }
+    avgFPS = Math.round((avgFPS/30)*100)/100;
+    ctx.fillText("FPS: "+avgFPS, 20,84);
     
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 20, this.player.fuel, 10);
