@@ -74,7 +74,7 @@ var App = (function() {
                 css: "stages/loading.css"
             });
             this.execution(function() {
-                //game.keyboard.switchBindings("dvorak"); // Set the default key bindings
+                game.keyboard.switchBindings("dvorak"); // Set the default key bindings
 
                 if (!("serverlist" in config) || (!$.isArray(config.serverlist))) {
                     $("#serverlist").addClass("error").html("No serverlist available");
@@ -478,7 +478,7 @@ var App = (function() {
     addResourceHandler("bindings", "json", function(file, element) {
         return $.getJSON(file).done(function(bindings) {
             var name = bindings.name || element;
-            //game.keyboard.addBindings(name, bindings);
+            game.keyboard.addBindings(name, bindings);
         });
     });
 
