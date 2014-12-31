@@ -12,18 +12,6 @@ function Player(x, y, game) {
     this.vy = 0;
     this.grounded = false;
     this.game = game;
-    this.config = {
-        r: 16,
-        mass: 0.5,
-        friction: 0.25,
-        landAccel: 2,
-        jumpSpeed: 6,
-        thrustSide: 0.3,
-        drag: 0.035,
-        thrustUp: 0.6,
-        burnRate: 0.6,
-        rechargeRate: 0.84
-    };
 }
 
 Player.prototype.update = function(input, prevInput) {
@@ -36,18 +24,18 @@ Player.prototype.update = function(input, prevInput) {
     var d = VectorMath.magnitude(gravity);
     gravity = VectorMath.scale(gravity, 1 / d);
     if (d > 0) {
-        this.vx += gravity.x * this.config.mass;
-        this.vy += gravity.y * this.config.mass;
+        this.vx += gravity.x * config.game.player.mass;
+        this.vy += gravity.y * config.game.player.mass;
     }
-    if (d <= config.game.planetSize + this.config.r + 1) { //on the ground
+    if (d <= config.game.planetSize + config.game.player.r + 1) { //on the ground
         this.grounded = true;
         if (this.fuel < 100)
-            this.fuel += this.config.rechargeRate;
+            this.fuel += config.game.player.rechargeRate;
 
         if (this.fuel > 100)
             this.fuel = 100;
 
-        var m = (config.game.planetSize + this.config.r) - d;
+        var m = (config.game.planetSize + config.game.player.r) - d;
         this.x -= gravity.x * m;
         this.y -= gravity.y * m;
 
@@ -56,16 +44,16 @@ Player.prototype.update = function(input, prevInput) {
         this.vx = speedVector.x;
         this.vy = speedVector.y;
 
-        this.vx += this.config.landAccel * gravity.y * (input.keys.right - input.keys.left);
-        this.vy += this.config.landAccel * gravity.x * (input.keys.left - input.keys.right);
-        this.vx -= this.vx * this.config.friction;
-        this.vy -= this.vy * this.config.friction;
+        this.vx += config.game.player.landAccel * gravity.y * (input.keys.right - input.keys.left);
+        this.vy += config.game.player.landAccel * gravity.x * (input.keys.left - input.keys.right);
+        this.vx -= this.vx * config.game.player.friction;
+        this.vy -= this.vy * config.game.player.friction;
         if (input.keys.up && !prevInput.keys.up)
             this.jump(gravity);
     } else { //in the air
         this.grounded = false;
         if (input.keys.up && this.fuel > 0)
-            this.fuel -= this.config.burnRate;
+            this.fuel -= config.game.player.burnRate;
 
         if (this.fuel < 0)
             this.fuel = 0;
@@ -74,10 +62,10 @@ Player.prototype.update = function(input, prevInput) {
         var horY = gravity.x * (input.keys.left - input.keys.right);
         var vertX = -gravity.x * input.keys.up * (this.fuel > 0);
         var vertY = -gravity.y * input.keys.up * (this.fuel > 0);
-        this.vx += horX * this.config.thrustSide + vertX * this.config.thrustUp;
-        this.vy += horY * this.config.thrustSide + vertY * this.config.thrustUp;
-        this.vx -= this.vx * this.config.drag;
-        this.vy -= this.vy * this.config.drag;
+        this.vx += horX * config.game.player.thrustSide + vertX * config.game.player.thrustUp;
+        this.vy += horY * config.game.player.thrustSide + vertY * config.game.player.thrustUp;
+        this.vx -= this.vx * config.game.player.drag;
+        this.vy -= this.vy * config.game.player.drag;
     }
 
     this.x += this.vx;
@@ -85,8 +73,8 @@ Player.prototype.update = function(input, prevInput) {
 };
 
 Player.prototype.jump = function(gravity) {
-    this.vx -= gravity.x * this.config.jumpSpeed;
-    this.vy -= gravity.y * this.config.jumpSpeed;
+    this.vx -= gravity.x * config.game.player.jumpSpeed;
+    this.vy -= gravity.y * config.game.player.jumpSpeed;
 };
 
 Player.prototype.draw = function() {

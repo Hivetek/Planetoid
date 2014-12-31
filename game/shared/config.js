@@ -6,7 +6,7 @@ config.server.hostname = "localhost"; // Unused - where the client should connec
 config.server.protocol = "http";
 config.server.port = 1337;
 config.server.transformer = "websockets";
-config.server.tickrate = 1000/60;
+config.server.tickrate = 48;
 
 // Client
 config.client = {};
@@ -23,7 +23,19 @@ config.game.physTick = 16;
 config.game.targetFPS = 60;
 config.game.fpsSampleCount = 30;
 
-config.game.player = {};
+// Player
+config.game.player = {
+    r: 16,
+    mass: 0.5,
+    friction: 0.25,
+    landAccel: 2,
+    jumpSpeed: 6,
+    thrustSide: 0.3,
+    drag: 0.035,
+    thrustUp: 0.6,
+    burnRate: 0.6,
+    rechargeRate: 0.84
+};
 
 // Static server
 config.staticServer = {};

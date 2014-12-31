@@ -8,8 +8,6 @@ var Network = require("app/network");
 var Player = require("shared/player");
 
 function Game() {
-    this.tickrate = 48;
-
     // Event system
     // - on("event" callback)
     // - trigger("event", data)
@@ -87,7 +85,7 @@ Game.prototype.loop = function() {
     var g = this;
     setTimeout(function() {
         g.loop();
-    }, g.tickrate);
+    }, config.server.tickrate);
 }
 
 Game.prototype.update = function() {

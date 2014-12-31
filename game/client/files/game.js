@@ -157,7 +157,7 @@ Game.prototype.draw = function(ctx) {
     else
         ctx.fillStyle = "#FF0000";
     ctx.beginPath();
-    ctx.arc(this.player.x - this.cameraX, this.player.y - this.cameraY, this.player.config.r, 0, Math.PI * 2, false);
+    ctx.arc(this.player.x - this.cameraX, this.player.y - this.cameraY, config.game.player.r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 }
