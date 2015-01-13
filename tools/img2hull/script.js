@@ -4,11 +4,124 @@ var pixels = []; //points for hulls
 var convexpoints = [];
 var img;
 
-var DRAW_VERTS = true;
+var DRAW_VERTS = false;
+var DRAW_EDGES = false;
 var min_angle = 5;
 var min_dist = 5;
 
 var initialized = false;
+
+var regions = [];
+
+function Pixel(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.checked = false;
+    this.group = -1;
+    this.edge = false;
+}
+
+function PixelGrid(imageData, w, h) {
+    this.pixels = [];
+    this.w = w;
+    this.h = h;
+    this.groups = 0;
+
+    //Copy imagedata into pixelgrid data structure
+    for (var x = 0; x < this.w; x++) {
+        this.pixels[x] = [];
+        for (var y = 0; y < this.h; y++) {
+            var i = (w * y) + x;
+            i *= 4;
+
+            var c = "" + imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2] + imageData.data[i + 3];
+
+            this.pixels[x][y] = new Pixel(x, y, c);
+        }
+    }
+
+    this.findRegions();
+
+    ctx.fillStyle = "#FF00FF";
+    for (var x = 0; x < this.w; x++) {
+        for (var y = 0; y < this.h; y++) {
+            if (this.pixels[x][y].edge)
+                ctx.fillRect(x, y, 1, 1);
+        }
+    }
+}
+
+PixelGrid.prototype.isEdge = function(x, y) {
+    var c = this.pixels[x][y].color;
+
+    //Check if all adjacent pixels are the same color as this one
+    if (this.getPixelColor(x - 1, y) !== c) {
+        return true;
+    } else if (this.getPixelColor(x + 1, y) !== c) {
+        return true;
+    } else if (this.getPixelColor(x, y - 1) !== c) {
+        return true;
+    } else if (this.getPixelColor(x, y + 1) !== c) {
+        return true;
+    } else if (this.getPixelColor(x - 1, y - 1) !== c) {
+        return true;
+    } else if (this.getPixelColor(x + 1, y + 1) !== c) {
+        return true;
+    } else if (this.getPixelColor(x - 1, y + 1) !== c) {
+        return true;
+    } else if (this.getPixelColor(x + 1, y - 1) !== c) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+PixelGrid.prototype.getPixelColor = function(x, y) {
+    var c = "0000";
+
+    //Return "0000" if pixels are outside the image
+    if (x > 0 && x < this.w && y > 0 && y < this.h)
+        c = this.pixels[x][y].color;
+
+    return c;
+};
+
+PixelGrid.prototype.findRegions = function() {
+    for (var x = 0; x < this.w; x++) {
+        for (var y = 0; y < this.h; y++) {
+            if (!this.pixels[x][y].checked) {
+                this.pixels[x][y].checked = true;
+                if (this.pixels[x][y].color !== "0000") {
+                    if (this.isEdge(x, y))
+                        this.pixels[x][y].edge = true;
+                }
+            }
+        }
+    }
+};
+
+PixelGrid.prototype.findNeighbors = function(x, y, c) {
+    if (!this.pixels[x][y].checked) {
+        this.pixels[x][y].checked = true;
+        var c1 = this.pixels[x][y].color;
+
+        if (c === c1) {
+            console.log("checked " + x + " " + y);
+            this.pixels[x][y].group = this.groups;
+
+            var neighbors = [];
+            if (x > 0)
+                this.findNeighbors(x - 1, y, c1);
+            if (x < this.w)
+                this.findNeighbors(x + 1, y, c1);
+            if (y > 0)
+                this.findNeighbors(x, y - 1, c1);
+            if (x < this.h)
+                this.findNeighbors(x, y + 1, c1);
+        }
+    }
+};
 
 function getPixel(data, w, x, y) {
     var i = (w * y) + x;
@@ -23,6 +136,17 @@ function getPixel(data, w, x, y) {
 
     return pixel;
 }
+
+function findNeighbors(data, x, y) {
+    var p = getPixel(data, w, x, y);
+
+}
+;
+
+function findRegions() {
+
+}
+;
 
 function pixelCompare(p1, p2) {
     return(p1.r === p2.r && p1.g === p2.g && p1.b === p2.b && p1.a === p2.a);
@@ -108,6 +232,9 @@ function img2hull() {
 
     data = ctx.getImageData(0, 0, w, h);
 
+    var grid = new PixelGrid(data, w, h);
+    console.log(grid);
+
     for (var y = 0; y < h; y++) {
         for (var x = 0; x < w; x++) {
             var p = getPixel(data, w, x, y);
@@ -161,15 +288,18 @@ function img2hull() {
         i++;
     }
 
+
     var verts = 0;
     for (var i = 0; i < convexpoints.length; i++) {
         ctx.beginPath();
         for (var n = 0; n < convexpoints[i].length; n++) {
             verts++;
-            if (n === 0)
-                ctx.moveTo(convexpoints[i][n].x, convexpoints[i][n].y);
-            else
-                ctx.lineTo(convexpoints[i][n].x, convexpoints[i][n].y);
+            if (DRAW_EDGES) {
+                if (n === 0)
+                    ctx.moveTo(convexpoints[i][n].x, convexpoints[i][n].y);
+                else
+                    ctx.lineTo(convexpoints[i][n].x, convexpoints[i][n].y);
+            }
         }
         ctx.closePath();
         ctx.stroke();
