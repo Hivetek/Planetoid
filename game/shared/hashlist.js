@@ -94,3 +94,8 @@ HashList.prototype.values = function() {
 HashList.formatKey = function(key) {
     return "E" + key;
 };
+
+// Export module in NodeJS
+if (typeof global !== "undefined") {
+    module.exports = HashList;
+}
