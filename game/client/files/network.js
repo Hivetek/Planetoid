@@ -17,9 +17,16 @@ Network.prototype.init = function(url) {
 
     g.events.trigger("primus::create", this.primus);
 
+    var p = this.primus;
     this.primus.on("open", function() {
         console.log("Connection opened");
         g.events.trigger("primus::open");
+
+        // Ask the server for the client's id
+        p.id(function(id) {
+            // Tie it to the game object
+            g.id = id;
+        });
     });
 
     this.primus.on("init", function(data) {

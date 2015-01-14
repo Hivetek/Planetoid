@@ -1,4 +1,5 @@
 var config = require('shared/config');
+var Core = require('shared/core');
 var Primus = require('primus')
   , http = require('http');
 
