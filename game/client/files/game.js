@@ -40,7 +40,7 @@ Game.prototype.init = function() {
     this.resize();
     this.ctx = this.canvas.getContext('2d');
 
-    this.player = new Player(0, -2300, this);
+    this.player = new Player({x: 0, y: -2300}, this);
 
     this.events.trigger("init::end");
 
@@ -151,15 +151,7 @@ Game.prototype.draw = function(ctx) {
     ctx.closePath();
     ctx.fill();
 
-    // Draw player
-    if (this.player.grounded)
-        ctx.fillStyle = "#00FF00";
-    else
-        ctx.fillStyle = "#FF0000";
-    ctx.beginPath();
-    ctx.arc(this.player.x - this.cameraX, this.player.y - this.cameraY, config.game.player.r, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fill();
+    this.player.draw(ctx);
 }
 
 Game.prototype.clearCanvas = function() {

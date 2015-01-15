@@ -54,7 +54,7 @@ Game.prototype.init = function() {
 
     this.events.trigger("init::begin");
 
-    this.player = new Player(0, -2300, this);
+    this.player = new Player({x: 0, y: -2300}, this);
 
     this.events.trigger("init::end");
 

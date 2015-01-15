@@ -77,8 +77,15 @@ Player.prototype.jump = function(gravity) {
     this.vy -= gravity.y * config.game.player.jumpSpeed;
 };
 
-Player.prototype.draw = function() {
-
+Player.prototype.draw = function(ctx) {
+    if (this.grounded)
+        ctx.fillStyle = "#00FF00";
+    else
+        ctx.fillStyle = "#FF0000";
+    ctx.beginPath();
+    ctx.arc(this.x - this.game.cameraX, this.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
 };
 
 Player.prototype.export = function() {
