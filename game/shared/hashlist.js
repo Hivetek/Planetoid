@@ -22,9 +22,11 @@
  *
  * See http://stackoverflow.com/a/24989927
  */
-function HashList() {
+function HashList(game, type) {
     this.list = Object.create(null); // Create an empty object
     this.length = 0;
+    this.game = game;
+    this.type = type;
 }
 
 HashList.prototype.add = function(key, value) {
@@ -89,10 +91,51 @@ HashList.prototype.values = function() {
     return l;
 };
 
+HashList.prototype.export = function() {
+    var o = Object.create(null);
+    this.iterate(function(elem, key) {
+        if (elem && elem.export) {
+            o[key] = elem.export();
+        }
+    });
+    return o;
+};
+
+// NOTE: This method modifies o
+HashList.prototype.import = function(o) {
+    if (!o) return;
+    var self = this;
+    this.iterate(function(elem, key) {
+        if (o[key]) { // Key exists in both list and o -- Update
+            if (elem.import) {
+                elem.import(o[key]);
+            }
+            delete o[key]; // Remove this from o (see below)
+        } else { // Does not exist in o -- Delete
+            self.remove(key);
+        }
+    });
+    // Iterate over o to see the remaining objects
+    // These are in o, but not in the list, thus
+    // they should be added -- New
+    var i = 0, 
+        ks = Object.keys(o),
+        l = ks.length,
+        key, elem;
+    for (; i < l; i++) {
+        key = ks[i];
+        elem = o[key];
+        if (elem) { // Exists in o but not in list -- New
+            var newElem = new self.type(elem, self.game);
+            self.add(key, newElem);
+        }
+    }
+};
+
 // Make sure that the key does not
 // start with an interger
 HashList.formatKey = function(key) {
-    return "E" + key;
+    return key;
 };
 
 // Export module in NodeJS

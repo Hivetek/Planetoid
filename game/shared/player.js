@@ -4,13 +4,13 @@ if (typeof global !== "undefined") {
     var VectorMath = require('./vectorMath.js');
 }
 
-function Player(x, y, game) {
-    this.x = x;
-    this.y = y;
-    this.fuel = 100;
-    this.vx = 0;
-    this.vy = 0;
-    this.grounded = false;
+function Player(o, game) {
+    this.x = o.x || 0;
+    this.y = o.y || -2300;
+    this.fuel = o.fuel || 100;
+    this.vx = o.vx || 0;
+    this.vy = o.vy || 0;
+    this.grounded = o.grounded || false;
     this.game = game;
 }
 

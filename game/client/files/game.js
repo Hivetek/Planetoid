@@ -6,13 +6,13 @@ function Game() {
 
     // Input
     // - Adds keyboard and mouse to game (game.mouse, game.keyboard)
-    // - Create input buffer (game.inputs)
-    // - Creates input short-hand (game.input)
+    // - Creates input buffer (game.inputs)
+    // - Creates current input short-hand (game.input)
     Input.init(this, config.game.inputBufferSize);
 
     // State
-    // - Create state buffer (game.states)
-    // - Creates input short-hand (game.state)
+    // - Creates state buffer (game.states)
+    // - Creates current state short-hand (game.state)
     State.init(this, config.game.stateBufferSize);
 
     // Network

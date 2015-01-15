@@ -77,7 +77,7 @@ Game.prototype.loop = function() {
     if (!this.paused)
         this.update();
 
-    this.network.primus.send("update", this.player.export());
+    this.network.primus.send("update", this.state.export());
 
     this.lastTime = this.currentTime;
 

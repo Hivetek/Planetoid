@@ -10,6 +10,9 @@ var server = http.createServer(/* request handler */)
 primus.use("emitter",       require("primus-emitter"));
 primus.use("spark-latency", require("primus-spark-latency"));
 
+// Game objects
+var Player = require("shared/player");
+
 function Network(game) {
     this.game = game;
     this.server = server;
@@ -22,7 +25,10 @@ Network.prototype.init = function() {
 
     // Primus connection
     primus.on("connection", function(spark) {
-        console.log("New connection");
+        console.log("New connection: " + spark.id);
+
+        var p = new Player(0, -2300, g);
+        g.state.players.add(spark.id, p);
 
         spark.on("input", function(input) {
             //console.log(input);
@@ -35,7 +41,12 @@ Network.prototype.init = function() {
         });
 
         // Write the initial/current state of the cube to the client
-        spark.send("init", g.player.export());
+        spark.send("init", g.state.export());
+
+        spark.on("end", function() {
+            console.log("Ended connection: " + spark.id);
+            g.state.players.remove(spark.id);
+        });
     });
 
     this.server.listen(config.server.port);
