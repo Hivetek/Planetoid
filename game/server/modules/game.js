@@ -8,6 +8,8 @@ var Network = require("app/network");
 var Player = require("shared/player");
 
 function Game() {
+    var g = this;
+
     // Event system
     // - on("event" callback)
     // - trigger("event", data)
@@ -30,6 +32,17 @@ function Game() {
     // - Create state buffer (game.states)
     // - Creates input short-hand (game.state)
     State.init(this);
+    
+    // Add short-hand for the controlled player
+    Object.defineProperty(g, "player", {
+        get: function() {
+            if (g.id) {
+                return g.state.players.get(g.id);
+            } else {
+                throw new TypeError("Game.id has not been set");
+            }
+        }
+    });
 
     // Network
     // - Connects to server using Primus
@@ -93,8 +106,12 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.updatePhysics = function() {
+    var i = Core.clone(this.input);
+    var ip = Core.clone(this.prevInput);
     while (this.timeAccumulator > config.game.physTick) {
-        this.player.update(Core.clone(this.input), Core.clone(this.prevInput));
+        this.state.players.iterate(function(player) {
+            player.update(i, ip);
+        });
         this.timeAccumulator -= config.game.physTick;
     }
 }

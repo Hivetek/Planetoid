@@ -63,6 +63,7 @@ State.init = function(game, size) {
             return game.states.peekLast();
         }
     });
+
 };
 
 // Export module in NodeJS

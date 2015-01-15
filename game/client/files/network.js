@@ -26,6 +26,7 @@ Network.prototype.init = function(url) {
         p.id(function(id) {
             // Tie it to the game object
             g.id = id;
+            g.events.trigger("primus::id", id);
         });
     });
 

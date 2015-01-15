@@ -136,7 +136,9 @@ var App = (function() {
 
                 game.network.init(server.url);
                 game.events.on("primus::open", function() {
-                    game.init(); // Start the game
+                    game.events.on("primus::id", function() {
+                        game.init(); // Start the game
+                    });
                 });
             });
         });

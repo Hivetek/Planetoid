@@ -151,7 +151,9 @@ Game.prototype.draw = function(ctx) {
     ctx.closePath();
     ctx.fill();
 
-    this.player.draw(ctx);
+    this.state.players.iterate(function(player) {
+        player.draw(ctx);
+    });
 }
 
 Game.prototype.clearCanvas = function() {
