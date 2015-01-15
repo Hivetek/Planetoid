@@ -19,6 +19,7 @@ function Network(game) {
     this.primus = primus;
 }
 
+
 Network.prototype.init = function() {
     var self = this;
     var g = this.game;
@@ -28,12 +29,15 @@ Network.prototype.init = function() {
         console.log("New connection: " + spark.id);
 
         var p = new Player(0, -2300, g);
+
         g.state.players.add(spark.id, p);
 
+        g.inputList.add(spark.id, {input: g.defaultInput, prevInput: g.defaultInput});
+
         spark.on("input", function(input) {
-            //console.log(input);
-            g.prevInput = g.input;
-            g.input = input;
+            var playerInput = g.inputList.get(spark.id);
+            playerInput.prevInput = playerInput.input;
+            playerInput.input = input;
         });
 
         spark.on("ping", function(ping){

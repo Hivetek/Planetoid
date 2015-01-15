@@ -6,6 +6,7 @@ var State = require('shared/state');
 var Network = require("app/network");
 
 var Player = require("shared/player");
+var HashList = require("shared/hashlist");
 
 function Game() {
     // Event system
@@ -13,7 +14,10 @@ function Game() {
     // - trigger("event", data)
     this.events = events(this);
 
-    this.input = this.prevInput = {
+    // Input
+    this.inputList = new HashList(this);
+
+    this.defaultInput = {
         mouse: {
             x: 0,
             y: 0
@@ -23,7 +27,8 @@ function Game() {
             left: false,
             right: false,
             down: false
-        }
+        },
+        timestamp: 0
     };
 
     // State
@@ -54,7 +59,7 @@ Game.prototype.init = function() {
 
     this.events.trigger("init::begin");
 
-    this.player = new Player({x: 0, y: -2300}, this);
+    // Add init code between here
 
     this.events.trigger("init::end");
 
@@ -93,11 +98,12 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.updatePhysics = function() {
-    var i = Core.clone(this.input);
-    var ip = Core.clone(this.prevInput);
+    var self = this;
+    var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        this.state.players.iterate(function(player) {
-            player.update(i, ip);
+        this.state.players.iterate(function(player, id) {
+            playerInput = self.inputList.get(id);
+            player.update(playerInput.input, playerInput.prevInput);
         });
         this.timeAccumulator -= config.game.physTick;
     }

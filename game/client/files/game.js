@@ -53,8 +53,6 @@ Game.prototype.init = function() {
     this.resize();
     this.ctx = this.canvas.getContext('2d');
 
-    this.player = new Player({x: 0, y: -2300}, this);
-
     this.events.trigger("init::end");
 
     var g = this;
