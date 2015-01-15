@@ -8,8 +8,6 @@ var Network = require("app/network");
 var Player = require("shared/player");
 
 function Game() {
-    var g = this;
-
     // Event system
     // - on("event" callback)
     // - trigger("event", data)
@@ -33,17 +31,6 @@ function Game() {
     // - Creates input short-hand (game.state)
     State.init(this);
     
-    // Add short-hand for the controlled player
-    Object.defineProperty(g, "player", {
-        get: function() {
-            if (g.id) {
-                return g.state.players.get(g.id);
-            } else {
-                throw new TypeError("Game.id has not been set");
-            }
-        }
-    });
-
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
