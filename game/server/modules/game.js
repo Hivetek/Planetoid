@@ -82,7 +82,7 @@ Game.prototype.loop = function() {
     if (!this.paused)
         this.update();
 
-    this.network.primus.send("update", this.state.export());
+    this.network.sendSnapshot();
 
     this.lastTime = this.currentTime;
 
@@ -108,6 +108,15 @@ Game.prototype.updatePhysics = function() {
         this.timeAccumulator -= config.game.physTick;
     }
 }
+
+Game.prototype.snapshot = function() {
+    var self = this;
+    return {
+        state: self.state.export(),
+        input: self.inputList.export(),
+        timestamp: self.getTime()
+    };
+};
 
 Game.prototype.getTime = (function() {
     function getNanoSeconds() {

@@ -45,7 +45,7 @@ Network.prototype.init = function() {
         });
 
         // Write the initial/current state of the cube to the client
-        spark.send("init", g.state.export());
+        self.sendInitSnapshot();
 
         spark.on("end", function() {
             console.log("Ended connection: " + spark.id);
@@ -55,6 +55,14 @@ Network.prototype.init = function() {
 
     this.server.listen(config.server.port);
 };
+
+Network.prototype.sendSnapshot = function() {
+    this.primus.send("update", this.game.snapshot());
+}
+
+Network.prototype.sendInitSnapshot = function() {
+    this.primus.send("init", this.game.snapshot());
+}
 
 // Export module
 module.exports = Network;

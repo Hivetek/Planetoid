@@ -34,16 +34,14 @@ Network.prototype.init = function(url) {
         g.events.trigger("primus::init", data);
         console.log("Initial state from server:");
         console.log(data);
-        g.state.import(data);
+        g.state.import(data.state);
         console.log("Initial game state:");
         console.log(g.state);
     });
 
-    var lol = true;
-
     this.primus.on("update", function(data) {
         g.events.trigger("primus::update", data);
-        g.state.import(data); // Creates jittering
+        g.state.import(data.state); // Creates jittering
     });
 
     this.primus.on("ping", function(ping){
