@@ -3,6 +3,7 @@ var Core = require('shared/core');
 
 var events = require('shared/events');
 var State = require('shared/state');
+var Input = require("shared/input");
 var Network = require("app/network");
 
 var Player = require("shared/player");
@@ -15,21 +16,7 @@ function Game() {
     this.events = events(this);
 
     // Input
-    this.inputList = new HashList(this);
-
-    this.defaultInput = {
-        mouse: {
-            x: 0,
-            y: 0
-        },
-        keys: {
-            up: false,
-            left: false,
-            right: false,
-            down: false
-        },
-        timestamp: 0
-    };
+    this.inputList = new HashList(this, Input);
 
     // State
     // - Create state buffer (game.states)

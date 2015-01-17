@@ -12,6 +12,7 @@ primus.use("spark-latency", require("primus-spark-latency"));
 
 // Game objects
 var Player = require("shared/player");
+var Input = require("shared/input");
 
 function Network(game) {
     this.game = game;
@@ -24,6 +25,8 @@ Network.prototype.init = function() {
     var self = this;
     var g = this.game;
 
+    var defaultInput = new Input({}, g);
+
     // Primus connection
     primus.on("connection", function(spark) {
         console.log("New connection: " + spark.id);
@@ -32,7 +35,7 @@ Network.prototype.init = function() {
 
         g.state.players.add(spark.id, p);
 
-        g.inputList.add(spark.id, {input: g.defaultInput, prevInput: g.defaultInput});
+        g.inputList.add(spark.id, {input: defaultInput, prevInput: defaultInput});
 
         spark.on("input", function(input) {
             var playerInput = g.inputList.get(spark.id);

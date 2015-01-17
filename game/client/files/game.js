@@ -109,7 +109,7 @@ Game.prototype.update = function() {
 };
 
 Game.prototype.updateInput = function() {
-    this.input = new Input(this); // Capture current state of mouse and keyboard
+    this.input = Input.fromUserInput(this); // Capture current state of mouse and keyboard
 };
 
 Game.prototype.updatePhysics = function() {

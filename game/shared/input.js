@@ -1,10 +1,20 @@
 /**
  * Input
  */
-function Input(game) {
-    // Capture a snapshot of the current inputs
-    this.mouse = Core.clone(game.mouse); 
-    this.keys = new Keys(game.keyboard);
+function Input(o, game) {
+    o = o || {};
+    o.mouse = o.mouse || {};
+    this.mouse = {
+        x: o.mouse.x || 0,
+        y: o.mouse.y || 0
+    };
+    o.keys = o.keys || {};
+    this.keys = {
+        up:    o.keys.up    || false,
+        left:  o.keys.left  || false,
+        right: o.keys.right || false,
+        down:  o.keys.down  || false
+    };
     this.timestamp = game.getTime();
 }
 
@@ -17,7 +27,7 @@ Input.init = function(game, size) {
     game.inputs = new RingBuffer(size || 64);
 
     // Add initial previous and current input
-    game.inputs.enq(new Input(game));
+    game.inputs.enq(Input.fromUserInput(game));
 
 
     // Add a short-hand to the newest input
@@ -38,3 +48,16 @@ Input.init = function(game, size) {
         }
     });
 };
+
+Input.fromUserInput = function(game) {
+    // Capture a snapshot of the current inputs
+    var o = {};
+    o.mouse = Core.clone(game.mouse); 
+    o.keys = new Keys(game.keyboard);
+    return new Input(o, game);
+}
+
+// Export module in NodeJS
+if (typeof global !== "undefined") {
+    module.exports = Input;
+}
