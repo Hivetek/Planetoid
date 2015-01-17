@@ -2,6 +2,15 @@
  * Input
  */
 function Input(o, game) {
+    this.import(o);
+    this.timestamp = game.getTime();
+}
+
+Input.prototype.export = function() {
+    return Core.clone(this);
+};
+
+Input.prototype.import = function(o) {
     o = o || {};
     o.mouse = o.mouse || {};
     this.mouse = {
@@ -15,8 +24,7 @@ function Input(o, game) {
         right: o.keys.right || false,
         down:  o.keys.down  || false
     };
-    this.timestamp = game.getTime();
-}
+};
 
 Input.init = function(game, size) {
     // Add keyboard and mouse to game
