@@ -203,7 +203,7 @@ Game.prototype.bindAllEvents = function() {
     // Mouse input
     this.mouse.listen();
 
-    this.events.trigger("allEventsBound", this.primus);
+    this.events.trigger("allEventsBound");
 };
 
 
