@@ -16,7 +16,7 @@ function Game() {
     this.events = events(this);
 
     // Input
-    this.inputList = new HashList(this, Input);
+    this.inputList = new HashList(this);
 
     // State
     // - Create state buffer (game.states)
@@ -90,7 +90,9 @@ Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
         this.state.players.iterate(function(player, id) {
             playerInput = self.inputList.get(id);
-            player.update(playerInput.input, playerInput.prevInput);
+            if (playerInput) {
+                player.update(playerInput.input, playerInput.prevInput);
+            }
         });
         this.timeAccumulator -= config.game.physTick;
     }

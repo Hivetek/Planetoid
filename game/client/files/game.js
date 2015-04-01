@@ -48,6 +48,8 @@ function Game() {
     this.inputId = 0;
 
     this.physicsQueue = new RingBuffer(config.game.inputBufferSize);
+
+    this.inputList = new HashList(this);
 }
 
 Game.prototype.init = function() {
@@ -132,7 +134,17 @@ Game.prototype.updateInput = function() {
 };
 
 Game.prototype.updatePhysics = function() {
+    var self = this;
+    var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
+        this.state.players.iterate(function(player, id) {
+            if (id != self.id) {
+                playerInput = self.inputList.get(id);
+                if (playerInput) {
+                    player.update(playerInput.input, playerInput.prevInput);
+                }
+            }
+        });
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= config.game.physTick;
     }

@@ -1,6 +1,7 @@
 // NodeJS requires
 if (typeof global !== "undefined") {
     var config = require('./config.js');
+    var Core = require('./core.js');
     var VectorMath = require('./vectorMath.js');
 }
 

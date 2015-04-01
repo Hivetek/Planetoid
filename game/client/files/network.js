@@ -52,6 +52,7 @@ Network.prototype.init = function(url) {
         //    g.physicsQueue.enq(i);
         //}
         g.pendingState = data.state;
+        g.inputList.import(data.input);
     });
 
     this.primus.on("ping", function(ping){

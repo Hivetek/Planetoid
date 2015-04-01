@@ -1,3 +1,8 @@
+// NodeJS requires
+if (typeof global !== "undefined") {
+    var Core = require('./core.js');
+}
+
 /**
  * HashList
  * HashTable with iteration abilities
@@ -92,13 +97,18 @@ HashList.prototype.values = function() {
 };
 
 HashList.prototype.export = function() {
-    var o = Object.create(null);
-    this.iterate(function(elem, key) {
-        if (elem && elem.export) {
-            o[key] = elem.export();
-        }
-    });
-    return o;
+    if (this.type) {
+        var o = Object.create(null);
+        this.iterate(function(elem, key) {
+            if (elem && elem.export) {
+                o[key] = elem.export();
+            }
+        });
+        return o;
+    } else {
+        var c = Core.clone(this.list);
+        return c;
+    }
 };
 
 // NOTE: This method modifies o
@@ -109,6 +119,8 @@ HashList.prototype.import = function(o) {
         if (o[key]) { // Key exists in both list and o -- Update
             if (elem.import) {
                 elem.import(o[key]);
+            } else {
+                self.add(key, o[key]);
             }
             delete o[key]; // Remove this from o (see below)
         } else { // Does not exist in o -- Delete
@@ -126,7 +138,11 @@ HashList.prototype.import = function(o) {
         key = ks[i];
         elem = o[key];
         if (elem) { // Exists in o but not in list -- New
-            var newElem = new self.type(elem, self.game);
+            if (self.type) {
+                var newElem = new self.type(elem, self.game);
+            } else {
+                var newElem = Core.clone(elem);
+            }
             self.add(key, newElem);
         }
     }
