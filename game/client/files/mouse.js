@@ -17,7 +17,7 @@ Mouse.prototype.move = function(event) {
     var p = this.game.player;
     var x = p.pos.x - this.game.cameraX;
     var y = p.pos.y - this.game.cameraY;
-    this.dir = Math.atan2(y - this.y, x - this.x);
+    this.dir = Math.atan2(this.y - y, this.x - x);
 };
 
 Mouse.prototype.down = function(event) {
