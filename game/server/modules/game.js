@@ -52,14 +52,17 @@ Game.prototype.init = function() {
 
     var self = this;
     this.events.on("player::killed", function(id) {
-        var p = self.state.players.get(id);
-        p.hp = 100;
-        var v = Math.random() * 2 * Math.PI;
-        var d = 100 + config.game.planetSize;
-        p.pos.x = config.game.planetX + d * Math.cos(v);
-        p.pos.y = config.game.planetY + d * Math.sin(v);
-        p.ppos.x = p.pos.x;
-        p.ppos.y = p.pos.y;
+        setTimeout(function() {
+            var p = self.state.players.get(id);
+            p.hp = 100;
+            p.isAlive = true;
+            var v = Math.random() * 2 * Math.PI;
+            var d = 100 + config.game.planetSize;
+            p.pos.x = config.game.planetX + d * Math.cos(v);
+            p.pos.y = config.game.planetY + d * Math.sin(v);
+            p.ppos.x = p.pos.x;
+            p.ppos.y = p.pos.y;
+        }, 2000);
     });
 
 
