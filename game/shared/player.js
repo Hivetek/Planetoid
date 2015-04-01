@@ -6,6 +6,13 @@ if (typeof global !== "undefined") {
 }
 
 function Player(o, game) {
+    if (!this.id) {
+        if (o.id) {
+            this.id = o.id
+        } else {
+            throw new TypeError("Player has no id");
+        }
+    }
     this.pos = {};
     this.pos.x = (o.pos && o.pos.x ? o.pos.x : 0);
     this.pos.y = (o.pos && o.pos.y ? o.pos.y : -2300);
@@ -134,8 +141,10 @@ Player.prototype.draw = function(ctx) {
 };
 
 Player.prototype.export = function() {
+    var g = this.game;
+    delete this.game;
     var c = Core.clone(this);
-    c.game = undefined;
+    this.game = g;
     return c;
 };
 
