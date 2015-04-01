@@ -49,7 +49,7 @@ Player.prototype.update = function(input, prevInput) {
     if (d <= config.game.planetSize + config.game.player.r) { //on the ground
         this.grounded = true;
         if (this.fuel < 100)
-            this.fuel += config.game.player.rechargeRate;
+            this.fuel += config.game.player.rechargeRate * (config.game.physTick/1000);
 
         if (this.fuel > 100)
             this.fuel = 100;
@@ -70,9 +70,9 @@ Player.prototype.update = function(input, prevInput) {
         
         if(this.fuel > 0){
             if (input.keys.up)
-                this.fuel -= config.game.player.burnRate;
+                this.fuel -=  (config.game.physTick/1000) * config.game.player.burnRate;
             else if(input.keys.left || input.keys.right)
-                this.fuel -= config.game.player.burnRate * (config.game.player.thrustSide / config.game.player.thrustUp);
+                this.fuel -=  (config.game.physTick/1000) * config.game.player.burnRate * (config.game.player.thrustSide / config.game.player.thrustUp);
         }
 
         if (this.fuel < 0)

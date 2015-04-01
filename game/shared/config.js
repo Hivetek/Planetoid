@@ -19,7 +19,7 @@ config.game.gravity = 1600.0;
 config.game.planetSize = 1932;
 config.game.planetX = 0; //960;
 config.game.planetY = 0; //2300;
-config.game.physTick = 16;
+config.game.physTick = 4;
 config.game.targetFPS = 60;
 config.game.fpsSampleCount = 30;
 
@@ -33,8 +33,8 @@ config.game.player = {
     thrustSide: 800,
     thrustUp: 2000,
     drag: 0.016,
-    burnRate: 0.6,
-    rechargeRate: 0.84
+    burnRate: 37.5,
+    rechargeRate: 52.5
 };
 
 // Static server
