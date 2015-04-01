@@ -15,7 +15,7 @@ config.client = {};
 config.game = {};
 config.game.inputBufferSize = 64;
 config.game.stateBufferSize = 64;
-config.game.gravity = 1.0;
+config.game.gravity = 1600.0;
 config.game.planetSize = 1932;
 config.game.planetX = 0; //960;
 config.game.planetY = 0; //2300;
@@ -27,12 +27,12 @@ config.game.fpsSampleCount = 30;
 config.game.player = {
     r: 16,
     mass: 0.5,
-    friction: 0.25,
-    landAccel: 2,
-    jumpSpeed: 6,
-    thrustSide: 0.3,
+    friction: 0.08,
+    landAccel: 3000,
+    jumpSpeed: 10000,
+    thrustSide: 400,
+    thrustUp: 2000,
     drag: 0.035,
-    thrustUp: 0.6,
     burnRate: 0.6,
     rechargeRate: 0.84
 };

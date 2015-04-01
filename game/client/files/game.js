@@ -108,8 +108,8 @@ Game.prototype.update = function() {
 
     this.updatePhysics();
 
-    this.cameraX = this.player.x - this.canvas.width / 2;
-    this.cameraY = this.player.y - this.canvas.height / 2;
+    this.cameraX = this.player.pos.x - this.canvas.width / 2;
+    this.cameraY = this.player.pos.y - this.canvas.height / 2;
 };
 
 Game.prototype.updateInput = function() {
@@ -138,11 +138,11 @@ Game.prototype.draw = function(ctx) {
     for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs){
         ctx.beginPath();
         ctx.moveTo(px - this.cameraX, py - this.cameraY);
-        ctx.lineTo(px + Math.cos(a) * ps * 2 - this.cameraX, py + Math.sin(a) * ps * 2 - this.cameraY);
+        ctx.lineTo(px + Math.cos(a) * (ps+1000) - this.cameraX, py + Math.sin(a) * (ps+1000) - this.cameraY);
         ctx.stroke();
     }
     
-    for(var d = ps; d < 2*ps; d += 120){
+    for(var d = ps; d < ps+1000; d += 100){
         ctx.beginPath();
         for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / (3*divs)){
             if(a === 0)
@@ -190,6 +190,11 @@ Game.prototype.drawHUD = function(ctx){
     }
     avgFPS = Math.round((avgFPS/this.fpsSamples.length)*100)/100;
     ctx.fillText("FPS: "+avgFPS, 20,84);
+    
+    ctx.fillText("X: "+this.player.pos.x, 20,108);
+    ctx.fillText("Y: "+this.player.pos.y, 20,132);
+    ctx.fillText("ΔX: "+(this.player.pos.x-this.player.ppos.x), 20,156);
+    ctx.fillText("ΔY: "+(this.player.pos.y-this.player.ppos.y), 20,180);
     
     // Display player fuel
     ctx.fillStyle = "#FF0000";

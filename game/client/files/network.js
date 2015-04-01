@@ -41,7 +41,7 @@ Network.prototype.init = function(url) {
 
     this.primus.on("update", function(data) {
         g.events.trigger("primus::update", data);
-        g.state.import(data.state); // Creates jittering
+        //g.state.import(data.state); // Creates jittering
     });
 
     this.primus.on("ping", function(ping){
