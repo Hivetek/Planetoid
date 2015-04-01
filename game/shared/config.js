@@ -30,9 +30,9 @@ config.game.player = {
     friction: 0.08,
     landAccel: 3000,
     jumpSpeed: 10000,
-    thrustSide: 400,
+    thrustSide: 800,
     thrustUp: 2000,
-    drag: 0.035,
+    drag: 0.016,
     burnRate: 0.6,
     rechargeRate: 0.84
 };

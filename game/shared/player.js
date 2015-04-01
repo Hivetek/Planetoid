@@ -67,21 +67,31 @@ Player.prototype.update = function(input, prevInput) {
             this.jump(gravity);
     } else {//in the air
         this.grounded = false;
-        if (input.keys.up && this.fuel > 0)
-            this.fuel -= config.game.player.burnRate;
+        
+        if(this.fuel > 0){
+            if (input.keys.up)
+                this.fuel -= config.game.player.burnRate;
+            else if(input.keys.left || input.keys.right)
+                this.fuel -= config.game.player.burnRate * (config.game.player.thrustSide / config.game.player.thrustUp);
+        }
 
         if (this.fuel < 0)
             this.fuel = 0;
-
-        var horX = gravity.y * (input.keys.right - input.keys.left);
-        var horY = gravity.x * (input.keys.left - input.keys.right);
-        var vertX = -gravity.x * input.keys.up * (this.fuel > 0);
-        var vertY = -gravity.y * input.keys.up * (this.fuel > 0);
-        var mx = horX * config.game.player.thrustSide + vertX * config.game.player.thrustUp;
-        var my = horY * config.game.player.thrustSide + vertY * config.game.player.thrustUp;
+        
+        var thrustSide = config.game.player.thrustSide * (this.fuel > 0); //Available sideways thrust
+        var horX = gravity.y * (input.keys.right - input.keys.left) * thrustSide;
+        var horY = gravity.x * (input.keys.left - input.keys.right) * thrustSide;
+        
+        var thrustUp = config.game.player.thrustUp - (thrustSide * (input.keys.left || input.keys.right));
+        var vertX = -gravity.x * thrustUp * input.keys.up * (this.fuel > 0);
+        var vertY = -gravity.y * thrustUp * input.keys.up * (this.fuel > 0);
+        
+        var mx = horX + vertX; 
+        var my = horY + vertY;
         
         this.a.x += mx;
         this.a.y += my;
+        
         this.a.x -= vx * config.game.player.drag / pt;
         this.a.y -= vy * config.game.player.drag / pt;
     }
