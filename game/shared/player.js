@@ -24,6 +24,7 @@ function Player(o, game) {
     this.ppos.x = (o.ppos && o.ppos.x ? o.ppos.x : this.pos.x);
     this.ppos.y = (o.ppos && o.ppos.y ? o.ppos.y : this.pos.y);
     this.grounded = o.grounded || false;
+    this.isAlive = o.isAlive || false;
     this.game = game;
 }
 
@@ -39,6 +40,13 @@ Player.prototype.verlet = function(dt) {
 Player.prototype.update = function(input, prevInput) {
     if (this.hp > 0)
         this.hp -= 0.5;
+
+    if (this.hp <= 0) {
+        if (this.isAlive) {
+            this.game.events.trigger("player::killed", this.id);
+        }
+        this.isAlive = false;
+    }
 
     this.a.x = 0;
     this.a.y = 0;

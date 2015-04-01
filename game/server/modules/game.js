@@ -50,6 +50,21 @@ Game.prototype.init = function() {
 
     this.events.trigger("init::end");
 
+    var self = this;
+    this.events.on("player::killed", function(id) {
+        setTimeout(function() {
+            var p = self.state.players.get(id);
+            p.hp = 100;
+            p.isAlive = true;
+            var v = Math.random() * 2 * Math.PI;
+            var d = 100 + config.game.planetSize;
+            p.pos.x = config.game.planetX + d * Math.cos(v);
+            p.pos.y = config.game.planetY + d * Math.sin(v);
+            p.ppos.x = p.pos.x;
+            p.ppos.y = p.pos.y;
+        }, 2000);
+    });
+
 
     this.events.trigger("loop::begin");
     this.startTime = this.getTime();
