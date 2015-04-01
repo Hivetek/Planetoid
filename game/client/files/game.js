@@ -223,12 +223,15 @@ Game.prototype.drawHUD = function(ctx){
     ctx.fillText("ΔX: "+(this.player.pos.x-this.player.ppos.x), 20,156);
     ctx.fillText("ΔY: "+(this.player.pos.y-this.player.ppos.y), 20,180);
     
-    // Display player fuel
+    // Display player HP & Fuel
     ctx.fillStyle = "#FF0000";
-    ctx.fillRect(20, 20, this.player.fuel, 10);
+    ctx.fillRect(20, 5, this.player.hp, 10);
+    ctx.fillStyle = "#00FF00";
+    ctx.fillRect(20, 25, this.player.fuel, 10);
 
     ctx.strokeStyle = "#000";
-    ctx.strokeRect(20, 20, 100, 10);
+    ctx.strokeRect(20, 5, 100, 10);
+    ctx.strokeRect(20, 25, 100, 10);
 };
 
 Game.prototype.clearCanvas = function(ctx, canvas) {
