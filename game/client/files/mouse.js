@@ -8,6 +8,7 @@ function Mouse(game) {
     this.left = false;
     this.middle = false;
     this.right = false;
+    this.dir = 0;
 }
 
 Mouse.prototype.move = function(event) {
@@ -46,7 +47,16 @@ Mouse.prototype.up = function(event) {
 // Add event listeners
 Mouse.prototype.listen = function() {
     var self = this;
-    document.addEventListener('mousemove', self.move.bind(self), false);
-    window.addEventListener('mousedown', self.down.bind(self), false);
-    window.addEventListener('mouseup', self.up.bind(self), false);
+    document.addEventListener('mousemove', function(event) {
+        self.move(event);
+        self.game.updateInput();
+    }, false);
+    window.addEventListener('mousedown', function(event) {
+        self.down(event);
+        self.game.updateInput();
+    }, false);
+    window.addEventListener('mouseup', function(event) {
+        self.up(event);
+        self.game.updateInput();
+    }, false);
 };

@@ -13,11 +13,15 @@ Input.prototype.export = function() {
 
 Input.prototype.import = function(o) {
     o = o || {};
-    //o.mouse = o.mouse || {};
-    //this.mouse = {
-    //    x: o.mouse.x || 0,
-    //    y: o.mouse.y || 0
-    //};
+    o.mouse = o.mouse || {};
+    this.mouse = {
+        x: o.mouse.x || 0,
+        y: o.mouse.y || 0,
+        left: o.mouse.left || false,
+        middle: o.mouse.middle || false,
+        right: o.mouse.right || false,
+        dir: o.mouse.dir || 0
+    };
     o.keys = o.keys || {};
     this.keys = {
         up:    o.keys.up    || false,
@@ -61,7 +65,7 @@ Input.init = function(game, size) {
 Input.fromUserInput = function(game) {
     // Capture a snapshot of the current inputs
     var o = {};
-    //o.mouse = Core.clone(game.mouse);
+    o.mouse = Core.clone(game.mouse);
     o.keys = new Keys(game.keyboard);
     return new Input(o, game);
 }
