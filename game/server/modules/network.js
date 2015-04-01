@@ -60,7 +60,13 @@ Network.prototype.init = function() {
 };
 
 Network.prototype.sendSnapshot = function() {
-    this.primus.send("update", this.game.snapshot());
+    var self = this;
+    var snap = this.game.snapshot();
+    this.primus.forEach(function(spark, id, connections) {
+        playerInput = self.game.inputList.get(id);
+        snap.inputId = playerInput.input.id;
+        spark.send('update', snap);
+    });
 }
 
 Network.prototype.sendInitSnapshot = function() {
