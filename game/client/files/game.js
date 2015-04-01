@@ -102,10 +102,10 @@ Game.prototype.loop = function() {
 };
 
 Game.prototype.update = function() {
-    //if (this.pendingState) {
-    //    this.state.import(this.pendingState); // Creates jittering
-    //    this.pendingState = undefined;
-    //}
+    if (this.pendingState) {
+        this.state.import(this.pendingState); // Creates jittering
+        this.pendingState = undefined;
+    }
     //while (!this.physicsQueue.isEmpty) {
     //    var i = this.physicsQueue.deq();
     //    this.player.update(this.inputs.getRaw(i), this.inputs.getRaw(i-1));
