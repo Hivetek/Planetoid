@@ -54,8 +54,11 @@ Game.prototype.init = function() {
     this.events.trigger("init::begin");
 
     this.canvas = document.getElementById('canvas');
-    this.resize();
+    this.HUDcanvas = document.getElementById('hudcanvas');
+    this.resize(this.canvas);
+    this.resize(this.HUDcanvas);
     this.ctx = this.canvas.getContext('2d');
+    this.HUDctx = this.HUDcanvas.getContext('2d');
 
     this.events.trigger("init::end");
 
@@ -87,6 +90,7 @@ Game.prototype.loop = function() {
         this.update();
 
     this.draw(this.ctx);
+    this.drawHUD(this.HUDctx);
 
     this.lastTime = this.currentTime;
 
@@ -108,8 +112,8 @@ Game.prototype.update = function() {
 
     this.updatePhysics();
 
-    this.cameraX = this.player.x - this.canvas.width / 2;
-    this.cameraY = this.player.y - this.canvas.height / 2;
+    this.cameraX = this.player.pos.x - this.canvas.width / 2;
+    this.cameraY = this.player.pos.y - this.canvas.height / 2;
 };
 
 Game.prototype.updateInput = function() {
@@ -127,12 +131,60 @@ Game.prototype.updatePhysics = function() {
     }
 };
 
-
 Game.prototype.draw = function(ctx) {
     drawCalls = [];
     drawCalls.push(this.player.draw(ctx));
 
-    this.clearCanvas();
+    this.clearCanvas(ctx, this.canvas);
+    
+    //Draw background
+    ctx.strokeStyle = "#0094AA";
+    var px = config.game.planetX;
+    var py = config.game.planetY;
+    var ps = config.game.planetSize;
+    var divs = 72;
+    for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs){
+        ctx.beginPath();
+        ctx.moveTo(px - this.cameraX, py - this.cameraY);
+        ctx.lineTo(px + Math.cos(a) * (ps+1000) - this.cameraX, py + Math.sin(a) * (ps+1000) - this.cameraY);
+        ctx.stroke();
+    }
+    
+    for(var d = ps; d < ps+1000; d += 100){
+        ctx.beginPath();
+        for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / (3*divs)){
+            if(a === 0)
+                ctx.moveTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+            else
+                ctx.lineTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+        }
+        ctx.stroke();
+    }
+    
+
+    // Draw planet
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    var divs = 180;
+    var x, y;
+    for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
+        x = px + Math.cos(a) * ps - this.cameraX;
+        y = py + Math.sin(a) * ps - this.cameraY;
+        if (a === 0)
+            ctx.moveTo(x, y);
+        else
+            ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    this.state.players.iterate(function(player) {
+        player.draw(ctx);
+    });
+};
+
+Game.prototype.drawHUD = function(ctx){
+    this.clearCanvas(ctx, this.HUDcanvas);
     
     // Display ping
     ctx.fillStyle = "#000";
@@ -147,38 +199,22 @@ Game.prototype.draw = function(ctx) {
     avgFPS = Math.round((avgFPS/this.fpsSamples.length)*100)/100;
     ctx.fillText("FPS: "+avgFPS, 20,84);
     
+    ctx.fillText("X: "+this.player.pos.x, 20,108);
+    ctx.fillText("Y: "+this.player.pos.y, 20,132);
+    ctx.fillText("ΔX: "+(this.player.pos.x-this.player.ppos.x), 20,156);
+    ctx.fillText("ΔY: "+(this.player.pos.y-this.player.ppos.y), 20,180);
+    
     // Display player fuel
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 20, this.player.fuel, 10);
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 20, 100, 10);
-
-    // Draw planet
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    var divs = 180;
-    var x, y;
-    for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
-        x = config.game.planetX + Math.cos(a) * config.game.planetSize - this.cameraX;
-        y = config.game.planetY + Math.sin(a) * config.game.planetSize - this.cameraY;
-        if (a === 0)
-            ctx.moveTo(x, y);
-        else
-            ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    this.state.players.iterate(function(player) {
-        player.draw(ctx);
-    });
-}
-
-Game.prototype.clearCanvas = function() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 };
 
+Game.prototype.clearCanvas = function(ctx, canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
 
 // Will execute and determine what clock to use
 // such that we don't have to check for support for each call
@@ -197,10 +233,10 @@ Game.prototype.getInputId = function() {
 };
 
 
-Game.prototype.resize = function() {
-    if (this.canvas) {
-        this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
+Game.prototype.resize = function(canvas) {
+    if (canvas) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
     }
 };
 
@@ -208,7 +244,7 @@ Game.prototype.bindAllEvents = function() {
     var self = this;
 
     // Resize
-    window.addEventListener('resize', self.resize.bind(self), false);
+    window.addEventListener('resize', function(){self.resize(self.canvas); self.resize(self.HUDcanvas);}, false);
 
     // Keyboard input
     this.keyboard.listen();

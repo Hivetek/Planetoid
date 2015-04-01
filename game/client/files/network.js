@@ -52,6 +52,7 @@ Network.prototype.init = function(url) {
             }
             g.physicsQueue.enq(i);
         }
+        g.state.import(data.state); // Creates jittering
     });
 
     this.primus.on("ping", function(ping){

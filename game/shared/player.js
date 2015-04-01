@@ -5,29 +5,48 @@ if (typeof global !== "undefined") {
 }
 
 function Player(o, game) {
-    this.x = o.x || 0;
-    this.y = o.y || -2300;
+    this.pos = o.pos || {x:0,y:-2300};          //Position
+    this.a = o.a || {x:0, y:0};                 //Acceleration
+    this.m = o.a || config.game.player.mass;    //Mass
     this.fuel = o.fuel || 100;
-    this.vx = o.vx || 0;
-    this.vy = o.vy || 0;
+    this.ppos = o.ppos || this.pos;
     this.grounded = o.grounded || false;
     this.game = game;
 }
 
+Player.prototype.verlet = function(dt){
+    var newx = 2*this.pos.x-this.ppos.x+this.a.x*dt*dt;
+    var newy = 2*this.pos.y-this.ppos.y+this.a.y*dt*dt;
+    this.ppos.x = this.pos.x;
+    this.ppos.y = this.pos.y;
+    this.pos.x = newx;
+    this.pos.y = newy;
+};
+
 Player.prototype.update = function(input, prevInput) {
-    var gravX = config.game.planetX - this.x;
-    var gravY = config.game.planetY - this.y;
+    this.a.x = 0;
+    this.a.y = 0;
+    
+    var vx = this.pos.x - this.ppos.x;
+    var vy = this.pos.y - this.ppos.y;
+    var pt = config.game.physTick/1000;
+    pt = pt*pt;
+    
+    var gravX = config.game.planetX - this.pos.x;
+    var gravY = config.game.planetY - this.pos.y;
     var gravity = {
         x: gravX,
         y: gravY
     };
     var d = VectorMath.magnitude(gravity);
     gravity = VectorMath.scale(gravity, 1 / d);
+    
     if (d > 0) {
-        this.vx += gravity.x * config.game.player.mass;
-        this.vy += gravity.y * config.game.player.mass;
+       this.a.x += gravity.x * config.game.gravity;
+       this.a.y += gravity.y * config.game.gravity;
     }
-    if (d <= config.game.planetSize + config.game.player.r + 1) { //on the ground
+    
+    if (d <= config.game.planetSize + config.game.player.r) { //on the ground
         this.grounded = true;
         if (this.fuel < 100)
             this.fuel += config.game.player.rechargeRate;
@@ -36,45 +55,53 @@ Player.prototype.update = function(input, prevInput) {
             this.fuel = 100;
 
         var m = (config.game.planetSize + config.game.player.r) - d;
-        this.x -= gravity.x * m;
-        this.y -= gravity.y * m;
+        this.pos.x -= gravity.x * m;
+        this.pos.y -= gravity.y * m;
 
-
-        var speedVector = VectorMath.project({x: this.vx, y: this.vy}, {x: -gravity.y, y: gravity.x});
-        this.vx = speedVector.x;
-        this.vy = speedVector.y;
-
-        this.vx += config.game.player.landAccel * gravity.y * (input.keys.right - input.keys.left);
-        this.vy += config.game.player.landAccel * gravity.x * (input.keys.left - input.keys.right);
-        this.vx -= this.vx * config.game.player.friction;
-        this.vy -= this.vy * config.game.player.friction;
+        this.a.x += config.game.player.landAccel * gravity.y * (input.keys.right - input.keys.left);
+        this.a.y += config.game.player.landAccel * gravity.x * (input.keys.left - input.keys.right);
+        this.a.x -= config.game.player.friction * vx / pt;
+        this.a.y -= config.game.player.friction * vy / pt;
+        
         if (input.keys.up && !prevInput.keys.up)
             this.jump(gravity);
-    } else { //in the air
+    } else {//in the air
         this.grounded = false;
-        if (input.keys.up && this.fuel > 0)
-            this.fuel -= config.game.player.burnRate;
+        
+        if(this.fuel > 0){
+            if (input.keys.up)
+                this.fuel -= config.game.player.burnRate;
+            else if(input.keys.left || input.keys.right)
+                this.fuel -= config.game.player.burnRate * (config.game.player.thrustSide / config.game.player.thrustUp);
+        }
 
         if (this.fuel < 0)
             this.fuel = 0;
-
-        var horX = gravity.y * (input.keys.right - input.keys.left);
-        var horY = gravity.x * (input.keys.left - input.keys.right);
-        var vertX = -gravity.x * input.keys.up * (this.fuel > 0);
-        var vertY = -gravity.y * input.keys.up * (this.fuel > 0);
-        this.vx += horX * config.game.player.thrustSide + vertX * config.game.player.thrustUp;
-        this.vy += horY * config.game.player.thrustSide + vertY * config.game.player.thrustUp;
-        this.vx -= this.vx * config.game.player.drag;
-        this.vy -= this.vy * config.game.player.drag;
+        
+        var thrustSide = config.game.player.thrustSide * (this.fuel > 0); //Available sideways thrust
+        var horX = gravity.y * (input.keys.right - input.keys.left) * thrustSide;
+        var horY = gravity.x * (input.keys.left - input.keys.right) * thrustSide;
+        
+        var thrustUp = config.game.player.thrustUp - (thrustSide * (input.keys.left || input.keys.right));
+        var vertX = -gravity.x * thrustUp * input.keys.up * (this.fuel > 0);
+        var vertY = -gravity.y * thrustUp * input.keys.up * (this.fuel > 0);
+        
+        var mx = horX + vertX; 
+        var my = horY + vertY;
+        
+        this.a.x += mx;
+        this.a.y += my;
+        
+        this.a.x -= vx * config.game.player.drag / pt;
+        this.a.y -= vy * config.game.player.drag / pt;
     }
-
-    this.x += this.vx;
-    this.y += this.vy;
+    
+    this.verlet(config.game.physTick/1000);
 };
 
 Player.prototype.jump = function(gravity) {
-    this.vx -= gravity.x * config.game.player.jumpSpeed;
-    this.vy -= gravity.y * config.game.player.jumpSpeed;
+    this.a.x -= gravity.x * config.game.player.jumpSpeed;
+    this.a.y -= gravity.y * config.game.player.jumpSpeed;
 };
 
 Player.prototype.draw = function(ctx) {
@@ -83,7 +110,7 @@ Player.prototype.draw = function(ctx) {
     else
         ctx.fillStyle = "#FF0000";
     ctx.beginPath();
-    ctx.arc(this.x - this.game.cameraX, this.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
+    ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 };
@@ -91,10 +118,10 @@ Player.prototype.draw = function(ctx) {
 Player.prototype.export = function() {
     var p = this;
     return {
-        x: p.x,
-        y: p.y,
-        vx: p.vx,
-        vy: p.vy,
+        pos: p.pos,
+        ppos: p.ppos,
+        a: p.a,
+        m: p.m,
         fuel: p.fuel,
         grounded: p.grounded
     };
