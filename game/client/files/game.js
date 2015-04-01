@@ -72,6 +72,20 @@ Game.prototype.init = function() {
         g.lastTime = g.currentTime;
         g.loop();
     });
+    
+    this.particles = [];
+    
+    this.events.on("player::killed", function(id){
+        var p = g.state.players.get(id);
+        var x = p.pos.x;
+        var y = p.pos.y;
+        
+        for(var i = 0; i < 20; i++){
+            var d = Math.random() * 2 * Math.PI;
+            var v = Math.random() * 10 + 10;
+            this.particles.push({px: x, py: y, vx: cos(d)*v, vy: sin(d)*v, r: 0}); 
+        }
+    });
 };
 
 
@@ -126,6 +140,14 @@ Game.prototype.update = function() {
 
     this.cameraX = this.player.pos.x - this.canvas.width / 2;
     this.cameraY = this.player.pos.y - this.canvas.height / 2;
+    
+    this.particles.forEach(function(part){
+        if(part.r < 100){
+            part.px += part.vx;
+            part.py += part.vy;
+            part.r++;
+        }
+    });
 };
 
 Game.prototype.updateInput = function() {
@@ -199,6 +221,16 @@ Game.prototype.draw = function(ctx) {
 
     this.state.players.iterate(function(player) {
         player.draw(ctx);
+    });
+    
+    //Draw particles
+    this.particles.forEach(function(part){
+        if(part.r < 100){
+            ctx.fillStyle = "rgba(255,0,0,"+(part.r/100)+")";
+            ctx.beginPath();
+            ctx.arc(part.px,part.py,part.r,0,2*Math.PI, false);
+            ctx.fill();
+        }
     });
 };
 
