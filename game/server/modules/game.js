@@ -123,10 +123,8 @@ Game.prototype.start = function() {
 Game.prototype.log = function() {
     var d = new Date();
     var n = d.toLocaleTimeString(); // Get local time
-    var args = Array.prototype.slice.call(arguments); // Convert arguments to array
-    args.unshift("[" + n + "]"); // Prepend the time
-    args.unshift("[Planetoid]"); // Prepend the name of the project
-
+    var args = ["[Planetoid]".gray, ("[" + n + "]").gray];
+    args.push.apply(args, Array.prototype.slice.call(arguments)); // Convert arguments to array and append args
     console.log.apply(undefined, args);
 };
 
