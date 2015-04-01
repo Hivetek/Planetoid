@@ -123,12 +123,36 @@ Game.prototype.updatePhysics = function() {
     }
 };
 
-
 Game.prototype.draw = function(ctx) {
     drawCalls = [];
     drawCalls.push(this.player.draw(ctx));
 
     this.clearCanvas(ctx, this.canvas);
+    
+    //Draw background
+    ctx.strokeStyle = "#0094AA";
+    var px = config.game.planetX;
+    var py = config.game.planetY;
+    var ps = config.game.planetSize;
+    var divs = 72;
+    for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs){
+        ctx.beginPath();
+        ctx.moveTo(px - this.cameraX, py - this.cameraY);
+        ctx.lineTo(px + Math.cos(a) * ps * 2 - this.cameraX, py + Math.sin(a) * ps * 2 - this.cameraY);
+        ctx.stroke();
+    }
+    
+    for(var d = ps; d < 2*ps; d += 120){
+        ctx.beginPath();
+        for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / (3*divs)){
+            if(a === 0)
+                ctx.moveTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+            else
+                ctx.lineTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+        }
+        ctx.stroke();
+    }
+    
 
     // Draw planet
     ctx.fillStyle = "#000";
@@ -136,8 +160,8 @@ Game.prototype.draw = function(ctx) {
     var divs = 180;
     var x, y;
     for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
-        x = config.game.planetX + Math.cos(a) * config.game.planetSize - this.cameraX;
-        y = config.game.planetY + Math.sin(a) * config.game.planetSize - this.cameraY;
+        x = px + Math.cos(a) * ps - this.cameraX;
+        y = py + Math.sin(a) * ps - this.cameraY;
         if (a === 0)
             ctx.moveTo(x, y);
         else
