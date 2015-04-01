@@ -14,6 +14,10 @@ function Mouse(game) {
 Mouse.prototype.move = function(event) {
     this.x = event.clientX;
     this.y = event.clientY;
+    var p = this.game.player;
+    var x = p.pos.x - this.game.cameraX;
+    var y = p.pos.y - this.game.cameraY;
+    this.dir = Math.atan2(y - this.y, x - this.x);
 };
 
 Mouse.prototype.down = function(event) {
