@@ -44,6 +44,10 @@ function Game() {
     this.fpsSampleIndex = 0;
 
     this.paused = false;
+
+    this.inputId = 0;
+
+    this.physicsQueue = new RingBuffer(config.game.inputBufferSize);
 }
 
 Game.prototype.init = function() {
@@ -113,6 +117,10 @@ Game.prototype.updateInput = function() {
 };
 
 Game.prototype.updatePhysics = function() {
+    while (!this.physicsQueue.isEmpty) {
+        var i = this.physicsQueue.deq();
+        this.player.update(this.inputs.getRaw(i), this.inputs.getRaw(i-1));
+    }
     while (this.timeAccumulator > config.game.physTick) {
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= config.game.physTick;
@@ -182,6 +190,11 @@ Game.prototype.getTime = (function() {
         return Date.now;
     }
 })();
+
+Game.prototype.getInputId = function() {
+    this.inputId++;
+    return this.inputId;
+};
 
 
 Game.prototype.resize = function() {

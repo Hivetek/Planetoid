@@ -4,6 +4,7 @@
 function Input(o, game) {
     this.import(o);
     this.timestamp = game.getTime();
+    this.id = game.getInputId();
 }
 
 Input.prototype.export = function() {

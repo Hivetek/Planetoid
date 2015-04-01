@@ -101,6 +101,13 @@ RingBuffer.prototype.get = function(index) {
     return this._elements[i];
 };
 
+RingBuffer.prototype.getRaw = function(index) {
+    if (this.isEmpty) throw new Error('RingBuffer is empty');
+
+    var i = index % this.capacity;
+    return this._elements[i];
+};
+
 
 /**
  * Dequeues the top element of the queue.

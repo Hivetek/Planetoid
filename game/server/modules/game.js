@@ -116,6 +116,10 @@ Game.prototype.getTime = (function() {
     };
 })()
 
+Game.prototype.getInputId = function() {
+    return undefined;
+};
+
 Game.prototype.start = function() {
     this.init();
 };
