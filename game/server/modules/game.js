@@ -120,4 +120,14 @@ Game.prototype.start = function() {
     this.init();
 };
 
+Game.prototype.log = function() {
+    var d = new Date();
+    var n = d.toLocaleTimeString(); // Get local time
+    var args = Array.prototype.slice.call(arguments); // Convert arguments to array
+    args.unshift("[" + n + "]"); // Prepend the time
+    args.unshift("[Planetoid]"); // Prepend the name of the project
+
+    console.log.apply(undefined, args);
+};
+
 module.exports = Game;

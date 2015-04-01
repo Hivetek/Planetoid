@@ -12,3 +12,5 @@ staticServer.listen(config.staticServer.port);
 
 // Start the game
 game.start();
+
+game.log("Server is running!");
