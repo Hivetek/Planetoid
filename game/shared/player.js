@@ -48,6 +48,9 @@ Player.prototype.update = function(input, prevInput) {
         this.isAlive = false;
     }
 
+    // Don't waste CPU power on updating a dead player
+    if (!this.isAlive) return false;
+
     this.a.x = 0;
     this.a.y = 0;
 
