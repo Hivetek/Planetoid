@@ -102,9 +102,19 @@ Game.prototype.loop = function() {
 };
 
 Game.prototype.update = function() {
-    this.updateInput();
+    //if (this.pendingState) {
+    //    this.state.import(this.pendingState); // Creates jittering
+    //    this.pendingState = undefined;
+    //}
+    //while (!this.physicsQueue.isEmpty) {
+    //    var i = this.physicsQueue.deq();
+    //    this.player.update(this.inputs.getRaw(i), this.inputs.getRaw(i-1));
+    //}
 
-    this.network.primus.send("input", this.input);
+    //this.updateInput();
+
+    //this.network.primus.send("input", this.input);
+
     if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)){
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
@@ -118,13 +128,10 @@ Game.prototype.update = function() {
 
 Game.prototype.updateInput = function() {
     this.input = Input.fromUserInput(this); // Capture current state of mouse and keyboard
+    this.network.primus.send("input", this.input); // Send the new input to the server
 };
 
 Game.prototype.updatePhysics = function() {
-    while (!this.physicsQueue.isEmpty) {
-        var i = this.physicsQueue.deq();
-        this.player.update(this.inputs.getRaw(i), this.inputs.getRaw(i-1));
-    }
     while (this.timeAccumulator > config.game.physTick) {
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= config.game.physTick;

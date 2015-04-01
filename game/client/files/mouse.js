@@ -1,7 +1,8 @@
 /**
  * Mouse
  */
-function Mouse() {
+function Mouse(game) {
+    this.game = game;
     this.x = 0;
     this.y = 0;
     this.left = false;

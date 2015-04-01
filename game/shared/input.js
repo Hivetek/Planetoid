@@ -13,11 +13,11 @@ Input.prototype.export = function() {
 
 Input.prototype.import = function(o) {
     o = o || {};
-    o.mouse = o.mouse || {};
-    this.mouse = {
-        x: o.mouse.x || 0,
-        y: o.mouse.y || 0
-    };
+    //o.mouse = o.mouse || {};
+    //this.mouse = {
+    //    x: o.mouse.x || 0,
+    //    y: o.mouse.y || 0
+    //};
     o.keys = o.keys || {};
     this.keys = {
         up:    o.keys.up    || false,
@@ -29,8 +29,8 @@ Input.prototype.import = function(o) {
 
 Input.init = function(game, size) {
     // Add keyboard and mouse to game
-    game.keyboard = new Keyboard();
-    game.mouse = new Mouse();
+    game.keyboard = new Keyboard(game);
+    game.mouse = new Mouse(game);
 
     // Add a ring buffer to the game
     game.inputs = new RingBuffer(size || 64);
@@ -61,7 +61,7 @@ Input.init = function(game, size) {
 Input.fromUserInput = function(game) {
     // Capture a snapshot of the current inputs
     var o = {};
-    o.mouse = Core.clone(game.mouse); 
+    //o.mouse = Core.clone(game.mouse);
     o.keys = new Keys(game.keyboard);
     return new Input(o, game);
 }

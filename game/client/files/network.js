@@ -41,18 +41,17 @@ Network.prototype.init = function(url) {
 
     this.primus.on("update", function(data) {
         g.events.trigger("primus::update", data);
-        g.state.import(data.state); // Creates jittering
         var input;
         // Queue inputs to be re-applied from data.inputId and forward
-        for (var i = data.inputId; i < g.inputId; i++) {
-            input = g.inputs.getRaw(i);
-            if (i != input.id) {
-                console.log("Input ID mismatch:", i, input.id);
-                return;
-            }
-            g.physicsQueue.enq(i);
-        }
-        g.state.import(data.state); // Creates jittering
+        //for (var i = data.inputId; i < g.inputId; i++) {
+        //    input = g.inputs.getRaw(i);
+        //    if (i != input.id) {
+        //        console.log("Input ID mismatch:", i, input.id);
+        //        return;
+        //    }
+        //    g.physicsQueue.enq(i);
+        //}
+        //g.pendingState = data.state;
     });
 
     this.primus.on("ping", function(ping){

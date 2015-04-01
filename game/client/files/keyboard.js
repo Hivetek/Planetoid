@@ -1,7 +1,8 @@
 /**
  * Keyboard
  */
-function Keyboard() {
+function Keyboard(game) {
+    this.game = game;
     this.allBindings = {};
     this.bindings = null;
     this.keys = {};
@@ -14,9 +15,11 @@ Keyboard.prototype.listen = function() {
     var self = this;
     window.addEventListener('keydown', function(event) {
         self.keyUpdate(event, true);
+        self.game.updateInput();
     }, false);
     window.addEventListener('keyup', function(event) {
         self.keyUpdate(event, false);
+        self.game.updateInput();
     }, false);
 };
 
