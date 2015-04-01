@@ -160,7 +160,7 @@ Game.prototype.updatePhysics = function() {
     var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
         this.state.players.iterate(function(player, id) {
-            if (id != self.id) {
+            if (id !== self.id) {
                 playerInput = self.inputList.get(id);
                 if (playerInput) {
                     player.update(playerInput.input, playerInput.prevInput);

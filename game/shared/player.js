@@ -8,12 +8,13 @@ if (typeof global !== "undefined") {
 function Player(o, game) {
     if (!this.id) {
         if (o.id) {
-            this.id = o.id
+            this.id = o.id;
         } else {
             throw new TypeError("Player has no id");
         }
     }
     this.pos = {};
+    this.dir = o.dir || 0;
     this.pos.x = (o.pos && o.pos.x ? o.pos.x : 0);
     this.pos.y = (o.pos && o.pos.y ? o.pos.y : -2300);
     this.a = o.a || {x: 0, y: 0};                 //Acceleration
@@ -38,9 +39,8 @@ Player.prototype.verlet = function(dt) {
 };
 
 Player.prototype.update = function(input, prevInput) {
-    if (this.hp > 0)
-        this.hp -= 0.5;
-
+    this.dir = input.mouse.dir;
+    
     if (this.hp <= 0) {
         if (this.isAlive) {
             this.game.events.trigger("player::killed", this.id);
@@ -145,6 +145,16 @@ Player.prototype.draw = function(ctx) {
         ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
+        
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY);
+        var gx = Math.cos(this.dir) * 20;
+        var gy = Math.sin(this.dir) * 20;
+        ctx.lineTo(this.pos.x - this.game.cameraX + gx, this.pos.y - this.game.cameraY + gy);
+        ctx.stroke();
+        ctx.lineWidth = 1;
     }
 };
 
