@@ -40,6 +40,10 @@ Player.prototype.update = function(input, prevInput) {
     if (this.hp > 0)
         this.hp -= 0.5;
 
+    if (this.hp <= 0) {
+        this.game.events.trigger("player::killed", this.id);
+    }
+
     this.a.x = 0;
     this.a.y = 0;
 
