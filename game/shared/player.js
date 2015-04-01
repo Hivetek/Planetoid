@@ -5,11 +5,15 @@ if (typeof global !== "undefined") {
 }
 
 function Player(o, game) {
-    this.pos = o.pos || {x:0,y:-2300};          //Position
+    this.pos = {};
+    this.pos.x = (o.pos && o.pos.x ? o.pos.x : 0);
+    this.pos.y = (o.pos && o.pos.y ? o.pos.y : -2300);
     this.a = o.a || {x:0, y:0};                 //Acceleration
-    this.m = o.a || config.game.player.mass;    //Mass
+    this.m = o.m || config.game.player.mass;    //Mass
     this.fuel = o.fuel || 100;
-    this.ppos = o.ppos || this.pos;
+    this.ppos = {};
+    this.ppos.x = (o.ppos && o.ppos.x ? o.ppos.x : this.pos.x);
+    this.ppos.y = (o.ppos && o.ppos.y ? o.ppos.y : this.pos.y);
     this.grounded = o.grounded || false;
     this.game = game;
 }
@@ -95,7 +99,7 @@ Player.prototype.update = function(input, prevInput) {
         this.a.x -= vx * config.game.player.drag / pt;
         this.a.y -= vy * config.game.player.drag / pt;
     }
-    
+
     this.verlet(config.game.physTick/1000);
 };
 
@@ -116,6 +120,9 @@ Player.prototype.draw = function(ctx) {
 };
 
 Player.prototype.export = function() {
+    var c = Core.clone(this);
+    c.game = undefined;
+    return c;
     var p = this;
     return {
         pos: p.pos,

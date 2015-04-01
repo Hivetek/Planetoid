@@ -19,7 +19,7 @@ config.game.gravity = 1600.0;
 config.game.planetSize = 1932;
 config.game.planetX = 0; //960;
 config.game.planetY = 0; //2300;
-config.game.physTick = 4;
+config.game.physTick = 16;
 config.game.targetFPS = 60;
 config.game.fpsSampleCount = 30;
 
