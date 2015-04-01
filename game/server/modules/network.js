@@ -29,7 +29,7 @@ Network.prototype.init = function() {
 
     // Primus connection
     primus.on("connection", function(spark) {
-        console.log("New connection: " + spark.id);
+        g.log("New connection: " + spark.id);
 
         var p = new Player(0, -2300, g);
 
@@ -51,7 +51,7 @@ Network.prototype.init = function() {
         self.sendInitSnapshot();
 
         spark.on("end", function() {
-            console.log("Ended connection: " + spark.id);
+            g.log("Ended connection: " + spark.id);
             g.state.players.remove(spark.id);
         });
     });

@@ -1,6 +1,7 @@
 'use strict';
 
 var config = require('shared/config');
+var colors = require('colors');
 
 // Create game
 var Game = require("app/game");
@@ -12,3 +13,5 @@ staticServer.listen(config.staticServer.port);
 
 // Start the game
 game.start();
+
+game.log("Server is running!".green);

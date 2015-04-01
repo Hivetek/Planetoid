@@ -60,7 +60,7 @@ Game.prototype.init = function() {
 
 
 Game.prototype.loop = function() {
-    //console.time("loop");
+    //this.time("loop");
     this.currentTime = this.getTime();
     this.deltaTime = this.currentTime - this.lastTime;
     this.timeScale = this.deltaTime / (1000 / this.fps);
@@ -73,7 +73,7 @@ Game.prototype.loop = function() {
 
     this.lastTime = this.currentTime;
 
-    //console.timeEnd("loop");
+    //this.timeEnd("loop");
     var g = this;
     setTimeout(function() {
         g.loop();
@@ -118,6 +118,14 @@ Game.prototype.getTime = (function() {
 
 Game.prototype.start = function() {
     this.init();
+};
+
+Game.prototype.log = function() {
+    var d = new Date();
+    var n = d.toLocaleTimeString(); // Get local time
+    var args = ["[Planetoid]".gray, ("[" + n + "]").gray];
+    args.push.apply(args, Array.prototype.slice.call(arguments)); // Convert arguments to array and append args
+    console.log.apply(undefined, args);
 };
 
 module.exports = Game;
