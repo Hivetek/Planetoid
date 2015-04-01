@@ -31,7 +31,8 @@ Network.prototype.init = function() {
     primus.on("connection", function(spark) {
         g.log("New connection: " + spark.id);
 
-        var p = new Player(0, -2300, g);
+        var pObj = {id: spark.id};
+        var p = new Player(pObj, g);
 
         g.state.players.add(spark.id, p);
 
