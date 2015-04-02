@@ -37,6 +37,44 @@ config.game.player = {
     rechargeRate: 52.5
 };
 
+//Particle configurations
+/* EXAMPLE CONF
+     * spread
+     * speed
+     * speedVar
+     * mass
+     * massVar
+     * r
+     * sizeVar
+     * brownian
+     * drag
+     * lifetime
+     * lifetimeVar
+     * growth
+     * growthVar
+     * color
+     * physics = (0, 1, 2) - 0 = no-clip, 1 = collide with ground only, 2 = collide with ground and players
+     */
+
+config.particles = {};
+config.particles.blood = {
+    spread: Math.PI * 2,
+    speed: 10,
+    speedVar: 0.1,
+    mass: 1,
+    massVar: 0.05,
+    r: 5,
+    sizeVar: 0.2,
+    brownian: 0,
+    drag: 0.01,
+    lifetime: 60,
+    lifetimeVar: 0.05,
+    growth: -2,
+    growthVar: 0,
+    color: {r: 128, g: 0, b: 0, a: 1.0},
+    physics: 1
+};
+
 // Static server
 config.staticServer = {};
 config.staticServer.port = 8080;
@@ -58,3 +96,4 @@ config.serverlist = [
 if (typeof global !== "undefined") {
     module.exports = config;
 }
+
