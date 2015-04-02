@@ -76,7 +76,7 @@ Game.prototype.init = function() {
     this.particles = [];
     this.streaks = [];
 
-    this.events.on("player::killed", function(id) {
+    this.network.primus.on("remote::player::killed", function(id) {
         var p = g.state.players.get(id);
         var x = p.pos.x;
         var y = p.pos.y;
