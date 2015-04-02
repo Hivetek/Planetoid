@@ -25,13 +25,15 @@ var events = (function(context){
                 return false;
             }
         },
-        trigger: function(topic, info) {
+        trigger: function(topic) {
             // If the topic doesn't exist, or there's no listeners in queue, just leave
             if(!hOP.call(topics, topic)) return;
 
+            var args = Array.prototype.slice.call(arguments, 1);
+
             // Cycle through topics queue, fire!
             topics[topic].forEach(function(item) {
-                item.apply(context, [info]);
+                item.apply(context, args);
             });
         }
     };
