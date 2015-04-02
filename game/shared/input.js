@@ -65,7 +65,7 @@ Input.init = function(game, size) {
 Input.fromUserInput = function(game) {
     // Capture a snapshot of the current inputs
     var o = {};
-    o.mouse = Core.clone(game.mouse);
+    o.mouse = game.mouse.export();
     o.keys = new Keys(game.keyboard);
     return new Input(o, game);
 }
