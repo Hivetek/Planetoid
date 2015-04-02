@@ -68,9 +68,11 @@ Mouse.prototype.listen = function() {
     window.addEventListener('mousedown', function(event) {
         self.down(event);
         self.game.updateInput();
+        self.game.network.primus.send("remote::mousedown");
     }, false);
     window.addEventListener('mouseup', function(event) {
         self.up(event);
         self.game.updateInput();
+        self.game.network.primus.send("remote::mouseup");
     }, false);
 };
