@@ -82,9 +82,7 @@ Game.prototype.init = function() {
         var y = p.pos.y;
 
         for (var i = 0; i < 20; i++) {
-            var d = Math.random() * 2 * Math.PI;
-            var v = Math.random() * 10 + 10;
-            g.particles.push({px: x, py: y, vx: Math.cos(d) * v, vy: Math.sin(d) * v, r: 16});
+            g.particles.push(config.particles.blood, x, y, 0, g);
         }
         console.log(g.particles.length);
     });
@@ -185,14 +183,6 @@ Game.prototype.update = function() {
     this.cameraX = this.player.pos.x - this.canvas.width / 2;
     this.cameraY = this.player.pos.y - this.canvas.height / 2;
 
-    this.particles.forEach(function(part) {
-        if (part.r > 0) {
-            part.px += part.vx;
-            part.py += part.vy;
-            part.r -= 0.2;
-        }
-    });
-
     this.streaks.forEach(function(streak) {
         if (streak.life > 0)
             streak.life--;
@@ -215,6 +205,9 @@ Game.prototype.updatePhysics = function() {
                     player.update(playerInput.input, playerInput.prevInput);
                 }
             }
+        });
+        this.particles.forEach(function(part) {
+            part.update();
         });
         this.player.update(this.input, this.prevInput);
         this.timeAccumulator -= config.game.physTick;
@@ -287,12 +280,7 @@ Game.prototype.draw = function(ctx) {
 
     //Draw particles
     this.particles.forEach(function(part) {
-        if (part.r > 0) {
-            ctx.fillStyle = "rgba(255,0,0," + (part.r / 32) + ")";
-            ctx.beginPath();
-            ctx.arc(part.px - g.cameraX, part.py - g.cameraY, part.r, 0, 2 * Math.PI, false);
-            ctx.fill();
-        }
+        part.draw(ctx);
     });
 };
 
