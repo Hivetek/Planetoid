@@ -1,5 +1,6 @@
 var config = require('shared/config');
 var Core = require('shared/core');
+var VectorMath = require('shared/vectorMath');
 
 var events = require('shared/events');
 var State = require('shared/state');
@@ -22,7 +23,7 @@ function Game() {
     // - Create state buffer (game.states)
     // - Creates input short-hand (game.state)
     State.init(this);
-    
+
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
@@ -54,7 +55,8 @@ Game.prototype.init = function() {
     this.events.on("player::killed", function(id) {
         setTimeout(function() {
             var p = self.state.players.get(id);
-            if (!p) return;
+            if (!p)
+                return;
             p.hp = 100;
             p.isAlive = true;
             var v = Math.random() * 2 * Math.PI;
@@ -64,6 +66,41 @@ Game.prototype.init = function() {
             p.ppos.x = p.pos.x;
             p.ppos.y = p.pos.y;
         }, 2000);
+    });
+
+    var g = this;
+    this.events.on("player::fired", function(id) {
+        console.log("Pew!");
+        var p = g.state.players.get(id);
+        var x1 = p.pos.x;
+        var y1 = p.pos.y;
+
+        var x2 = x1 + Math.cos(p.dir) * 2000;
+        var y2 = y1 + Math.sin(p.dir) * 2000;
+
+        g.state.players.iterate(function(player) {
+            if (player !== p) {
+                //Collision check
+                var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
+                var v2 = {x: x2 - x1, y: y2 - y1};
+
+                var m = VectorMath.magnitude(v2);
+                var d = VectorMath.dot(v1, v2) / (m * m);
+                //Intersection point
+                var ip = {x: x1 + d * v2.x, y: y1 + d * v2.y};
+                var dist = VectorMath.magnitude({x: player.pos.x - ip.x, y: player.pos.y - ip.y});
+
+                if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
+                    console.log(player.id + " was hit!");
+                    player.hp = 0;
+                    /*player.fuel -= p.fuel;
+                    if (player.fuel < 0) {
+                        player.hp += player.fuel;
+                        player.fuel = 0;
+                    }*/
+                }
+            }
+        });
     });
 
 
@@ -88,8 +125,8 @@ Game.prototype.loop = function() {
     this.network.sendSnapshot();
 
     this.lastTime = this.currentTime;
-    
-    this.inputList.iterate(function(inp){
+
+    this.inputList.iterate(function(inp) {
         inp.prevInput = inp.input;
     });
 

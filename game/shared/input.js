@@ -58,6 +58,10 @@ Input.init = function(game, size) {
     Object.defineProperty(game, "prevInput", { 
         get: function() {
             return game.inputs.get(game.inputs.size-2);
+        },
+        set: function(val) {
+            game.inputs.set(game.inputs.size-2, val);
+            return val;
         }
     });
 };

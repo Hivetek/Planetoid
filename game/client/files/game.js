@@ -84,18 +84,46 @@ Game.prototype.init = function() {
         for (var i = 0; i < 20; i++) {
             var d = Math.random() * 2 * Math.PI;
             var v = Math.random() * 10 + 10;
-            this.particles.push({px: x, py: y, vx: Math.cos(d) * v, vy: Math.sin(d) * v, r: 16});
+            g.particles.push({px: x, py: y, vx: Math.cos(d) * v, vy: Math.sin(d) * v, r: 16});
         }
+        console.log(g.particles.length);
     });
 
     this.events.on("player::fired", function(id) {
-        console.log("PEW");
+        console.log("Pew!");
         var p = g.state.players.get(id);
         var x1 = p.pos.x;
         var y1 = p.pos.y;
-        var d = p.dir;
 
-        this.streaks.push({x1: x1, y1: y1, x2: x1 + Math.cos(d) * 2000, y2: y1 + Math.sin(d) * 2000, life: 30});
+        var x2 = x1 + Math.cos(p.dir) * 2000;
+        var y2 = y1 + Math.sin(p.dir) * 2000;
+
+        g.state.players.iterate(function(player) {
+            if (player !== p) {
+                //Collision check
+                var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
+                var v2 = {x: x2 - x1, y: y2 - y1};
+
+                var m = VectorMath.magnitude(v2);
+                var d = VectorMath.dot(v1, v2) / (m * m);
+                //Intersection point
+                var ip = {x: x1 + d * v2.x, y: y1 + d * v2.y};
+                var dist = VectorMath.magnitude({x: player.pos.x - ip.x, y: player.pos.y - ip.y});
+
+                if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
+                    console.log(player.id + " was hit!");
+                    player.hp = 0;
+                    /*player.fuel -= p.fuel;
+                    if (player.fuel < 0) {
+                        player.hp += player.fuel;
+                        player.fuel = 0;
+                    }*/
+                }
+            }
+        });
+
+
+        g.streaks.push({x1: x1, y1: y1, x2: x2, y2: y2, life: 30});
     });
 };
 
@@ -120,10 +148,12 @@ Game.prototype.loop = function() {
     this.drawHUD(this.HUDctx);
 
     this.lastTime = this.currentTime;
-    
-    this.inputList.iterate(function(inp){
+
+    this.inputList.iterate(function(inp) {
         inp.prevInput = inp.input;
     });
+
+    this.prevInput = this.input;
 
     var g = this;
     //console.timeEnd("loop");
@@ -289,8 +319,10 @@ Game.prototype.drawHUD = function(ctx) {
     ctx.fillText("ΔY: " + (this.player.pos.y - this.player.ppos.y), 20, 180);
 
     // Display player HP & Fuel
-    ctx.fillStyle = "#FF0000";
-    ctx.fillRect(20, 5, this.player.hp, 10);
+    if (this.player.hp > 0) {
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(20, 5, this.player.hp, 10);
+    }
     ctx.fillStyle = "#00FF00";
     ctx.fillRect(20, 25, this.player.fuel, 10);
 

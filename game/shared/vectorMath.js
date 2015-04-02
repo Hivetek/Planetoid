@@ -40,6 +40,7 @@ VectorMath.scale = function(v, r) {
     };
 };
 
+//Projects v1 onto v2
 VectorMath.project = function(v1, v2) {
     var m = VectorMath.magnitude(v2);
     var d = VectorMath.dot(v1, v2) / (m * m);

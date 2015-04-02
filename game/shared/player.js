@@ -40,11 +40,12 @@ Player.prototype.verlet = function(dt) {
 
 Player.prototype.update = function(input, prevInput) {
     this.dir = input.mouse.dir;
-    
-    if(input.mouse.left && !prevInput.mouse.left){
+
+    if (input.mouse.left && !prevInput.mouse.left) {
         this.game.events.trigger("player::fired", this.id);
+        this.fuel = 0;
     }
-    
+
     if (this.hp <= 0) {
         if (this.isAlive) {
             this.game.events.trigger("player::killed", this.id);
@@ -53,7 +54,8 @@ Player.prototype.update = function(input, prevInput) {
     }
 
     // Don't waste CPU power on updating a dead player
-    if (!this.isAlive) return false;
+    if (!this.isAlive)
+        return false;
 
     this.a.x = 0;
     this.a.y = 0;
@@ -149,7 +151,7 @@ Player.prototype.draw = function(ctx) {
         ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
-        
+
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 5;
         ctx.beginPath();
