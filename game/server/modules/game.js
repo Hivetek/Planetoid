@@ -65,6 +65,8 @@ Game.prototype.init = function() {
             p.pos.y = config.game.planetY + d * Math.sin(v);
             p.ppos.x = p.pos.x;
             p.ppos.y = p.pos.y;
+
+            self.network.primus.send("remote::player::respawn", id);
         }, 2000);
     });
 

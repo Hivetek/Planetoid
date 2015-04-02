@@ -144,6 +144,10 @@ HashList.prototype.import = function(o) {
                 var newElem = Core.clone(elem);
             }
             self.add(key, newElem);
+            if (self.type == Player) {
+                console.log(newElem);
+                self.game.events.trigger("player::spawn", newElem);
+            }
         }
     }
 };

@@ -90,6 +90,19 @@ Game.prototype.init = function() {
         console.log(g.particles.length);
     });
 
+
+    this.network.primus.on("remote::player::respawn", function(id) {
+        g.events.trigger("player::spawn", id);
+        var p = g.state.players.get(id);
+        for (var i = 0; i < 50; i++) {
+            g.particles.push(new Particle(config.particles.smoke, p.pos.x, p.pos.y, 0, g));
+        }
+    });
+
+    this.events.on("player::spawn", function(id) {
+        console.log(id + " spawning");
+    });
+
     this.events.on("player::fired", function(id) {
         console.log("Pew!");
         var p = g.state.players.get(id);
