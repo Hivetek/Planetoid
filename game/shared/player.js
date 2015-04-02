@@ -41,6 +41,10 @@ Player.prototype.verlet = function(dt) {
 Player.prototype.update = function(input, prevInput) {
     this.dir = input.mouse.dir;
     
+    if(input.mouse.left && !prevInput.mouse.left){
+        this.game.events.trigger("player::fired", this.id);
+    }
+    
     if (this.hp <= 0) {
         if (this.isAlive) {
             this.game.events.trigger("player::killed", this.id);

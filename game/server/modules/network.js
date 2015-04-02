@@ -43,7 +43,6 @@ Network.prototype.init = function() {
 
         spark.on("input", function(input) {
             var playerInput = g.inputList.get(spark.id);
-            playerInput.prevInput = playerInput.input;
             playerInput.input = input;
             console.log(input);
         });

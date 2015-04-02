@@ -87,6 +87,10 @@ Game.prototype.loop = function() {
     this.network.sendSnapshot();
 
     this.lastTime = this.currentTime;
+    
+    this.inputList.iterate(function(inp){
+        inp.prevInput = inp.input;
+    });
 
     //this.timeEnd("loop");
     var g = this;

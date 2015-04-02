@@ -72,19 +72,30 @@ Game.prototype.init = function() {
         g.lastTime = g.currentTime;
         g.loop();
     });
-    
+
     this.particles = [];
-    
-    this.events.on("player::killed", function(id){
+    this.streaks = [];
+
+    this.events.on("player::killed", function(id) {
         var p = g.state.players.get(id);
         var x = p.pos.x;
         var y = p.pos.y;
-        
-        for(var i = 0; i < 20; i++){
+
+        for (var i = 0; i < 20; i++) {
             var d = Math.random() * 2 * Math.PI;
             var v = Math.random() * 10 + 10;
-            this.particles.push({px: x, py: y, vx: Math.cos(d)*v, vy: Math.sin(d)*v, r: 16}); 
+            this.particles.push({px: x, py: y, vx: Math.cos(d) * v, vy: Math.sin(d) * v, r: 16});
         }
+    });
+
+    this.events.on("player::fired", function(id) {
+        console.log("PEW");
+        var p = g.state.players.get(id);
+        var x1 = p.pos.x;
+        var y1 = p.pos.y;
+        var d = p.dir;
+
+        this.streaks.push({x1: x1, y1: y1, x2: x1 + Math.cos(d) * 2000, y2: y1 + Math.sin(d) * 2000, life: 30});
     });
 };
 
@@ -95,9 +106,9 @@ Game.prototype.loop = function() {
     this.deltaTime = this.currentTime - this.lastTime;
     this.timeScale = this.deltaTime / (1000 / this.fps);
     this.timeAccumulator += this.deltaTime;
-    
-    this.fps = 1000/this.deltaTime;
-    if(this.fpsSampleIndex >= config.game.fpsSampleCount)
+
+    this.fps = 1000 / this.deltaTime;
+    if (this.fpsSampleIndex >= config.game.fpsSampleCount)
         this.fpsSampleIndex = 0;
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
@@ -109,6 +120,10 @@ Game.prototype.loop = function() {
     this.drawHUD(this.HUDctx);
 
     this.lastTime = this.currentTime;
+    
+    this.inputList.iterate(function(inp){
+        inp.prevInput = inp.input;
+    });
 
     var g = this;
     //console.timeEnd("loop");
@@ -131,7 +146,7 @@ Game.prototype.update = function() {
 
     //this.network.primus.send("input", this.input);
 
-    if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)){
+    if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)) {
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
     }
@@ -140,13 +155,18 @@ Game.prototype.update = function() {
 
     this.cameraX = this.player.pos.x - this.canvas.width / 2;
     this.cameraY = this.player.pos.y - this.canvas.height / 2;
-    
-    this.particles.forEach(function(part){
-        if(part.r > 0){
+
+    this.particles.forEach(function(part) {
+        if (part.r > 0) {
             part.px += part.vx;
             part.py += part.vy;
-            part.r-=0.2;
+            part.r -= 0.2;
         }
+    });
+
+    this.streaks.forEach(function(streak) {
+        if (streak.life > 0)
+            streak.life--;
     });
 };
 
@@ -173,35 +193,47 @@ Game.prototype.updatePhysics = function() {
 };
 
 Game.prototype.draw = function(ctx) {
+    var g = this;
     drawCalls = [];
     drawCalls.push(this.player.draw(ctx));
 
     this.clearCanvas(ctx, this.canvas);
-    
+
     //Draw background
     ctx.strokeStyle = "#0094AA";
     var px = config.game.planetX;
     var py = config.game.planetY;
     var ps = config.game.planetSize;
     var divs = 72;
-    for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs){
+    for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / divs) {
         ctx.beginPath();
         ctx.moveTo(px - this.cameraX, py - this.cameraY);
-        ctx.lineTo(px + Math.cos(a) * (ps+1000) - this.cameraX, py + Math.sin(a) * (ps+1000) - this.cameraY);
+        ctx.lineTo(px + Math.cos(a) * (ps + 1000) - this.cameraX, py + Math.sin(a) * (ps + 1000) - this.cameraY);
         ctx.stroke();
     }
-    
-    for(var d = ps; d < ps+1000; d += 100){
+
+    for (var d = ps; d < ps + 1000; d += 100) {
         ctx.beginPath();
-        for(var a = 0; a < Math.PI * 2; a += Math.PI * 2 / (3*divs)){
-            if(a === 0)
-                ctx.moveTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+        for (var a = 0; a < Math.PI * 2; a += Math.PI * 2 / (3 * divs)) {
+            if (a === 0)
+                ctx.moveTo(px + Math.cos(a) * d - this.cameraX, py + Math.sin(a) * d - this.cameraY);
             else
-                ctx.lineTo(px + Math.cos(a)*d - this.cameraX, py + Math.sin(a)*d - this.cameraY);
+                ctx.lineTo(px + Math.cos(a) * d - this.cameraX, py + Math.sin(a) * d - this.cameraY);
         }
         ctx.stroke();
     }
-    
+
+    //Draw streaks
+    ctx.lineWidth = 3;
+    this.streaks.forEach(function(streak) {
+        if (streak.life > 0) {
+            ctx.strokeStyle = "rgba(255, 0, 0, " + (streak.life / 30) + ")";
+            ctx.beginPath();
+            ctx.moveTo(streak.x1 - g.cameraX, streak.y1 - g.cameraY);
+            ctx.lineTo(streak.x2 - g.cameraX, streak.y2 - g.cameraY);
+            ctx.stroke();
+        }
+    });
 
     // Draw planet
     ctx.fillStyle = "#000";
@@ -219,43 +251,43 @@ Game.prototype.draw = function(ctx) {
     ctx.closePath();
     ctx.fill();
 
+    //Draw players
     this.state.players.iterate(function(player) {
         player.draw(ctx);
     });
-    
+
     //Draw particles
-    var g = this;
-    this.particles.forEach(function(part){
-        if(part.r > 0){
-            ctx.fillStyle = "rgba(255,0,0,"+(part.r/32)+")";
+    this.particles.forEach(function(part) {
+        if (part.r > 0) {
+            ctx.fillStyle = "rgba(255,0,0," + (part.r / 32) + ")";
             ctx.beginPath();
-            ctx.arc(part.px-g.cameraX,part.py-g.cameraY,part.r,0,2*Math.PI, false);
+            ctx.arc(part.px - g.cameraX, part.py - g.cameraY, part.r, 0, 2 * Math.PI, false);
             ctx.fill();
         }
     });
 };
 
-Game.prototype.drawHUD = function(ctx){
+Game.prototype.drawHUD = function(ctx) {
     this.clearCanvas(ctx, this.HUDcanvas);
-    
+
     // Display ping
     ctx.fillStyle = "#000";
     ctx.font = "12px Arial";
-    ctx.fillText("Ping: "+Math.round(this.network.ping*100)/100, 20,60);
+    ctx.fillText("Ping: " + Math.round(this.network.ping * 100) / 100, 20, 60);
 
     // Display fps
     var avgFPS = 0;
-    for(var i = 0; i < this.fpsSamples.length; i++){
+    for (var i = 0; i < this.fpsSamples.length; i++) {
         avgFPS += this.fpsSamples[i];
     }
-    avgFPS = Math.round((avgFPS/this.fpsSamples.length)*100)/100;
-    ctx.fillText("FPS: "+avgFPS, 20,84);
-    
-    ctx.fillText("X: "+this.player.pos.x, 20,108);
-    ctx.fillText("Y: "+this.player.pos.y, 20,132);
-    ctx.fillText("ΔX: "+(this.player.pos.x-this.player.ppos.x), 20,156);
-    ctx.fillText("ΔY: "+(this.player.pos.y-this.player.ppos.y), 20,180);
-    
+    avgFPS = Math.round((avgFPS / this.fpsSamples.length) * 100) / 100;
+    ctx.fillText("FPS: " + avgFPS, 20, 84);
+
+    ctx.fillText("X: " + this.player.pos.x, 20, 108);
+    ctx.fillText("Y: " + this.player.pos.y, 20, 132);
+    ctx.fillText("ΔX: " + (this.player.pos.x - this.player.ppos.x), 20, 156);
+    ctx.fillText("ΔY: " + (this.player.pos.y - this.player.ppos.y), 20, 180);
+
     // Display player HP & Fuel
     ctx.fillStyle = "#FF0000";
     ctx.fillRect(20, 5, this.player.hp, 10);
@@ -299,7 +331,10 @@ Game.prototype.bindAllEvents = function() {
     var self = this;
 
     // Resize
-    window.addEventListener('resize', function(){self.resize(self.canvas); self.resize(self.HUDcanvas);}, false);
+    window.addEventListener('resize', function() {
+        self.resize(self.canvas);
+        self.resize(self.HUDcanvas);
+    }, false);
 
     // Keyboard input
     this.keyboard.listen();
