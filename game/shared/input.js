@@ -66,7 +66,7 @@ Input.fromUserInput = function(game) {
     // Capture a snapshot of the current inputs
     var o = {};
     o.mouse = game.mouse.export();
-    o.keys = new Keys(game.keyboard);
+    o.keys  = game.keyboard.export();
     return new Input(o, game);
 }
 
