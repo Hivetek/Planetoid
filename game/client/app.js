@@ -131,12 +131,12 @@ var App = (function() {
                 css: "stages/game.css"
             });
             this.execution(function() {
-                game.bindAllEvents();
                 bindHTML();
 
                 game.network.init(server.url);
                 game.events.on("primus::open", function() {
                     game.events.on("primus::id", function() {
+                        game.bindAllEvents();
                         game.init(); // Start the game
                     });
                 });

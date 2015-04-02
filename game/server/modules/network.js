@@ -60,12 +60,25 @@ Network.prototype.init = function() {
 
 
         // Spark-specific remote events
+        // Out
+
+        // In
+        spark.on("remote::mousedown", function() {
+            g.log(spark.id + " mousedown");
+        });
+
+        spark.on("remote::mouseup", function() {
+            g.log(spark.id + " mouseup");
+        });
     });
 
     // Global remote events
+    // Out
     g.events.on("player::killed", function(id) {
         primus.send("remote::player::killed", id);
     });
+
+    // In
 
     this.server.listen(config.server.port);
 };
