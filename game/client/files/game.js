@@ -298,6 +298,12 @@ Game.prototype.resize = function(canvas) {
 Game.prototype.bindAllEvents = function() {
     var self = this;
 
+    // Disable right click
+    window.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+        return false;
+    }, false);
+
     // Resize
     window.addEventListener('resize', function(){self.resize(self.canvas); self.resize(self.HUDcanvas);}, false);
 
