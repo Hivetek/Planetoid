@@ -54,6 +54,7 @@ Game.prototype.init = function() {
     this.events.on("player::killed", function(id) {
         setTimeout(function() {
             var p = self.state.players.get(id);
+            if (!p) return;
             p.hp = 100;
             p.isAlive = true;
             var v = Math.random() * 2 * Math.PI;
