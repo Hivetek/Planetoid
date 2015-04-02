@@ -44,7 +44,6 @@ Network.prototype.init = function() {
         spark.on("input", function(input) {
             var playerInput = g.inputList.get(spark.id);
             playerInput.input = input;
-            console.log(input);
         });
 
         spark.on("ping", function(ping){
@@ -58,6 +57,14 @@ Network.prototype.init = function() {
             g.log("Ended connection: " + spark.id);
             g.state.players.remove(spark.id);
         });
+
+
+        // Spark-specific remote events
+    });
+
+    // Global remote events
+    g.events.on("player::killed", function(id) {
+        primus.send("remote::player::killed", id);
     });
 
     this.server.listen(config.server.port);

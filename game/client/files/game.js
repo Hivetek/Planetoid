@@ -76,7 +76,7 @@ Game.prototype.init = function() {
     this.particles = [];
     this.streaks = [];
 
-    this.events.on("player::killed", function(id) {
+    this.network.primus.on("remote::player::killed", function(id) {
         var p = g.state.players.get(id);
         var x = p.pos.x;
         var y = p.pos.y;
@@ -110,12 +110,11 @@ Game.prototype.init = function() {
 
                 if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
                     console.log(player.id + " was hit!");
-                    player.hp = 0;
-                    /*player.fuel -= p.fuel;
-                     if (player.fuel < 0) {
-                     player.hp += player.fuel;
-                     player.fuel = 0;
-                     }*/
+                    player.fuel -= p.fuel;
+                    if (player.fuel < 0) {
+                        player.hp += player.fuel;
+                        player.fuel = 0;
+                    }
                 }
             }
         });
