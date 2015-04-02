@@ -62,17 +62,51 @@ config.particles.blood = {
     speed: 10,
     speedVar: 0.1,
     mass: 1,
-    massVar: 0.05,
-    r: 5,
+    massVar: 0.00,
+    r: 3.5,
     sizeVar: 0.2,
     brownian: 0,
     drag: 0.01,
-    lifetime: 60,
+    lifetime: 1000,
     lifetimeVar: 0.05,
-    growth: -2,
-    growthVar: 0,
-    color: {r: 128, g: 0, b: 0, a: 1.0},
+    growth: -2, //percentage per tick 
+    growthVar: 0.5,
+    color: {r: 255, g: 0, b: 0, a: 1.0},
     physics: 1
+};
+config.particles.smoke = {
+    spread: Math.PI * 2,
+    speed: 5,
+    speedVar: 0.3,
+    mass: -0.5,
+    massVar: 0.05,
+    r: 3,
+    sizeVar: 0.2,
+    brownian: 1,
+    drag: 0.05,
+    lifetime: 1000,
+    lifetimeVar: 0.05,
+    growth: 2, //percentage per tick 
+    growthVar: 0.5,
+    color: {r: 128, g: 128, b: 128, a: 1.0},
+    physics: 0
+};
+config.particles.smokestreak = {
+    spread: 0.00,
+    speed: 0,
+    speedVar: 0.3,
+    mass: -0.3,
+    massVar: 0.05,
+    r: 3,
+    sizeVar: 0.2,
+    brownian: 1,
+    drag: 0.05,
+    lifetime: 300,
+    lifetimeVar: 0.05,
+    growth: 2, //percentage per tick 
+    growthVar: 0.5,
+    color: {r: 128, g: 128, b: 128, a: 1.0},
+    physics: 0
 };
 
 // Static server

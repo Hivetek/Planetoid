@@ -77,12 +77,15 @@ Game.prototype.init = function() {
     this.streaks = [];
 
     this.network.primus.on("remote::player::killed", function(id) {
+        console.log(id + " was killed");
         var p = g.state.players.get(id);
-        var x = p.pos.x;
-        var y = p.pos.y;
+        var rd = Math.random() * Math.PI * 2;
+        var r = Math.random() * config.game.player.r;
+        var x = p.pos.x + Math.cos(rd) * r;
+        var y = p.pos.y + Math.sin(rd) * r;
 
-        for (var i = 0; i < 20; i++) {
-            g.particles.push(config.particles.blood, x, y, 0, g);
+        for (var i = 0; i < 50; i++) {
+            g.particles.push(new Particle(config.particles.blood, x, y, 0, g));
         }
         console.log(g.particles.length);
     });
@@ -95,6 +98,13 @@ Game.prototype.init = function() {
 
         var x2 = x1 + Math.cos(p.dir) * 2000;
         var y2 = y1 + Math.sin(p.dir) * 2000;
+
+        for (var i = 0; i < 100; i++) {
+            var t = Math.random();
+            var vx = x2 - x1;
+            var vy = y2 - y1;
+            g.particles.push(new Particle(config.particles.smokestreak, x1 + t * vx, y1 + t * vy, p.dir, g));
+        }
 
         g.state.players.iterate(function(player) {
             if (player !== p) {
@@ -110,17 +120,10 @@ Game.prototype.init = function() {
 
                 if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
                     console.log(player.id + " was hit!");
-                    player.fuel -= p.fuel;
-                    if (player.fuel < 0) {
-                        player.hp += player.fuel;
-                        player.fuel = 0;
-                    }
+                    player.hp = 0;
                 }
             }
         });
-
-
-        g.streaks.push({x1: x1, y1: y1, x2: x2, y2: y2, life: 30});
     });
 };
 

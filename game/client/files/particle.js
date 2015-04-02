@@ -60,7 +60,7 @@ Particle.prototype.update = function() {
         this.alive = false;
 
     if (this.alive) {
-        this.r *= (this.growth/100) * (config.game.physTick/1000);
+        this.r *= (100+this.growth)/100;
         var vx = this.pos.x - this.ppos.x;
         var vy = this.pos.y - this.ppos.y;
         var pt = config.game.physTick / 1000;
@@ -82,7 +82,7 @@ Particle.prototype.update = function() {
 
         if (this.physics > 0) {
             if (d <= config.game.planetSize + this.r) {
-                var m = (config.game.planetSize + config.game.player.r) - d;
+                var m = (config.game.planetSize + this.r) - d;
                 this.pos.x -= gravity.x * m;
                 this.pos.y -= gravity.y * m;
             }
@@ -91,15 +91,15 @@ Particle.prototype.update = function() {
         this.a.x -= vx * this.drag / pt;
         this.a.y -= vy * this.drag / pt;
 
-        this.a.x += Math.random() * this.brownian / pt;
-        this.a.y += Math.random() * this.brownian / pt;
+        this.a.x += (Math.random() * this.brownian - this.brownian/2) / pt;
+        this.a.y += (Math.random() * this.brownian - this.brownian/2) / pt;
 
-        this.verlet(conf.game.physTick);
+        this.verlet(config.game.physTick / 1000);
     }
 };
 
 Particle.prototype.draw = function(ctx) {
-    var color = "rgba("+this.color.r+", "+this.color.g+", "+this.color.b+","+(this.color.a*(this.age/this.lifetime))+")";
+    var color = "rgba("+this.color.r+", "+this.color.g+", "+this.color.b+","+(this.color.a*(1-(this.age/this.lifetime)))+")";
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, this.r, 0, 2 * Math.PI, false);
