@@ -110,6 +110,21 @@ RingBuffer.prototype.getRaw = function(index) {
 
 
 /**
+ * Set element by index
+ *
+ * @return {Object}
+ * @throws {Error} when the ring buffer is empty.
+ * @api public
+ */
+RingBuffer.prototype.set = function(index, value) {
+    if (this.isEmpty) throw new Error('RingBuffer is empty');
+
+    var i = (this._first + index) % this.capacity;
+    this._elements[i] = value;
+};
+
+
+/**
  * Dequeues the top element of the queue.
  *
  * @return {Object}
