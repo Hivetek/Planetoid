@@ -112,12 +112,11 @@ Game.prototype.init = function() {
 
                 if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
                     console.log(player.id + " was hit!");
-                    player.hp = 0;
-                    /*player.fuel -= p.fuel;
+                    player.fuel -= p.fuel;
                     if (player.fuel < 0) {
                         player.hp += player.fuel;
                         player.fuel = 0;
-                    }*/
+                    }
                 }
             }
         });
