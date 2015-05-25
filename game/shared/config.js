@@ -15,8 +15,8 @@ config.client = {};
 config.game = {};
 config.game.inputBufferSize = 64;
 config.game.stateBufferSize = 64;
-config.game.gravity = 1600.0;
-config.game.planetSize = 1932;
+config.game.gravity = 9.82; //m/s^2
+config.game.planetSize = 193.2; //m
 config.game.planetX = 0; //960;
 config.game.planetY = 0; //2300;
 config.game.physTick = 16;
@@ -25,16 +25,18 @@ config.game.fpsSampleCount = 30;
 
 // Player
 config.game.player = {
-    r: 16,
-    mass: 0.5,
-    friction: 0.08,
-    landAccel: 3000,
-    jumpSpeed: 10000,
-    thrustSide: 800,
-    thrustUp: 2000,
-    drag: 0.016,
-    burnRate: 37.5,
-    rechargeRate: 52.5
+    r: 1.6, //meters
+    mass: 80, //kg
+    us: 0.7, //Static friction-coefficient
+    uk: 0.66, //Kinematic friction coefficient
+    friction: 0.08, //TODO: switch to µs and µk
+    landAccel: 3000, //TODO: switch to m/s^2
+    jumpSpeed: 10000, //TODO: switch to m/s
+    thrustSide: 800, //TODO: switch to m/s^2
+    thrustUp: 2000, //TODO: switch to m/s^2
+    drag: 2.31,    //Fd = drag*v^2, drag = 1/2 * A * Cd * rho, A = r^2 * pi, Cd = 0.47, rho = 1.225kg/m^3 
+    burnRate: 37.5, //fuel-units per second
+    rechargeRate: 52.5 //fuel-units per second
 };
 
 //Particle configurations

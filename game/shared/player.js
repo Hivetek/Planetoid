@@ -148,7 +148,7 @@ Player.prototype.draw = function(ctx) {
     if (this.hp > 0) {
         ctx.fillStyle = "#FF0000";
         ctx.beginPath();
-        ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, config.game.player.r, 0, Math.PI * 2, false);
+        ctx.arc(this.pos.x - this.game.cameraX, this.pos.y - this.game.cameraY, config.game.player.r * 10, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
 
