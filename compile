@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source_dir="game/"
+build_dir="build/"
+
+flow
+
+echo "Flow server is running. Type flow to type check"
+
+babel $source_dir --out-dir $build_dir --ignore=node_modules --watch
