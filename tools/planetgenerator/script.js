@@ -139,8 +139,7 @@ function generateHull(x1, y1) {
 
 function loop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //planet.rotation += (Math.PI*2)/600;
-    planet.draw(ctx, 180);
+    planet.draw(ctx, Math.round(180*camera.zoom));
     if(!!keys[37])
         camera.rotation += (Math.PI*2)/600;
     if(!!keys[39])
