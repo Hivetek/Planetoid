@@ -1,6 +1,7 @@
 var keys = [];
 
 var planetConfig = {
+    hulls: 20,
     waves:  5,
     minFreq: 1,
     maxFreq: 20,
@@ -24,6 +25,7 @@ function Hull(x1, y1, points, radius){
     this.points = [];
     this.x = x1;
     this.y = y1;
+    this.radius = 0;
 
     for(var i = 0; i < points; i++){
         var r = Math.random()*radius;
@@ -37,14 +39,20 @@ function Hull(x1, y1, points, radius){
     }
 
     this.points = grahamScan(this.points);
+    for(var i = 0; i < this.points.length; i++){
+        var dx = this.points[i].x - this.x;
+        var dy = this.points[i].y - this.y;
+        var r = Math.sqrt(dx*dx + dy*dy);
+        this.radius = Math.max(this.radius, r);
+    }
 }
 
 function Planet(config){
     this.x = config.x;
     this.y = config.y;
-    this.rotation = 0;
     this.waves = [];
     this.radius = config.minRadius + Math.random()*(config.maxRadius-config.minRadius);
+    this.waterLevel = this.radius - Math.random()*config.maxAmplitude;
     this.delta;
 
     this.hulls = [];
@@ -69,7 +77,7 @@ function Planet(config){
     }
     this.delta = h2 - h1;
 
-    for(var i = 0; i < 100; i++){
+    for(var i = 0; i < config.hulls; i++){
         var a = Math.random()*Math.PI*2;
         var r = this.getHeight(a);
         var x = this.x + Math.cos(a)*r;
@@ -92,8 +100,8 @@ Planet.prototype.getPolygon = function(resolution){
     var i = 0;
     for(var a = 0; a < Math.PI * 2; a += (Math.PI*2)/resolution){
         var r = this.getHeight(a);
-        var x = this.x + Math.cos(a + this.rotation)*r;
-        var y = this.y + Math.sin(a + this.rotation)*r;
+        var x = this.x + Math.cos(a)*r;
+        var y = this.y + Math.sin(a)*r;
         polygon[i] = {x: x, y: y};
         i++;
     }
@@ -101,12 +109,24 @@ Planet.prototype.getPolygon = function(resolution){
 }
 
 Planet.prototype.draw = function(ctx, resolution){
+    ctx.fillStyle = "#0000FF";
+    ctx.beginPath();
+    var center = transformPoint(this.x, this.y);
+    ctx.arc(center.x, center.y, this.waterLevel*camera.zoom, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#000000";
     drawPolygon(this.getPolygon(resolution));
     ctx.fill();
 
-    for(var i = 0; i < this.hulls.length; i++){
-        drawPolygon(this.hulls[i].points);
-        ctx.fill();
+    for(var i = 0; i < this.hulls.length; i++) {
+        var coords = transformPoint(this.hulls[i].x, this.hulls[i].y);
+        var r = this.hulls[i].radius*camera.zoom;
+        if (coords.x > -r && coords.x < camera.width + r && coords.y > -r && coords.y < camera.height + r) {
+            drawPolygon(this.hulls[i].points);
+            ctx.fill();
+        }
     }
 }
 
@@ -187,6 +207,13 @@ function drawPolygon(points){
     ctx.closePath();
 }
 
+function transformPoint(x, y){
+    var x1 = camera.zoom*((x-camera.x)*Math.cos(camera.rotation) - (y-camera.y)*Math.sin(camera.rotation))+camera.width/2;
+    var y1 = camera.zoom*((x-camera.x)*Math.sin(camera.rotation) + (y-camera.y)*Math.cos(camera.rotation))+camera.height/2;
+    var p = {x: x1, y: y1};
+    return p;
+}
+
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -199,7 +226,6 @@ window.requestAnimFrame = (function() {
 })();
 
 window.addEventListener('keydown', function(event) {
-    console.log(event.keyCode);
     keys[event.keyCode] = true;
 }, false);
 window.addEventListener('keyup', function(event) {
