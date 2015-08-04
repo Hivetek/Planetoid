@@ -1,3 +1,5 @@
+var keys = [];
+
 var planetConfig = {
     waves:  5,
     minFreq: 1,
@@ -5,8 +7,17 @@ var planetConfig = {
     maxAmplitude: 5,
     minRadius: 180,
     maxRadius: 220,
-    x: 400,
-    y: 400
+    x: 0,
+    y: 0
+}
+
+var camera = {
+    x: 0,
+    y: 0,
+    rotation: 0,
+    zoom: 1.0,
+    width: 800,
+    height: 800
 }
 
 function Hull(x1, y1, points, radius){
@@ -76,34 +87,26 @@ Planet.prototype.getHeight = function(angle){
     return r;
 }
 
-Planet.prototype.draw = function(ctx, resolution){
-    ctx.beginPath();
-
+Planet.prototype.getPolygon = function(resolution){
+    var polygon = [];
+    var i = 0;
     for(var a = 0; a < Math.PI * 2; a += (Math.PI*2)/resolution){
         var r = this.getHeight(a);
         var x = this.x + Math.cos(a + this.rotation)*r;
         var y = this.y + Math.sin(a + this.rotation)*r;
-        if(a === 0){
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
+        polygon[i] = {x: x, y: y};
+        i++;
     }
+    return polygon;
+}
 
-    ctx.closePath();
+Planet.prototype.draw = function(ctx, resolution){
+    drawPolygon(this.getPolygon(resolution));
     ctx.fill();
 
     for(var i = 0; i < this.hulls.length; i++){
-        ctx.beginPath();
-        for(var n = 0; n < this.hulls[i].points.length; n++){
-            if(n === 0){
-                ctx.moveTo(this.hulls[i].points[n].x, this.hulls[i].points[n].y);
-            } else {
-                ctx.lineTo(this.hulls[i].points[n].x, this.hulls[i].points[n].y);
-            }
-        }
-        ctx.closePath();
-        ctx.stroke();
+        drawPolygon(this.hulls[i].points);
+        ctx.fill();
     }
 }
 
@@ -135,45 +138,55 @@ function generateHull(x1, y1) {
 }
 
 function loop(){
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //planet.rotation += (Math.PI*2)/600;
     planet.draw(ctx, 180);
+    if(!!keys[37])
+        camera.rotation += (Math.PI*2)/600;
+    if(!!keys[39])
+        camera.rotation -= (Math.PI*2)/600;
+    if(!!keys[38])
+        camera.zoom *= 1.01;
+    if(!!keys[40])
+        camera.zoom *= 0.99;
+
+    if(!!keys[188]) {
+        camera.x -= Math.cos(-camera.rotation+Math.PI/2)*10/camera.zoom;
+        camera.y -= Math.sin(-camera.rotation+Math.PI/2)*10/camera.zoom;
+    }
+    if(!!keys[79]) {
+        camera.x += Math.cos(-camera.rotation+Math.PI/2)*10/camera.zoom;
+        camera.y += Math.sin(-camera.rotation+Math.PI/2)*10/camera.zoom;
+    }
+    if(!!keys[65]) {
+        camera.x -= Math.cos(-camera.rotation)*10/camera.zoom;
+        camera.y -= Math.sin(-camera.rotation)*10/camera.zoom;
+    }
+    if(!!keys[69]) {
+        camera.x += Math.cos(-camera.rotation)*10/camera.zoom;
+        camera.y += Math.sin(-camera.rotation)*10/camera.zoom;
+    }
 
     requestAnimFrame(function() {
         loop();
     });
 }
 
-/*
-for(var i = 0; i < 360; i+=10){
-
-    r = 170 + Math.random()*60;
-    var a = i * Math.PI/180;
-    var cx = canvas.width/2 + Math.cos(a) * r;
-    var cy = canvas.height/2 + Math.sin(a) * r;
-
-    generateHull(cx, cy);
-}*/
-
-/*ctx.strokeStyle = "#00FF00";
-for(var i = 0; i < waveFreqs.length; i++){
+function drawPolygon(points){
     ctx.beginPath();
+    for(var i = 0; i < points.length; i++){
+        var x = camera.zoom*((points[i].x-camera.x)*Math.cos(camera.rotation) - (points[i].y-camera.y)*Math.sin(camera.rotation))+camera.width/2;
+        var y = camera.zoom*((points[i].x-camera.x)*Math.sin(camera.rotation) + (points[i].y-camera.y)*Math.cos(camera.rotation))+camera.height/2;
 
-    for(var a = 0; a < Math.PI * 2; a += 0.01){
-        var r = 200 + Math.cos(a * waveFreqs[i]) * waveAmps[i];
-        var x = canvas.width/2 + Math.cos(a)*r;
-        var y = canvas.height/2 + Math.sin(a)*r;
-        if(a === 0){
+
+        if(i === 0){
             ctx.moveTo(x, y);
         } else {
             ctx.lineTo(x, y);
         }
     }
-
     ctx.closePath();
-    ctx.stroke();
-}*/
+}
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
@@ -185,6 +198,14 @@ window.requestAnimFrame = (function() {
             window.setTimeout(callback, 1000.0 / 60.0);
         };
 })();
+
+window.addEventListener('keydown', function(event) {
+    console.log(event.keyCode);
+    keys[event.keyCode] = true;
+}, false);
+window.addEventListener('keyup', function(event) {
+    keys[event.keyCode] = false;
+}, false);
 
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext("2d");
