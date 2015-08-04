@@ -50,6 +50,8 @@ function Game() {
     this.physicsQueue = new RingBuffer(config.game.inputBufferSize);
 
     this.inputList = new HashList(this);
+
+    this.pendingSnapshots = [];
 }
 
 Game.prototype.init = function() {
@@ -176,10 +178,36 @@ Game.prototype.loop = function() {
 };
 
 Game.prototype.update = function() {
-    if (this.pendingState) {
-        this.state.import(this.pendingState); // Creates jittering
-        this.pendingState = undefined;
+    // If we have received snapshots from the server
+    // we must accept the most recent snapshot and re-apply
+    // our inputs from that inputId onwards
+    if (this.pendingSnapshots.length > 0) {
+        var snap = this.pendingSnapshots[this.pendingSnapshots.length-1];
+        this.state.import(snap.state)
+        this.inputList.import(snap.inputs);
+        if (snap.inputId) {
+            var reapplyFromIndex = undefined;
+            this.inputs._elements.forEach(function(elem, index) {
+                if (elem.id == snap.inputId) {
+                    reapplyFromIndex = index;
+                }
+            });
+            if (reapplyFromIndex) {
+                var size = this.inputs.size;
+                for (var i = 0; i < size; i++) {
+                    var j = (reapplyFromIndex + i) % size;
+                    var input = this.inputs._elements[j];
+                    if (input.id < snap.inputId) {
+                        break;
+                    }
+                    this.input = input;
+                    this.updatePhysics();
+                }
+            }
+        }
+        this.pendingSnapshots = [];
     }
+
     //while (!this.physicsQueue.isEmpty) {
     //    var i = this.physicsQueue.deq();
     //    this.player.update(this.inputs.getRaw(i), this.inputs.getRaw(i-1));
@@ -211,23 +239,27 @@ Game.prototype.updateInput = function() {
 };
 
 Game.prototype.updatePhysics = function() {
-    var self = this;
-    var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        this.state.players.forEach(function(player, id) {
-            if (id !== self.id) {
-                playerInput = self.inputList.get(id);
-                if (playerInput) {
-                    player.update(playerInput.input, playerInput.prevInput);
-                }
-            }
-        });
-        this.particles.forEach(function(part) {
-            part.update();
-        });
-        this.player.update(this.input, this.prevInput);
+        this.updatePhysicsTick();
         this.timeAccumulator -= config.game.physTick;
     }
+};
+
+Game.prototype.updatePhysicsTick = function() {
+    var self = this;
+    var playerInput;
+    this.state.players.forEach(function(player, id) {
+        if (id !== self.id) {
+            playerInput = self.inputList.get(id);
+            if (playerInput) {
+                player.update(playerInput.input, playerInput.prevInput);
+            }
+        }
+    });
+    this.particles.forEach(function(part) {
+        part.update();
+    });
+    this.player.update(this.input, this.prevInput);
 };
 
 Game.prototype.draw = function(ctx) {
