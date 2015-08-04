@@ -80,7 +80,7 @@ Game.prototype.init = function() {
         var x2 = x1 + Math.cos(p.dir) * 2000;
         var y2 = y1 + Math.sin(p.dir) * 2000;
 
-        g.state.players.iterate(function(player) {
+        g.state.players.forEach(function(player) {
             if (player !== p) {
                 //Collision check
                 var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
@@ -123,7 +123,7 @@ Game.prototype.loop = function() {
 
     this.lastTime = this.currentTime;
 
-    this.inputList.iterate(function(inp) {
+    this.inputList.forEach(function(inp) {
         inp.prevInput = inp.input;
     });
 
@@ -142,7 +142,7 @@ Game.prototype.updatePhysics = function() {
     var self = this;
     var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        this.state.players.iterate(function(player, id) {
+        this.state.players.forEach(function(player, id) {
             playerInput = self.inputList.get(id);
             if (playerInput) {
                 player.update(playerInput.input, playerInput.prevInput);

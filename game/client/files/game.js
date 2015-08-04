@@ -119,7 +119,7 @@ Game.prototype.init = function() {
             g.particles.push(new Particle(config.particles.smokestreak, x1 + t * vx, y1 + t * vy, p.dir, g));
         }
 
-        g.state.players.iterate(function(player) {
+        g.state.players.forEach(function(player) {
             if (player !== p) {
                 //Collision check
                 var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
@@ -162,7 +162,7 @@ Game.prototype.loop = function() {
 
     this.lastTime = this.currentTime;
 
-    this.inputList.iterate(function(inp) {
+    this.inputList.forEach(function(inp) {
         inp.prevInput = inp.input;
     });
 
@@ -214,7 +214,7 @@ Game.prototype.updatePhysics = function() {
     var self = this;
     var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        this.state.players.iterate(function(player, id) {
+        this.state.players.forEach(function(player, id) {
             if (id !== self.id) {
                 playerInput = self.inputList.get(id);
                 if (playerInput) {
@@ -290,7 +290,7 @@ Game.prototype.draw = function(ctx) {
     ctx.fill();
 
     //Draw players
-    this.state.players.iterate(function(player) {
+    this.state.players.forEach(function(player) {
         player.draw(ctx);
     });
 

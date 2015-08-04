@@ -62,9 +62,9 @@ HashList.prototype.remove = function(key) {
 // Iterate over the HashList given a callback function.
 // The callback can take the following arguments (in order):
 //   element, key, index
-HashList.prototype.iterate = function(fn) {
-    if (!fn) throw new TypeError("HashList.iterate: Callback function is undefined");
-    if (typeof fn !== "function") throw new TypeError("HashList.iterate: Callback function is not a function");
+HashList.prototype.forEach = function(fn) {
+    if (!fn) throw new TypeError("HashList.forEach: Callback function is undefined");
+    if (typeof fn !== "function") throw new TypeError("HashList.forEach: Callback function is not a function");
     var i = 0, 
         ks = Object.keys(this.list), 
         l = ks.length,
@@ -81,7 +81,7 @@ HashList.prototype.iterate = function(fn) {
 // Return a list of keys
 HashList.prototype.keys = function() {
     var l = [];
-    this.iterate(function (_, key) {
+    this.forEach(function (_, key) {
         l.push(key);
     });
     return l;
@@ -90,7 +90,7 @@ HashList.prototype.keys = function() {
 // Return a list of values
 HashList.prototype.values = function() {
     var l = [];
-    this.iterate(function (value) {
+    this.forEach(function (value) {
         l.push(value);
     });
     return l;
@@ -99,7 +99,7 @@ HashList.prototype.values = function() {
 HashList.prototype.export = function() {
     if (this.type) {
         var o = Object.create(null);
-        this.iterate(function(elem, key) {
+        this.forEach(function(elem, key) {
             if (elem && elem.export) {
                 o[key] = elem.export();
             }
@@ -115,7 +115,7 @@ HashList.prototype.export = function() {
 HashList.prototype.import = function(o) {
     if (!o) return;
     var self = this;
-    this.iterate(function(elem, key) {
+    this.forEach(function(elem, key) {
         if (o[key]) { // Key exists in both list and o -- Update
             if (elem.import) {
                 elem.import(o[key]);
