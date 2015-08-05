@@ -25,6 +25,22 @@ ECS.componentExists = function(name) {
     return ECS.components.hasOwnProperty(name);
 }
 
+ECS.getEntity = function(id) {
+    if (ECS.entityExists(id)) {
+        return ECS.entities[id];
+    } else {
+        return undefined;
+    }
+};
+
+ECS.getComponent = function(name) {
+    if (ECS.componentExists(id)) {
+        return ECS.components[id];
+    } else {
+        return undefined;
+    }
+};
+
 ECS.createEntity = function(id, setup) {
     id = id || ECS.getNextId();
 
