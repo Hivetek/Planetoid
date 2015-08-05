@@ -1,3 +1,10 @@
+// NodeJS requires
+if (typeof global !== "undefined") {
+    var RingBuffer = require('./ringbuffer');
+    var HashList = require('./hashlist.js');
+    var Player = require('./player');
+}
+
 /**
  * Input
  */
@@ -31,17 +38,22 @@ Input.prototype.import = function(o) {
     };
 };
 
-Input.init = function(game, size) {
+Input.initWithUserInput = function(game, size) {
     // Add keyboard and mouse to game
     game.keyboard = new Keyboard(game);
     game.mouse = new Mouse(game);
 
-    // Add a ring buffer to the game
-    game.inputs = new RingBuffer(size || 64);
+    Input.init(game, size);
 
     // Add initial previous and current input
-    game.inputs.enq(Input.fromUserInput(game));
+    game.addInput(Input.fromUserInput(game));
 
+    return game;
+}
+
+Input.init = function(game, size) {
+    // Add a ring buffer to the game
+    game.inputs = new RingBuffer(size || 64);
 
     // Add a short-hand to the newest input
     Object.defineProperty(game, "input", { 
@@ -49,8 +61,8 @@ Input.init = function(game, size) {
             return game.inputs.peekLast();
         }, 
         set: function(val) {
-            game.inputs.enq(val);
-            return game.inputs.peekLast();
+            game.inputs.set(game.inputs.size-1, val);
+            return val;
         }
     });
 
@@ -64,6 +76,12 @@ Input.init = function(game, size) {
             return val;
         }
     });
+
+    game.addInput = function(input) {
+        game.inputs.enq(input);
+    };
+
+    return game;
 };
 
 Input.fromUserInput = function(game) {

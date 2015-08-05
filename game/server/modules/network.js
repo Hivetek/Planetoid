@@ -1,5 +1,6 @@
 var config = require('shared/config');
 var Core = require('shared/core');
+var Input = require('shared/input');
 var Primus = require('primus')
   , http = require('http');
 
@@ -43,6 +44,7 @@ Network.prototype.init = function() {
 
         spark.on("input", function(input) {
             var playerInput = g.inputList.get(spark.id);
+            //playerInput.addInput(input);
             playerInput.input = input;
         });
 

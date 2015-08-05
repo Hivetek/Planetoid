@@ -59,11 +59,14 @@ State.init = function(game, size) {
             return game.states.peekLast();
         }, 
         set: function(val) {
-            game.states.enq(val);
-            return game.states.peekLast();
+            game.states.set(game.states.size-1, val);
+            return val;
         }
     });
 
+    game.addState = function(state) {
+        game.states.enq(state);
+    };
 };
 
 // Export module in NodeJS

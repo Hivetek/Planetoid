@@ -10,7 +10,7 @@ function Game() {
     // - Adds keyboard and mouse to game (game.mouse, game.keyboard)
     // - Creates input buffer (game.inputs)
     // - Creates current input short-hand (game.input)
-    Input.init(this, config.game.inputBufferSize);
+    Input.initWithUserInput(this, config.game.inputBufferSize);
 
     // State
     // - Creates state buffer (game.states)
@@ -205,7 +205,7 @@ Game.prototype.update = function() {
                         // This should never happen
                         break;
                     }
-                    this.input = input;
+                    this.addInput(input);
                     this.updatePhysicsTick();
                 }
             }
@@ -239,7 +239,7 @@ Game.prototype.update = function() {
 };
 
 Game.prototype.updateInput = function() {
-    this.input = Input.fromUserInput(this); // Capture current state of mouse and keyboard
+    this.addInput(Input.fromUserInput(this)); // Capture current state of mouse and keyboard
     this.network.primus.send("input", this.input); // Send the new input to the server
 };
 
