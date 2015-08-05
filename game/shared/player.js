@@ -5,6 +5,25 @@ if (typeof global !== "undefined") {
     var VectorMath = require('./vectorMath.js');
 }
 
+function Player(params) {
+    var entity = ECS.createEntity();
+    ECS.addComponent(entity.id, "player", params);
+    return entity;
+}
+
+ECS.createComponent("player", {
+    pos: {
+        x: 0,
+        y: 0
+    },
+    dir: 0,
+    a: {
+        x: 0,
+        y: 0
+    }
+});
+
+
 function Player(o, game) {
     if (!this.id) {
         if (o.id) {

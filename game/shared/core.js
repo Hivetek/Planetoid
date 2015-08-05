@@ -15,6 +15,24 @@ Core.clone = function(obj) {
     return c;
 };
 
+Core.override = function(obj, override) {
+    if (typeof obj !== "object") return;
+    if (typeof override !== "object") return;
+
+    for (var key in override) {
+        var newValue = override[key];
+        if (obj.hasOwnProperty(key)) {
+            if (typeof newValue === "object") {
+                Core.override(obj[key], newValue);
+            } else {
+                obj[key] = newValue;
+            }
+        }
+    }
+
+    return obj;
+};
+
 
 // Export module in NodeJS
 if (typeof global !== "undefined") {
