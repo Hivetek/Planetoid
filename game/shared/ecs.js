@@ -124,7 +124,7 @@ ECS.hasComponent = function(id, componentName) {
     return ECS.entityExists(id) && ECS.getEntity(id).components.hasOwnProperty(componentName);
 }
 
-ECS.hasComponents = function(id, componentList) {
+ECS.hasAllComponents = function(id, componentList) {
     var i,
         len = componentList.length,
         comp;
@@ -136,6 +136,20 @@ ECS.hasComponents = function(id, componentList) {
     }
 
     return true;
+}
+
+ECS.hasAnyComponents = function(id, componentList) {
+    var i,
+        len = componentList.length,
+        comp;
+    for (i = 0; i < len; i++) {
+        comp = componentList[i];
+        if (ECS.hasComponent(id, comp)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 ECS.addComponents = function(id, componentMap) {

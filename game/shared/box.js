@@ -49,7 +49,7 @@ Box.component = function() {
         for (var id in entities) {
             var entity = entities[id];
 
-            if (ECS.hasComponents(id, ["box", "physics"])) {
+            if (ECS.hasAllComponents(id, ["box", "physics"])) {
                 var box = entity.components.box;
                 var boxPhys = entity.components.physics;
                 ctx.fillStyle = 'rgba(255,0,0,0.2)';
@@ -74,14 +74,16 @@ Box.component = function() {
                 body.a.x = 0;
                 body.a.y = 0;
 
-                var gravX = config.game.planetX - body.pos.x;
-                var gravY = config.game.planetY - body.pos.y;
-                var gravity = {
-                    x: gravX,
-                    y: gravY
-                };
-                var d = VectorMath.magnitude(gravity);
-                gravity = VectorMath.scale(gravity, 1 / d);
+                if (ECS.hasAnyComponents(id, ["gravity", "collision"])) {
+                    var gravX = config.game.planetX - body.pos.x;
+                    var gravY = config.game.planetY - body.pos.y;
+                    var gravity = {
+                        x: gravX,
+                        y: gravY
+                    };
+                    var d = VectorMath.magnitude(gravity);
+                    gravity = VectorMath.scale(gravity, 1 / d);
+                }
 
                 // Gravity
                 if (ECS.hasComponent(id, "gravity")) {
