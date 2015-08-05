@@ -231,8 +231,10 @@ Game.prototype.update = function() {
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
         var box = Box({
-            x: 0,
-            y: -2000
+            pos: {
+                x: 0,
+                y: -2000
+            }
         });
     }
 

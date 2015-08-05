@@ -9,13 +9,30 @@ function Box(params) {
     params = params || {};
     var entity = ECS.createEntity();
     ECS.addComponent(entity.id, "box", params);
+    ECS.addComponent(entity.id, "render", params);
+    ECS.addComponent(entity.id, "physics", params);
     return entity;
 }
 
 Box.component = function() {
-    ECS.createComponent("box", {
-        x: 0,
-        y: 0
+    ECS.createComponent("box", {});
+
+    ECS.createComponent("render", {});
+
+    ECS.createComponent("physics", {
+        pos: {
+            x: 0,
+            y: 0
+        },
+        ppos: {
+            x: 0,
+            y: 0
+        },
+        a: {
+            x: 0,
+            y: 0
+        },
+        m: 1
     });
 
     ECS.addSystem("render", function(entities) {
@@ -23,20 +40,22 @@ Box.component = function() {
         var ctx = ECS.game.ctx
         for (var id in entities) {
             var entity = entities[id];
-            entity.components.box.x = player.pos.x - ECS.game.cameraX;
-            entity.components.box.y = player.pos.y - ECS.game.cameraY;
-            if (ECS.hasComponent(id, "box")) {
+
+            if (ECS.hasComponents(id, ["box", "physics"])) {
                 var size = 50;
-                var box = entity.components.box;
+                var box = entity.components.physics;
                 ctx.fillStyle = 'rgba(255,0,0,0.2)';
                 ctx.fillRect(
-                    box.x - size,
-                    box.y - size,
+                    box.pos.x - ECS.game.cameraX - size,
+                    box.pos.y - ECS.game.cameraY - size,
                     size * 2,
                     size * 2
                 );
             }
         }
+    });
+
+    ECS.addSystem("physics", function(entities) {
     });
 };
 
