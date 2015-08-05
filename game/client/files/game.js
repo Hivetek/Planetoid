@@ -64,6 +64,8 @@ Game.prototype.init = function() {
     this.ctx = this.canvas.getContext('2d');
     this.HUDctx = this.HUDcanvas.getContext('2d');
 
+    Box.component();
+
     this.events.trigger("init::end");
 
     var g = this;
@@ -225,6 +227,7 @@ Game.prototype.update = function() {
     if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)) {
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
+        var box = Box();
     }
 
     this.updatePhysics();

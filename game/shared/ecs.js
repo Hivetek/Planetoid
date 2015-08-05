@@ -63,7 +63,7 @@ ECS.deleteComponent = function(name) {
 
 ECS.addComponent = function(id, componentName, componentData) {
     if (ECS.entityExists(id)) {
-        if (ECS.componentExists(componentName) {
+        if (ECS.componentExists(componentName)) {
             var entity = ECS.entities[id];
             var defaults = Core.clone(ECS.components[componentName]);
             var data = Core.override(defaults, componentData);
@@ -85,6 +85,37 @@ ECS.removeComponent = function(id, componentName) {
     }
 };
 
+ECS.addComponents = function(id, componentMap) {
+    for (var componentName in componentMap) {
+        if (componentMap.hasOwnProperty(conponentName)) {
+            ECS.addComponent(id, componentName, componentMap[componentName]);
+        }
+    }
+};
+
+ECS.removeComponents = function(id, componentList) {
+    componentList.forEach(function(comp) {
+        ECS.removeComponent(id, comp);
+    });
+};
+
+ECS.entityConstructor = function(setup) {
+    var constr = function(params) {
+        params = params || {};
+        var entity = ECS.createEntity();
+        if (typeof setup === "function") {
+            setup.apply(this, [params]);
+        }
+    };
+
+    return constr;
+};
+
+ECS.namedEntityConstructor = function(name, setup) {
+    var constr = ECS.entityConstructor(setup);
+    window[name] = constr;
+    return constr;
+}
 
 // Export module in NodeJS
 if (typeof global !== "undefined") {
