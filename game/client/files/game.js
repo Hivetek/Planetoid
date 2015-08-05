@@ -194,14 +194,19 @@ Game.prototype.update = function() {
             });
             if (reapplyFromIndex) {
                 var size = this.inputs.size;
+                // Iterate over all the inputs in the input buffer
+                // from reapplyFromIndex to the end of the buffer.
                 for (var i = 0; i < size; i++) {
                     var j = (reapplyFromIndex + i) % size;
                     var input = this.inputs._elements[j];
-                    if (input.id < snap.inputId) {
+                    if (input.id == snap.inputId) {
+                        break;
+                    } else if (input.id < snap.inputId) {
+                        // This should never happen
                         break;
                     }
                     this.input = input;
-                    this.updatePhysics();
+                    this.updatePhysicsTick();
                 }
             }
         }

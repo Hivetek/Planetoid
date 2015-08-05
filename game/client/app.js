@@ -405,7 +405,7 @@ var App = (function() {
             url: url,
             dataType: "script",
             crossDomain: true,
-            timeout: 1000
+            timeout: 5000
         });
         return deferred;
     }
