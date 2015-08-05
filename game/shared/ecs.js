@@ -5,8 +5,14 @@ if (typeof global !== "undefined") {
 }
 
 var ECS = {};
+
+ECS.init = function(game) {
+    ECS.game = game;
+};
+
 ECS.entities = {};
 ECS.components = {};
+ECS.systems = {};
 
 ECS.nextId = 0;
 ECS.getNextId = function() {
@@ -16,6 +22,7 @@ ECS.getNextId = function() {
 
 ECS.entityCount = 0;
 ECS.componentCount = 0;
+ECS.systemCount = 0;
 
 ECS.entityExists = function(id) {
     return ECS.entities.hasOwnProperty(id);
@@ -23,6 +30,10 @@ ECS.entityExists = function(id) {
 
 ECS.componentExists = function(name) {
     return ECS.components.hasOwnProperty(name);
+}
+
+ECS.systemExists = function(name) {
+    return ECS.systems.hasOwnProperty(name);
 }
 
 ECS.getEntity = function(id) {
@@ -34,8 +45,16 @@ ECS.getEntity = function(id) {
 };
 
 ECS.getComponent = function(name) {
-    if (ECS.componentExists(id)) {
-        return ECS.components[id];
+    if (ECS.componentExists(name)) {
+        return ECS.components[name];
+    } else {
+        return undefined;
+    }
+};
+
+ECS.getSystem = function(name) {
+    if (ECS.systemExists(name)) {
+        return ECS.systems[name];
     } else {
         return undefined;
     }
@@ -101,6 +120,24 @@ ECS.removeComponent = function(id, componentName) {
     }
 };
 
+ECS.hasComponent = function(id, componentName) {
+    return ECS.entityExists(id) && ECS.getEntity(id).components.hasOwnProperty(componentName);
+}
+
+ECS.hasComponents = function(id, componentList) {
+    var i,
+        len = componentList.length,
+        comp;
+    for (i = 0; i < len; i++) {
+        comp = componentList[i];
+        if (!ECS.hasComponent(id, comp)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 ECS.addComponents = function(id, componentMap) {
     for (var componentName in componentMap) {
         if (componentMap.hasOwnProperty(conponentName)) {
@@ -131,6 +168,17 @@ ECS.namedEntityConstructor = function(name, setup) {
     var constr = ECS.entityConstructor(setup);
     window[name] = constr;
     return constr;
+}
+
+ECS.addSystem = function(name, func) {
+    ECS.systems[name] = func;
+    ECS.systemCount++;
+    return func;
+}
+
+ECS.removeSystem = function(name) {
+    delete ECS.systems[name];
+    ECS.systemCount--;
 }
 
 // Export module in NodeJS

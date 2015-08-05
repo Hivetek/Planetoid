@@ -64,6 +64,7 @@ Game.prototype.init = function() {
     this.ctx = this.canvas.getContext('2d');
     this.HUDctx = this.HUDcanvas.getContext('2d');
 
+    ECS.init(this);
     Box.component();
 
     this.events.trigger("init::end");
@@ -158,11 +159,13 @@ Game.prototype.loop = function() {
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
 
-    if (!this.paused)
+    if (!this.paused) {
         this.update();
+    }
 
     this.draw(this.ctx);
     this.drawHUD(this.HUDctx);
+    ECS.getSystem("render")(ECS.entities);
 
     this.lastTime = this.currentTime;
 
@@ -227,7 +230,10 @@ Game.prototype.update = function() {
     if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)) {
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
-        var box = Box();
+        var box = Box({
+            x: 0,
+            y: -2000
+        });
     }
 
     this.updatePhysics();
