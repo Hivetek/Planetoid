@@ -44,7 +44,8 @@ Network.prototype.init = function() {
 
         spark.on("input", function(input) {
             var playerInput = g.inputList.get(spark.id);
-            //playerInput.addInput(input);
+            //playerInput.addInput(input); // Use this line instead when the input system works properly on server side.
+            //playerInput.prevInput = playerInput.input; // Set the current input to be the previous
             playerInput.input = input;
         });
 
