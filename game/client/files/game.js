@@ -73,11 +73,8 @@ Game.prototype.init = function() {
         },
         ppos: {
             x: 0,
-        y: -2000
+            y: -2000
         },
-        a: {
-            y: 5
-        }
     });
 
     this.events.trigger("init::end");
