@@ -66,6 +66,19 @@ Game.prototype.init = function() {
 
     ECS.init(this);
     Box.component();
+    var box = Box({
+        pos: {
+            x: 0,
+        y: -2000
+        },
+        ppos: {
+            x: 0,
+        y: -2000
+        },
+        a: {
+            y: 5
+        }
+    });
 
     this.events.trigger("init::end");
 
@@ -230,12 +243,6 @@ Game.prototype.update = function() {
     if ((this.currentTime - this.network.lastPing > 1000) && (this.network.pingReceived)) {
         this.network.pingReceived = false;
         this.network.primus.send("ping", this.currentTime);
-        var box = Box({
-            pos: {
-                x: 0,
-                y: -2000
-            }
-        });
     }
 
     this.updatePhysics();
@@ -257,6 +264,7 @@ Game.prototype.updateInput = function() {
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
         this.updatePhysicsTick();
+        ECS.getSystem("physics")(ECS.entities);
         this.timeAccumulator -= config.game.physTick;
     }
 };

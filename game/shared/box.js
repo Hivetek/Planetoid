@@ -56,6 +56,21 @@ Box.component = function() {
     });
 
     ECS.addSystem("physics", function(entities) {
+        var dt = config.game.physTick / 1000;
+        for (var id in entities) {
+            var entity = entities[id];
+            if (ECS.hasComponent(id, "physics")) {
+                var body = entity.components.physics;
+
+                // Verlet
+                var newx = 2 * body.pos.x - body.ppos.x + body.a.x * dt * dt;
+                var newy = 2 * body.pos.y - body.ppos.y + body.a.y * dt * dt;
+                body.ppos.x = body.pos.x;
+                body.ppos.y = body.pos.y;
+                body.pos.x = newx;
+                body.pos.y = newy;
+            }
+        }
     });
 };
 
