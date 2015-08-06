@@ -175,7 +175,7 @@ Game.prototype.loop = function() {
 
     this.draw(this.ctx);
     this.drawHUD(this.HUDctx);
-    ECS.getSystem("render")(ECS.entities);
+    ECS.runSystem("render");
 
     this.lastTime = this.currentTime;
 
@@ -261,7 +261,7 @@ Game.prototype.updateInput = function() {
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
         this.updatePhysicsTick();
-        ECS.getSystem("physics")(ECS.entities);
+        ECS.runSystem("physics");
         this.timeAccumulator -= config.game.physTick;
     }
 };

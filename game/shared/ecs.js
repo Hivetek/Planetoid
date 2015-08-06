@@ -195,6 +195,13 @@ ECS.removeSystem = function(name) {
     ECS.systemCount--;
 }
 
+ECS.runSystem = function(name) {
+    var system = ECS.getSystem(name)
+    if (system) {
+        system(ECS.entities);
+    }
+}
+
 // Export module in NodeJS
 if (typeof global !== "undefined") {
     module.exports = ECS;
