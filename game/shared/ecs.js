@@ -93,8 +93,13 @@ ECS.getComponent = function(name) {
     }
 };
 
-ECS.createComponent = function(name, defaults) {
-    ECS.components[name] = defaults;
+ECS.createComponent = function(name, defaults, dependencies) {
+    defaults = defaults || {};
+    dependencies = dependencies || [];
+    ECS.components[name] = {
+        defaults: defaults,
+        dependencies: dependencies
+    };
     ECS.componentCount++;
     return ECS.components[name];
 };
@@ -108,7 +113,8 @@ ECS.addComponent = function(id, componentName, componentData) {
     if (ECS.entityExists(id)) {
         if (ECS.componentExists(componentName)) {
             var entity = ECS.entities[id];
-            var defaults = Core.clone(ECS.components[componentName]);
+            var component = ECS.components[componentName];
+            var defaults = Core.clone(component.defaults);
             var data = Core.override(defaults, componentData);
             entity.components[componentName] = data;
         } else {

@@ -22,10 +22,10 @@ Box.component = function() {
         size: 50
     });
 
-    ECS.createComponent("render", {});
+    ECS.createComponent("render");
 
-    ECS.createComponent("gravity", {});
-    ECS.createComponent("collision", {});
+    ECS.createComponent("gravity");
+    ECS.createComponent("collision");
 
     ECS.createComponent("physics", {
         pos: {
