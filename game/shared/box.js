@@ -14,6 +14,7 @@ function Box(params) {
     ECS.addComponent(entity.id, "position", params);
     ECS.addComponent(entity.id, "physics", params);
     ECS.addComponent(entity.id, "jetpack", params);
+    ECS.addComponent(entity.id, "living", params);
     ECS.addComponent(entity.id, "input", params);
     ECS.addComponent(entity.id, "playerControlled", params);
     return entity;
@@ -33,6 +34,11 @@ Box.component = function() {
 
     ECS.createComponent("jetpack", {
         fuel: 100
+    });
+
+    ECS.createComponent("living", {
+        health: 100,
+        isAlive: true
     });
 
     ECS.createComponent("physics", {
@@ -89,6 +95,31 @@ Box.component = function() {
             if (ECS.hasComponent(id, "physics")) {
                 var pos  = entity.components.position;
                 var body = entity.components.physics;
+                var input;
+
+                if (ECS.hasComponent(id, "input")) {
+                    input = entity.components.input;
+                }
+
+                if (ECS.hasComponent(id, "living")) {
+                    var living = entity.components.living;
+                    if (input && input.curr.mouse.left && !input.prev.mouse.left && living.isAlive) {
+                        //ECS.game.events.trigger("player::fired", this.id);
+                        //this.fuel = 0;
+                    }
+
+                    if (living.hp <= 0) {
+                        if (living.isAlive) {
+                            //ECS.game.events.trigger("player::killed", this.id);
+                        }
+                        living.isAlive = false;
+                    }
+
+                    // Don't waste CPU power on updating a dead player
+                    if (!living.isAlive) {
+                        break;
+                    }
+                }
 
                 // Reset acceleration
                 body.a.x = 0;
