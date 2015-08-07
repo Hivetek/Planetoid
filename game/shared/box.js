@@ -14,6 +14,7 @@ function Box(params) {
     ECS.addComponent(entity.id, "physics", params);
     ECS.addComponent(entity.id, "gravity", params);
     ECS.addComponent(entity.id, "collision", params);
+    ECS.addComponent(entity.id, "testdep", params);
     return entity;
 }
 
@@ -42,6 +43,9 @@ Box.component = function() {
         },
         m: 1
     });
+
+    ECS.createComponent("test");
+    ECS.createComponent("testdep", {}, ["test"]);
 
     ECS.addSystem("render", function(entities, ctx) {
         var player = ECS.game.player;

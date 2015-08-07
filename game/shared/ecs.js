@@ -96,6 +96,12 @@ ECS.getComponent = function(name) {
 ECS.createComponent = function(name, defaults, dependencies) {
     defaults = defaults || {};
     dependencies = dependencies || [];
+    if (!Core.isPlainObject(defaults)) {
+        throw new ComponentError(name, "defaults is not plain object");
+    }
+    if (!Core.isArray(dependencies)) {
+        throw new ComponentError(name, "dependencies is not an array");
+    }
     ECS.components[name] = {
         defaults: defaults,
         dependencies: dependencies
@@ -114,6 +120,17 @@ ECS.addComponent = function(id, componentName, componentData) {
         if (ECS.componentExists(componentName)) {
             var entity = ECS.entities[id];
             var component = ECS.components[componentName];
+            if (!ECS.hasAllComponents(id, component.dependencies)) {
+                var i,
+                len = component.dependencies.length,
+                dep;
+                for (i = 0; i < len; i++) {
+                    dep = component.dependencies[i];
+                    if (!ECS.hasComponent(id, dep)) {
+                        throw new MissingDependencyError(componentName, dep);
+                    }
+                }
+            }
             var defaults = Core.clone(component.defaults);
             var data = Core.override(defaults, componentData);
             entity.components[componentName] = data;
@@ -213,7 +230,7 @@ ECS.removeSystem = function(name) {
 ECS.runSystem = function(name, args) {
     var system = ECS.getSystem(name)
     if (system) {
-        if (Object.prototype.toString.call(args) !== '[object Array]') {
+        if (!Core.isArray(args)) {
             args = [];
         }
         args.unshift(ECS.entities);
@@ -232,7 +249,7 @@ ECS.entityConstructor = function(setup) {
     var constr = function(params) {
         params = params || {};
         var entity = ECS.createEntity();
-        if (typeof setup === "function") {
+        if (Core.isFunction(setup)) {
             setup.apply(this, [params]);
         }
     };
@@ -246,6 +263,23 @@ ECS.namedEntityConstructor = function(name, setup) {
     return constr;
 };
 
+
+/*
+ * ------------
+ *    Errors
+ * ------------
+ */
+function ComponentError(comp, message) {
+    this.name = "ComponentError";
+    this.message = "Component '"+comp+"': " + message;
+}
+ComponentError.prototype = Object.create(Error.prototype);
+
+function MissingDependencyError(comp, dep) {
+    this.name = "MissingDependencyError";
+    this.message = "Component '"+comp+"': Missing dependency '"+dep+"'";
+}
+MissingDependencyError.prototype = Object.create(Error.prototype);
 
 
 // Export module in NodeJS

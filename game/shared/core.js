@@ -106,6 +106,89 @@ Core.sync = function(obj, instructions) {
 };
 
 
+// Borrowed from jQuery
+
+Core.hasOwn = ({}).hasOwnProperty;
+
+Core.isFunction = function(obj) {
+    return Core.type(obj) === "function";
+};
+
+Core.isArray = Array.isArray;
+
+Core.isNumeric = function(obj) {
+    // parseFloat NaNs numeric-cast false positives (null|true|false|"")
+    // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+    // subtraction forces infinities to NaN
+    // adding 1 corrects loss of precision from parseFloat (#15100)
+    return !Core.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
+};
+
+Core.isPlainObject = function(obj) {
+    // Not plain objects:
+    // - Any object or value whose internal [[Class]] property is not "[object Object]"
+    // - DOM nodes
+    // - window
+    if (Core.type(obj) !== "object" || obj.nodeType) {
+        return false;
+    }
+
+    if (obj.constructor &&
+            !Core.hasOwn.call(obj.constructor.prototype, "isPrototypeOf")) {
+        return false;
+    }
+
+    // If the function hasn't returned already, we're confident that
+    // |obj| is a plain object, created by {} or constructed with new Object
+    return true;
+};
+
+Core.isEmptyObject = function(obj) {
+    var name;
+    for (name in obj) {
+        return false;
+    }
+    return true;
+};
+
+Core.type = function(obj) {
+    if (obj == null) {
+        return obj + "";
+    }
+    // Support: Android<4.0 (functionish RegExp)
+    return typeof obj === "object" || typeof obj === "function" ?
+        Core.class2type[ toString.call(obj) ] || "object" :
+        typeof obj;
+};
+
+Core.trim = function(text) {
+    return text == null ?
+        "" : ( text + "" ).replace( rtrim, "" );
+};
+
+Core.isArrayLike = function(obj) {
+	// Support: iOS 8.2 (not reproducible in simulator)
+	// `in` check used to prevent JIT error (gh-2145)
+	// hasOwn isn't used here due to false negatives
+	// regarding Nodelist length in IE
+	var length = "length" in obj && obj.length,
+		type = jQuery.type(obj);
+
+	if (type === "function") {
+		return false;
+	}
+
+	return type === "array" || length === 0 ||
+		typeof length === "number" && length > 0 && (length - 1) in obj;
+}
+
+Core.class2type = {};
+("Boolean Number String Function Array Date RegExp Object Error".split(" ")).forEach(function(name) {
+	Core.class2type["[object " + name + "]"] = name.toLowerCase();
+});
+
+
+
 // Export module in NodeJS
 if (typeof global !== "undefined") {
     module.exports = Core;
