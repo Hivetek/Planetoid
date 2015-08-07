@@ -11,6 +11,7 @@ function Box(params) {
     var entity = ECS.createEntity();
     ECS.addComponent(entity.id, "box", params);
     ECS.addComponent(entity.id, "render", params);
+    ECS.addComponent(entity.id, "position", params);
     ECS.addComponent(entity.id, "physics", params);
     ECS.addComponent(entity.id, "input", params);
     ECS.addComponent(entity.id, "playerControlled", params);
@@ -24,16 +25,17 @@ Box.component = function() {
 
     ECS.createComponent("render");
 
+    ECS.createComponent("position", {
+        x: 0,
+        y: 0
+    });
+
     ECS.createComponent("physics", {
         gravity: true,
         collision: true,
         friction: true,
         drag: true,
         grounded: false,
-        pos: {
-            x: 0,
-            y: 0
-        },
         ppos: {
             x: 0,
             y: 0
@@ -43,7 +45,7 @@ Box.component = function() {
             y: 0
         },
         m: 1
-    });
+    }, ["position"]);
 
     ECS.createComponent("input", {
         curr: InputStructure(),
@@ -58,13 +60,13 @@ Box.component = function() {
 
             if (ECS.hasComponent(id, "render")) {
 
-                if (ECS.hasAllComponents(id, ["box", "physics"])) {
+                if (ECS.hasAllComponents(id, ["box", "position"])) {
                     var box = entity.components.box;
-                    var boxPhys = entity.components.physics;
+                    var pos = entity.components.position;
                     ctx.fillStyle = 'rgba(255,0,0,0.2)';
                     ctx.fillRect(
-                        boxPhys.pos.x - ECS.game.cameraX - box.size,
-                        boxPhys.pos.y - ECS.game.cameraY - box.size,
+                        pos.x - ECS.game.cameraX - box.size,
+                        pos.y - ECS.game.cameraY - box.size,
                         box.size * 2,
                         box.size * 2
                     );
@@ -80,6 +82,7 @@ Box.component = function() {
         for (var id in entities) {
             var entity = entities[id];
             if (ECS.hasComponent(id, "physics")) {
+                var pos  = entity.components.position;
                 var body = entity.components.physics;
 
                 // Reset acceleration
@@ -88,8 +91,8 @@ Box.component = function() {
 
                 // If component uses gravity, it should be added here:
                 if (body.gravity || body.collision || ECS.hasComponent(id, "input")) {
-                    var gravX = config.game.planetX - body.pos.x;
-                    var gravY = config.game.planetY - body.pos.y;
+                    var gravX = config.game.planetX - pos.x;
+                    var gravY = config.game.planetY - pos.y;
                     var gravity = {
                         x: gravX,
                         y: gravY
@@ -100,8 +103,8 @@ Box.component = function() {
 
                 // If component uses vx and vy, it should be added here
                 if (body.friction || body.drag) {
-                    var vx = body.pos.x - body.ppos.x;
-                    var vy = body.pos.y - body.ppos.y;
+                    var vx = pos.x - body.ppos.x;
+                    var vy = pos.y - body.ppos.y;
                 }
 
 
@@ -124,8 +127,8 @@ Box.component = function() {
 
                             // Move the box up from the ground, if necessary
                             var m = (config.game.planetSize + box.size) - d;
-                            body.pos.x -= gravity.x * m;
-                            body.pos.y -= gravity.y * m;
+                            pos.x -= gravity.x * m;
+                            pos.y -= gravity.y * m;
                         } else { // In the air
                             body.grounded = false;
                         }
@@ -162,12 +165,12 @@ Box.component = function() {
                 }
 
                 // Verlet
-                var newx = 2 * body.pos.x - body.ppos.x + body.a.x * dt2;
-                var newy = 2 * body.pos.y - body.ppos.y + body.a.y * dt2;
-                body.ppos.x = body.pos.x;
-                body.ppos.y = body.pos.y;
-                body.pos.x = newx;
-                body.pos.y = newy;
+                var newx = 2 * pos.x - body.ppos.x + body.a.x * dt2;
+                var newy = 2 * pos.y - body.ppos.y + body.a.y * dt2;
+                body.ppos.x = pos.x;
+                body.ppos.y = pos.y;
+                pos.x = newx;
+                pos.y = newy;
             }
         }
     });

@@ -67,10 +67,8 @@ Game.prototype.init = function() {
     ECS.init(this);
     Box.component();
     var box = Box({
-        pos: {
-            x: 0,
-        y: -2000
-        },
+        x: 0,
+        y: -2000,
         ppos: {
             x: 0,
             y: -2000
