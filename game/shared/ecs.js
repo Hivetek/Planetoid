@@ -97,10 +97,10 @@ ECS.createComponent = function(name, defaults, dependencies) {
     defaults = defaults || {};
     dependencies = dependencies || [];
     if (!Core.isPlainObject(defaults)) {
-        throw new ComponentError(name, "defaults is not plain object");
+        throw new ECS.ComponentError(name, "defaults is not plain object");
     }
     if (!Core.isArray(dependencies)) {
-        throw new ComponentError(name, "dependencies is not an array");
+        throw new ECS.ComponentError(name, "dependencies is not an array");
     }
     ECS.components[name] = {
         defaults: defaults,
@@ -127,7 +127,7 @@ ECS.addComponent = function(id, componentName, componentData) {
                 for (i = 0; i < len; i++) {
                     dep = component.dependencies[i];
                     if (!ECS.hasComponent(id, dep)) {
-                        throw new MissingDependencyError(componentName, dep);
+                        throw new ECS.MissingDependencyError(componentName, dep);
                     }
                 }
             }
@@ -232,7 +232,7 @@ ECS.runSystem = function(name, args) {
     if (system) {
         args = args || [];
         if (!Core.isArray(args)) {
-            throw new SystemError(name, "runSystem: args is not an array");
+            throw new ECS.SystemError(name, "runSystem: args is not an array");
         }
         args.unshift(ECS.entities);
         system.apply({}, args);
@@ -271,49 +271,49 @@ ECS.namedEntityConstructor = function(name, setup) {
  * ------------
  */
 
-function EntityError(ent, message) {
+ECS.EntityError = function(ent, message) {
     this.name = "EntityError";
     this.message = "Entity '"+ent+"': " + message;
 }
-EntityError.prototype = Object.create(Error.prototype);
+ECS.EntityError.prototype = Object.create(Error.prototype);
 
-function ComponentError(comp, message) {
+ECS.ComponentError = function(comp, message) {
     this.name = "ComponentError";
     this.message = "Component '"+comp+"': " + message;
 }
-ComponentError.prototype = Object.create(Error.prototype);
+ECS.ComponentError.prototype = Object.create(Error.prototype);
 
-function SystemError(sys, message) {
+ECS.SystemError = function(sys, message) {
     this.name = "SystemError";
     this.message = "System '"+sys+"': " + message;
 }
-SystemError.prototype = Object.create(Error.prototype);
+ECS.SystemError.prototype = Object.create(Error.prototype);
 
 
-function EntityDoesNotExist(ent) {
+ECS.EntityDoesNotExist = function(ent) {
     this.name = "EntityDoesNotExist";
     this.message = ent + "";
 }
-EntityDoesNotExist.prototype = Object.create(Error.prototype);
+ECS.EntityDoesNotExist.prototype = Object.create(Error.prototype);
 
-function ComponentDoesNotExist(comp) {
+ECS.ComponentDoesNotExist = function(comp) {
     this.name = "ComponentDoesNotExist";
     this.message = comp + "";
 }
-ComponentDoesNotExist.prototype = Object.create(Error.prototype);
+ECS.ComponentDoesNotExist.prototype = Object.create(Error.prototype);
 
-function SystemDoesNotExist(sys) {
+ECS.SystemDoesNotExist = function(sys) {
     this.name = "SystemDoesNotExist";
     this.message = sys + "";
 }
-SystemDoesNotExist.prototype = Object.create(Error.prototype);
+ECS.SystemDoesNotExist.prototype = Object.create(Error.prototype);
 
 
-function MissingDependencyError(comp, dep) {
+ECS.MissingDependencyError = function(comp, dep) {
     this.name = "MissingDependencyError";
     this.message = "Component '"+comp+"': Missing dependency '"+dep+"'";
 }
-MissingDependencyError.prototype = Object.create(Error.prototype);
+ECS.MissingDependencyError.prototype = Object.create(Error.prototype);
 
 
 // Export module in NodeJS
