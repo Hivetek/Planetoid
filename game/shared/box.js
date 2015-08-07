@@ -27,6 +27,7 @@ Box.component = function() {
         gravity: true,
         collision: true,
         friction: true,
+        drag: true,
         grounded: false,
         pos: {
             x: 0,
@@ -96,7 +97,7 @@ Box.component = function() {
                 }
 
                 // If component uses vx and vy, it should be added here
-                if (body.friction) {
+                if (body.friction || body.drag) {
                     var vx = body.pos.x - body.ppos.x;
                     var vy = body.pos.y - body.ppos.y;
                 }
@@ -137,6 +138,11 @@ Box.component = function() {
                 if (body.friction && body.grounded) {
                     body.a.x -= config.game.player.friction * vx / dt2;
                     body.a.y -= config.game.player.friction * vy / dt2;
+                }
+
+                if (body.drag && !body.grounded) {
+                    body.a.x -= config.game.player.drag * vx / dt2;
+                    body.a.y -= config.game.player.drag * vy / dt2;
                 }
 
                 // Verlet
