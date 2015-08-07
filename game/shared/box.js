@@ -12,6 +12,7 @@ function Box(params) {
     ECS.addComponent(entity.id, "box", params);
     ECS.addComponent(entity.id, "render", params);
     ECS.addComponent(entity.id, "physics", params);
+    ECS.addComponent(entity.id, "input", params);
     return entity;
 }
 
@@ -39,6 +40,12 @@ Box.component = function() {
         },
         m: 1
     });
+
+    ECS.createComponent("input", {
+        curr: InputStructure(),
+        prev: InputStructure()
+    });
+    ECS.createComponent("playerControlled", {}, ["input"]);
 
     ECS.addSystem("render", function(entities, ctx) {
         var player = ECS.game.player;
@@ -74,7 +81,8 @@ Box.component = function() {
                 body.a.x = 0;
                 body.a.y = 0;
 
-                if (body.gravity || body.collision) {
+                // If component uses gravity it should be added here:
+                if (body.gravity || body.collision || ECS.hasComponent(id, "input")) {
                     var gravX = config.game.planetX - body.pos.x;
                     var gravY = config.game.planetY - body.pos.y;
                     var gravity = {
@@ -105,6 +113,12 @@ Box.component = function() {
                             body.pos.y -= gravity.y * m;
                         }
                     }
+                }
+
+                if (ECS.hasComponent(id, "input")) {
+                    var input = entity.components.input;
+                    body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
+                    body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
                 }
 
                 // Verlet

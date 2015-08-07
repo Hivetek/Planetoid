@@ -5,6 +5,32 @@ if (typeof global !== "undefined") {
     var Player = require('./player');
 }
 
+function InputStructure() {
+    return {
+        mouse: MouseStructure(),
+        keys : KeysStructure()
+    };
+}
+
+function MouseStructure() {
+    return {
+        x: 0,
+        y: 0,
+        left: false,
+        middle: false,
+        right: false
+    };
+}
+
+function KeysStructure() {
+    return {
+        up: false,
+        left: false,
+        right: false,
+        down: false
+    };
+}
+
 /**
  * Input
  */

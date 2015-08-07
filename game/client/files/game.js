@@ -75,6 +75,11 @@ Game.prototype.init = function() {
             x: 0,
             y: -2000
         },
+        curr: {
+            keys: {
+                right: true
+            }
+        }
     });
 
     this.events.trigger("init::end");
