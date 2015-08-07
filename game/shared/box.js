@@ -26,6 +26,8 @@ Box.component = function() {
     ECS.createComponent("physics", {
         gravity: true,
         collision: true,
+        friction: true,
+        grounded: false,
         pos: {
             x: 0,
             y: 0
@@ -93,6 +95,12 @@ Box.component = function() {
                     gravity = VectorMath.scale(gravity, 1 / d);
                 }
 
+                // If component uses vx and vy, it should be added here
+                if (body.friction) {
+                    var vx = body.pos.x - body.ppos.x;
+                    var vy = body.pos.y - body.ppos.y;
+                }
+
                 // Gravity
                 if (body.gravity) {
                     if (d > 0) {
@@ -108,9 +116,14 @@ Box.component = function() {
                     if (ECS.hasComponent(id, "box")) {
                         var box = entity.components.box;
                         if (d <= config.game.planetSize + box.size) { //on the ground
+                            body.grounded = true;
+
+                            // Move the box up from the ground, if necessary
                             var m = (config.game.planetSize + box.size) - d;
                             body.pos.x -= gravity.x * m;
                             body.pos.y -= gravity.y * m;
+                        } else {
+                            body.grounded = false;
                         }
                     }
                 }
@@ -119,6 +132,11 @@ Box.component = function() {
                     var input = entity.components.input;
                     body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
                     body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
+                }
+
+                if (body.friction && body.grounded) {
+                    body.a.x -= config.game.player.friction * vx / dt2;
+                    body.a.y -= config.game.player.friction * vy / dt2;
                 }
 
                 // Verlet
