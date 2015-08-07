@@ -81,10 +81,11 @@ Box.component = function() {
             if (ECS.hasComponent(id, "physics")) {
                 var body = entity.components.physics;
 
+                // Reset acceleration
                 body.a.x = 0;
                 body.a.y = 0;
 
-                // If component uses gravity it should be added here:
+                // If component uses gravity, it should be added here:
                 if (body.gravity || body.collision || ECS.hasComponent(id, "input")) {
                     var gravX = config.game.planetX - body.pos.x;
                     var gravY = config.game.planetY - body.pos.y;
@@ -102,6 +103,7 @@ Box.component = function() {
                     var vy = body.pos.y - body.ppos.y;
                 }
 
+
                 // Gravity
                 if (body.gravity) {
                     if (d > 0) {
@@ -116,30 +118,33 @@ Box.component = function() {
                     // a box and the planet.
                     if (ECS.hasComponent(id, "box")) {
                         var box = entity.components.box;
-                        if (d <= config.game.planetSize + box.size) { //on the ground
+                        if (d <= config.game.planetSize + box.size) { // On the ground
                             body.grounded = true;
 
                             // Move the box up from the ground, if necessary
                             var m = (config.game.planetSize + box.size) - d;
                             body.pos.x -= gravity.x * m;
                             body.pos.y -= gravity.y * m;
-                        } else {
+                        } else { // In the air
                             body.grounded = false;
                         }
                     }
                 }
 
+                // Input
                 if (ECS.hasComponent(id, "input")) {
                     var input = entity.components.input;
                     body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
                     body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
                 }
 
+                // Friction
                 if (body.friction && body.grounded) {
                     body.a.x -= config.game.player.friction * vx / dt2;
                     body.a.y -= config.game.player.friction * vy / dt2;
                 }
 
+                // Drag
                 if (body.drag && !body.grounded) {
                     body.a.x -= config.game.player.drag * vx / dt2;
                     body.a.y -= config.game.player.drag * vy / dt2;
