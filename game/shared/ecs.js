@@ -45,7 +45,7 @@ ECS.getEntity = function(id) {
     if (ECS.entityExists(id)) {
         return ECS.entities[id];
     } else {
-        return undefined;
+        throw new EntityDoesNotExist(id);
     }
 };
 
@@ -89,7 +89,7 @@ ECS.getComponent = function(name) {
     if (ECS.componentExists(name)) {
         return ECS.components[name];
     } else {
-        return undefined;
+        throw new ComponentDoesNotExist(name);
     }
 };
 
@@ -135,10 +135,10 @@ ECS.addComponent = function(id, componentName, componentData) {
             var data = Core.override(defaults, componentData);
             entity.components[componentName] = data;
         } else {
-            console.log("Component " + componentName + " does not exist");
+            throw new ComponentDoesNotExist(componentName);
         }
     } else {
-        console.log("Entity " + id + " does not exist");
+        throw new EntityDoesNotExist(id);
     }
 };
 
@@ -147,7 +147,7 @@ ECS.removeComponent = function(id, componentName) {
         var entity = ECS.entities[id];
         delete entity.components[componentName];
     } else {
-        console.log("Entity " + id + " does not exist");
+        throw new EntityDoesNotExist(id);
     }
 };
 
@@ -212,7 +212,7 @@ ECS.getSystem = function(name) {
     if (ECS.systemExists(name)) {
         return ECS.systems[name];
     } else {
-        return undefined;
+        throw new SystemDoesNotExist(name);
     }
 };
 
@@ -230,8 +230,9 @@ ECS.removeSystem = function(name) {
 ECS.runSystem = function(name, args) {
     var system = ECS.getSystem(name)
     if (system) {
+        args = args || [];
         if (!Core.isArray(args)) {
-            args = [];
+            throw new SystemError(name, "runSystem: args is not an array");
         }
         args.unshift(ECS.entities);
         system.apply({}, args);
