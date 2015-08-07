@@ -12,8 +12,6 @@ function Box(params) {
     ECS.addComponent(entity.id, "box", params);
     ECS.addComponent(entity.id, "render", params);
     ECS.addComponent(entity.id, "physics", params);
-    ECS.addComponent(entity.id, "gravity", params);
-    ECS.addComponent(entity.id, "collision", params);
     return entity;
 }
 
@@ -24,10 +22,9 @@ Box.component = function() {
 
     ECS.createComponent("render");
 
-    ECS.createComponent("gravity");
-    ECS.createComponent("collision");
-
     ECS.createComponent("physics", {
+        gravity: true,
+        collision: true,
         pos: {
             x: 0,
             y: 0
@@ -77,7 +74,7 @@ Box.component = function() {
                 body.a.x = 0;
                 body.a.y = 0;
 
-                if (ECS.hasAnyComponents(id, ["gravity", "collision"])) {
+                if (body.gravity || body.collision) {
                     var gravX = config.game.planetX - body.pos.x;
                     var gravY = config.game.planetY - body.pos.y;
                     var gravity = {
@@ -89,7 +86,7 @@ Box.component = function() {
                 }
 
                 // Gravity
-                if (ECS.hasComponent(id, "gravity")) {
+                if (body.gravity) {
                     if (d > 0) {
                         body.a.x += gravity.x * config.game.gravity;
                         body.a.y += gravity.y * config.game.gravity;
@@ -97,7 +94,7 @@ Box.component = function() {
                 }
 
                 // Collision detection
-                if (ECS.hasComponent(id, "collision")) {
+                if (body.collision) {
                     // We know how to do collision detection with
                     // a box and the planet.
                     if (ECS.hasComponent(id, "box")) {

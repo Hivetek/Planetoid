@@ -45,7 +45,7 @@ ECS.getEntity = function(id) {
     if (ECS.entityExists(id)) {
         return ECS.entities[id];
     } else {
-        throw new EntityDoesNotExist(id);
+        throw new ECS.EntityDoesNotExist(id);
     }
 };
 
@@ -89,7 +89,7 @@ ECS.getComponent = function(name) {
     if (ECS.componentExists(name)) {
         return ECS.components[name];
     } else {
-        throw new ComponentDoesNotExist(name);
+        throw new ECS.ComponentDoesNotExist(name);
     }
 };
 
@@ -202,7 +202,7 @@ ECS.getSystem = function(name) {
     if (ECS.systemExists(name)) {
         return ECS.systems[name];
     } else {
-        throw new SystemDoesNotExist(name);
+        throw new ECS.SystemDoesNotExist(name);
     }
 };
 
