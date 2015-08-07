@@ -43,22 +43,25 @@ Box.component = function() {
         m: 1
     });
 
-    ECS.addSystem("render", function(entities) {
+    ECS.addSystem("render", function(entities, ctx) {
         var player = ECS.game.player;
-        var ctx = ECS.game.ctx
         for (var id in entities) {
             var entity = entities[id];
 
-            if (ECS.hasAllComponents(id, ["box", "physics"])) {
-                var box = entity.components.box;
-                var boxPhys = entity.components.physics;
-                ctx.fillStyle = 'rgba(255,0,0,0.2)';
-                ctx.fillRect(
-                    boxPhys.pos.x - ECS.game.cameraX - box.size,
-                    boxPhys.pos.y - ECS.game.cameraY - box.size,
-                    box.size * 2,
-                    box.size * 2
-                );
+            if (ECS.hasComponent(id, "render")) {
+
+                if (ECS.hasAllComponents(id, ["box", "physics"])) {
+                    var box = entity.components.box;
+                    var boxPhys = entity.components.physics;
+                    ctx.fillStyle = 'rgba(255,0,0,0.2)';
+                    ctx.fillRect(
+                        boxPhys.pos.x - ECS.game.cameraX - box.size,
+                        boxPhys.pos.y - ECS.game.cameraY - box.size,
+                        box.size * 2,
+                        box.size * 2
+                    );
+                }
+
             }
         }
     });

@@ -175,7 +175,7 @@ Game.prototype.loop = function() {
 
     this.draw(this.ctx);
     this.drawHUD(this.HUDctx);
-    ECS.runSystem("render");
+    ECS.runSystem("render", [this.ctx]);
 
     this.lastTime = this.currentTime;
 

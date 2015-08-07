@@ -195,10 +195,14 @@ ECS.removeSystem = function(name) {
     ECS.systemCount--;
 }
 
-ECS.runSystem = function(name) {
+ECS.runSystem = function(name, args) {
     var system = ECS.getSystem(name)
     if (system) {
-        system(ECS.entities);
+        if (Object.prototype.toString.call(args) !== '[object Array]') {
+            args = [];
+        }
+        args.unshift(ECS.entities);
+        system.apply({}, args);
     }
 }
 
