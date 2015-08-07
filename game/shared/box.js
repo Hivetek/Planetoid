@@ -93,21 +93,27 @@ Box.component = function() {
         for (var id in entities) {
             var entity = entities[id];
             if (ECS.hasComponent(id, "physics")) {
-                var pos  = entity.components.position;
+                // Garantied to exist
                 var body = entity.components.physics;
-                var input;
+                var pos  = entity.components.position; // Dependency of physics
 
-                if (ECS.hasComponent(id, "input")) {
-                    input = entity.components.input;
-                }
+                // Might be undefined
+                var input   = entity.components.input;
+                var jetpack = entity.components.jetpack;
+                var living  = entity.components.living;
 
-                if (ECS.hasComponent(id, "living")) {
-                    var living = entity.components.living;
+
+                // Living component
+                if (living) {
+                    // Only living can shoot. Also check for input component. Also check for input component
                     if (input && input.curr.mouse.left && !input.prev.mouse.left && living.isAlive) {
                         //ECS.game.events.trigger("player::fired", this.id);
-                        //this.fuel = 0;
+                        if (jetpack) {
+                            jetpack.fuel = 0;
+                        }
                     }
 
+                    // Detect death
                     if (living.hp <= 0) {
                         if (living.isAlive) {
                             //ECS.game.events.trigger("player::killed", this.id);
@@ -121,12 +127,13 @@ Box.component = function() {
                     }
                 }
 
+
                 // Reset acceleration
                 body.a.x = 0;
                 body.a.y = 0;
 
                 // If component uses gravity, it should be added here:
-                if (body.gravity || body.collision || ECS.hasComponent(id, "input")) {
+                if (body.gravity || body.collision || input) {
                     var gravX = config.game.planetX - pos.x;
                     var gravY = config.game.planetY - pos.y;
                     var gravity = {
@@ -172,9 +179,7 @@ Box.component = function() {
                 }
 
                 // Input
-                if (ECS.hasComponent(id, "input")) {
-                    var input = entity.components.input;
-
+                if (input) {
                     if (body.grounded) {
                         // Move along the planet
                         body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
@@ -201,8 +206,7 @@ Box.component = function() {
                 }
 
                 // Jetpack
-                if (ECS.hasComponent(id, "jetpack")) {
-                    var jetpack = entity.components.jetpack;
+                if (jetpack) {
                     if (body.grounded) {
                         if (jetpack.fuel < 100) {
                             jetpack.fuel += config.game.player.rechargeRate * dt;
@@ -212,10 +216,6 @@ Box.component = function() {
                             jetpack.fuel = 100;
                         }
                     } else {
-                        if (ECS.hasComponent(id, "input")) {
-                            var input = entity.components.input;
-                        }
-
                         if (input && jetpack.fuel > 0) {
                             if (input.curr.keys.up) {
                                 jetpack.fuel -= config.game.player.burnRate * dt;
