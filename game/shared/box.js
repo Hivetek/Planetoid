@@ -13,6 +13,7 @@ function Box(params) {
     ECS.addComponent(entity.id, "render", params);
     ECS.addComponent(entity.id, "position", params);
     ECS.addComponent(entity.id, "physics", params);
+    ECS.addComponent(entity.id, "jetpack", params);
     ECS.addComponent(entity.id, "input", params);
     ECS.addComponent(entity.id, "playerControlled", params);
     return entity;
@@ -28,6 +29,10 @@ Box.component = function() {
     ECS.createComponent("position", {
         x: 0,
         y: 0
+    });
+
+    ECS.createComponent("jetpack", {
+        fuel: 100
     });
 
     ECS.createComponent("physics", {
@@ -162,6 +167,52 @@ Box.component = function() {
                 if (body.drag && !body.grounded) {
                     body.a.x -= config.game.player.drag * vx / dt2;
                     body.a.y -= config.game.player.drag * vy / dt2;
+                }
+
+                // Jetpack
+                if (ECS.hasComponent(id, "jetpack")) {
+                    var jetpack = entity.components.jetpack;
+                    if (body.grounded) {
+                        if (jetpack.fuel < 100) {
+                            jetpack.fuel += config.game.player.rechargeRate * dt;
+                        }
+
+                        if (jetpack.fuel > 100) {
+                            jetpack.fuel = 100;
+                        }
+                    } else {
+                        if (ECS.hasComponent(id, "input")) {
+                            var input = entity.components.input;
+                        }
+
+                        if (input && jetpack.fuel > 0) {
+                            if (input.curr.keys.up) {
+                                jetpack.fuel -= config.game.player.burnRate * dt;
+                            } else if (input.curr.keys.left || input.curr.keys.right) {
+                                jetpack.fuel -= config.game.player.burnRate * dt * (config.game.player.thrustSide / config.game.player.thrustUp);
+                            }
+                        }
+
+                        if (jetpack.fuel < 0) {
+                            jetpack.fuel = 0;
+                        }
+
+                        if (input) {
+                            var thrustSide = config.game.player.thrustSide * (jetpack.fuel > 0); //Available sideways thrust
+                            var horX = gravity.y * (input.curr.keys.right - input.curr.keys.left) * thrustSide;
+                            var horY = gravity.x * (input.curr.keys.left - input.curr.keys.right) * thrustSide;
+
+                            var thrustUp = config.game.player.thrustUp - (thrustSide * (input.curr.keys.left || input.curr.keys.right));
+                            var vertX = -gravity.x * thrustUp * input.curr.keys.up * (jetpack.fuel > 0);
+                            var vertY = -gravity.y * thrustUp * input.curr.keys.up * (jetpack.fuel > 0);
+
+                            var mx = horX + vertX;
+                            var my = horY + vertY;
+
+                            body.a.x += mx;
+                            body.a.y += my;
+                        }
+                    }
                 }
 
                 // Verlet
