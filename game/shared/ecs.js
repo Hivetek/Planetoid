@@ -4,6 +4,12 @@ if (typeof global !== "undefined") {
     var Core = require('./core.js');
 }
 
+/*
+ * =========
+ *    ECS
+ * =========
+ */
+
 var ECS = {};
 
 ECS.init = function(game) {
@@ -24,37 +30,20 @@ ECS.entityCount = 0;
 ECS.componentCount = 0;
 ECS.systemCount = 0;
 
+
+/*
+ * ------------
+ *    Entity
+ * ------------
+ */
+
 ECS.entityExists = function(id) {
     return ECS.entities.hasOwnProperty(id);
-}
-
-ECS.componentExists = function(name) {
-    return ECS.components.hasOwnProperty(name);
-}
-
-ECS.systemExists = function(name) {
-    return ECS.systems.hasOwnProperty(name);
-}
+};
 
 ECS.getEntity = function(id) {
     if (ECS.entityExists(id)) {
         return ECS.entities[id];
-    } else {
-        return undefined;
-    }
-};
-
-ECS.getComponent = function(name) {
-    if (ECS.componentExists(name)) {
-        return ECS.components[name];
-    } else {
-        return undefined;
-    }
-};
-
-ECS.getSystem = function(name) {
-    if (ECS.systemExists(name)) {
-        return ECS.systems[name];
     } else {
         return undefined;
     }
@@ -83,6 +72,25 @@ ECS.createEntity = function(id, setup) {
 ECS.deleteEntity = function(id) {
     delete ECS.entities[id];
     ECS.entityCount--;
+};
+
+
+/*
+ * ---------------
+ *    Component
+ * ---------------
+ */
+
+ECS.componentExists = function(name) {
+    return ECS.components.hasOwnProperty(name);
+};
+
+ECS.getComponent = function(name) {
+    if (ECS.componentExists(name)) {
+        return ECS.components[name];
+    } else {
+        return undefined;
+    }
 };
 
 ECS.createComponent = function(name, defaults) {
@@ -122,7 +130,7 @@ ECS.removeComponent = function(id, componentName) {
 
 ECS.hasComponent = function(id, componentName) {
     return ECS.entityExists(id) && ECS.getEntity(id).components.hasOwnProperty(componentName);
-}
+};
 
 ECS.hasAllComponents = function(id, componentList) {
     var i,
@@ -136,7 +144,7 @@ ECS.hasAllComponents = function(id, componentList) {
     }
 
     return true;
-}
+};
 
 ECS.hasAnyComponents = function(id, componentList) {
     var i,
@@ -150,7 +158,7 @@ ECS.hasAnyComponents = function(id, componentList) {
     }
 
     return false;
-}
+};
 
 ECS.addComponents = function(id, componentMap) {
     for (var componentName in componentMap) {
@@ -165,6 +173,54 @@ ECS.removeComponents = function(id, componentList) {
         ECS.removeComponent(id, comp);
     });
 };
+
+
+/*
+ * ------------
+ *    System
+ * ------------
+ */
+
+ECS.systemExists = function(name) {
+    return ECS.systems.hasOwnProperty(name);
+};
+
+ECS.getSystem = function(name) {
+    if (ECS.systemExists(name)) {
+        return ECS.systems[name];
+    } else {
+        return undefined;
+    }
+};
+
+ECS.addSystem = function(name, func) {
+    ECS.systems[name] = func;
+    ECS.systemCount++;
+    return func;
+};
+
+ECS.removeSystem = function(name) {
+    delete ECS.systems[name];
+    ECS.systemCount--;
+};
+
+ECS.runSystem = function(name, args) {
+    var system = ECS.getSystem(name)
+    if (system) {
+        if (Object.prototype.toString.call(args) !== '[object Array]') {
+            args = [];
+        }
+        args.unshift(ECS.entities);
+        system.apply({}, args);
+    }
+};
+
+
+/*
+ * ----------
+ *    Misc
+ * ----------
+ */
 
 ECS.entityConstructor = function(setup) {
     var constr = function(params) {
@@ -182,29 +238,9 @@ ECS.namedEntityConstructor = function(name, setup) {
     var constr = ECS.entityConstructor(setup);
     window[name] = constr;
     return constr;
-}
+};
 
-ECS.addSystem = function(name, func) {
-    ECS.systems[name] = func;
-    ECS.systemCount++;
-    return func;
-}
 
-ECS.removeSystem = function(name) {
-    delete ECS.systems[name];
-    ECS.systemCount--;
-}
-
-ECS.runSystem = function(name, args) {
-    var system = ECS.getSystem(name)
-    if (system) {
-        if (Object.prototype.toString.call(args) !== '[object Array]') {
-            args = [];
-        }
-        args.unshift(ECS.entities);
-        system.apply({}, args);
-    }
-}
 
 // Export module in NodeJS
 if (typeof global !== "undefined") {
