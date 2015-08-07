@@ -77,7 +77,7 @@ Game.prototype.init = function() {
         },
         curr: {
             keys: {
-                right: true
+                up: true
             }
         }
     });

@@ -134,8 +134,17 @@ Box.component = function() {
                 // Input
                 if (ECS.hasComponent(id, "input")) {
                     var input = entity.components.input;
-                    body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
-                    body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
+
+                    if (body.grounded) {
+                        body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
+                        body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
+
+                        // Jump
+                        if (input.curr.keys.up && !input.prev.keys.up) {
+                            body.a.x -= gravity.x * config.game.player.jumpSpeed;
+                            body.a.y -= gravity.y * config.game.player.jumpSpeed;
+                        }
+                    }
                 }
 
                 // Friction
