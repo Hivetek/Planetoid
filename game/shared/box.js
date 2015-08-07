@@ -13,6 +13,7 @@ function Box(params) {
     ECS.addComponent(entity.id, "render", params);
     ECS.addComponent(entity.id, "physics", params);
     ECS.addComponent(entity.id, "input", params);
+    ECS.addComponent(entity.id, "playerControlled", params);
     return entity;
 }
 
@@ -136,6 +137,7 @@ Box.component = function() {
                     var input = entity.components.input;
 
                     if (body.grounded) {
+                        // Move along the planet
                         body.a.x += config.game.player.landAccel * gravity.y * (input.curr.keys.right - input.curr.keys.left);
                         body.a.y += config.game.player.landAccel * gravity.x * (input.curr.keys.left - input.curr.keys.right);
 
@@ -166,6 +168,23 @@ Box.component = function() {
                 body.ppos.y = body.pos.y;
                 body.pos.x = newx;
                 body.pos.y = newy;
+            }
+        }
+    });
+
+    ECS.addSystem("input", function(entities) {
+        for (var id in entities) {
+            if (ECS.hasComponent(id, "input")) {
+                var entity = entities[id];
+                var input = entity.components.input;
+
+                // Predict the next current input to be the same as the old current,
+                // meaning that the new previous is the old current.
+                input.prev = input.curr;
+
+                if (ECS.hasComponent(id, "playerControlled")) {
+                    input.curr = Input.fromUserInput(ECS.game);
+                }
             }
         }
     });

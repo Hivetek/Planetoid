@@ -74,11 +74,6 @@ Game.prototype.init = function() {
         ppos: {
             x: 0,
             y: -2000
-        },
-        curr: {
-            keys: {
-                up: true
-            }
         }
     });
 
@@ -174,6 +169,8 @@ Game.prototype.loop = function() {
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
 
+    ECS.runSystem("input");
+
     if (!this.paused) {
         this.update();
     }
@@ -183,6 +180,7 @@ Game.prototype.loop = function() {
     ECS.runSystem("render", [this.ctx]);
 
     this.lastTime = this.currentTime;
+
 
     this.inputList.forEach(function(inp) {
         inp.prevInput = inp.input;
