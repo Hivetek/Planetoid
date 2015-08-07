@@ -120,7 +120,7 @@ ECS.addComponent = function(id, componentName, componentData) {
         if (ECS.componentExists(componentName)) {
             var entity = ECS.entities[id];
             var component = ECS.components[componentName];
-            if (!ECS.hasAllComponents(id, component.dependencies)) {
+            if (component.dependencies.length > 0) {
                 var i,
                 len = component.dependencies.length,
                 dep;
