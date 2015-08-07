@@ -269,11 +269,44 @@ ECS.namedEntityConstructor = function(name, setup) {
  *    Errors
  * ------------
  */
+
+function EntityError(ent, message) {
+    this.name = "EntityError";
+    this.message = "Entity '"+ent+"': " + message;
+}
+EntityError.prototype = Object.create(Error.prototype);
+
 function ComponentError(comp, message) {
     this.name = "ComponentError";
     this.message = "Component '"+comp+"': " + message;
 }
 ComponentError.prototype = Object.create(Error.prototype);
+
+function SystemError(sys, message) {
+    this.name = "SystemError";
+    this.message = "System '"+sys+"': " + message;
+}
+SystemError.prototype = Object.create(Error.prototype);
+
+
+function EntityDoesNotExist(ent) {
+    this.name = "EntityDoesNotExist";
+    this.message = ent + "";
+}
+EntityDoesNotExist.prototype = Object.create(Error.prototype);
+
+function ComponentDoesNotExist(comp) {
+    this.name = "ComponentDoesNotExist";
+    this.message = comp + "";
+}
+ComponentDoesNotExist.prototype = Object.create(Error.prototype);
+
+function SystemDoesNotExist(sys) {
+    this.name = "SystemDoesNotExist";
+    this.message = sys + "";
+}
+SystemDoesNotExist.prototype = Object.create(Error.prototype);
+
 
 function MissingDependencyError(comp, dep) {
     this.name = "MissingDependencyError";
