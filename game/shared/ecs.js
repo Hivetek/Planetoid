@@ -116,39 +116,29 @@ ECS.deleteComponent = function(name) {
 };
 
 ECS.addComponent = function(id, componentName, componentData) {
-    if (ECS.entityExists(id)) {
-        if (ECS.componentExists(componentName)) {
-            var entity = ECS.entities[id];
-            var component = ECS.components[componentName];
-            if (component.dependencies.length > 0) {
-                var i,
-                len = component.dependencies.length,
-                dep;
-                for (i = 0; i < len; i++) {
-                    dep = component.dependencies[i];
-                    if (!ECS.hasComponent(id, dep)) {
-                        throw new ECS.MissingDependencyError(componentName, dep);
-                    }
-                }
+    var entity = ECS.getEntity(id);
+    var component = ECS.getComponent(componentName);
+
+    if (component.dependencies.length > 0) {
+        var i,
+        len = component.dependencies.length,
+        dep;
+        for (i = 0; i < len; i++) {
+            dep = component.dependencies[i];
+            if (!ECS.hasComponent(id, dep)) {
+                throw new ECS.MissingDependencyError(componentName, dep);
             }
-            var defaults = Core.clone(component.defaults);
-            var data = Core.override(defaults, componentData);
-            entity.components[componentName] = data;
-        } else {
-            throw new ComponentDoesNotExist(componentName);
         }
-    } else {
-        throw new EntityDoesNotExist(id);
     }
+
+    var defaults = Core.clone(component.defaults);
+    var data = Core.override(defaults, componentData);
+    entity.components[componentName] = data;
 };
 
 ECS.removeComponent = function(id, componentName) {
-    if (ECS.entityExists(id)) {
-        var entity = ECS.entities[id];
-        delete entity.components[componentName];
-    } else {
-        throw new EntityDoesNotExist(id);
-    }
+    var entity = ECS.getEntity(id);
+    delete entity.components[componentName];
 };
 
 ECS.hasComponent = function(id, componentName) {
