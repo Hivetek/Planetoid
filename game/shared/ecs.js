@@ -225,7 +225,7 @@ ECS.runSystem = function(name, args) {
             throw new ECS.SystemError(name, "runSystem: args is not an array");
         }
         args.unshift(ECS.entities);
-        system.apply({}, args);
+        system.apply(ECS, args);
     }
 };
 
