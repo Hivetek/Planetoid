@@ -88,7 +88,6 @@ Game.prototype.init = function() {
 
     this.particles = [];
     this.streaks = [];
-    this.boxPoints = [];
 
     this.network.primus.on("remote::player::killed", function(id) {
         console.log(id + " was killed");
@@ -268,14 +267,6 @@ Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
         this.updatePhysicsTick();
         ECS.runSystem("physics");
-        var pos = ECS.entities[1].components.position;
-        this.boxPoints.push({
-            x: pos.x,
-            y: pos.y
-        });
-        if (this.boxPoints.length > 100) {
-            this.boxPoints.shift();
-        }
         this.timeAccumulator -= config.game.physTick;
     }
 };
@@ -364,14 +355,6 @@ Game.prototype.draw = function(ctx) {
     //Draw particles
     this.particles.forEach(function(part) {
         part.draw(ctx);
-    });
-
-    var g = this;
-    this.boxPoints.forEach(function(point, index) {
-        ctx.beginPath();
-        ctx.arc(point.x-g.cameraX,point.y-g.cameraY,3,0,2*Math.PI);
-        ctx.stroke();
-        ctx.closePath();
     });
 };
 
