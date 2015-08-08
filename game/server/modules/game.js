@@ -73,9 +73,8 @@ Game.prototype.init = function() {
         }, 2000);
     });
 
-    this.ecs = ECS;
-    ECS.init(this);
-    Box.component();
+    this.ECS = new ECS(this);
+    Box.component(this);
     var box = Box({
         x: 0,
         y: -2000,
@@ -83,7 +82,7 @@ Game.prototype.init = function() {
             x: 0,
             y: -2000
         }
-    });
+    }, this);
 
     var g = this;
     this.events.on("player::fired", function(id) {
@@ -131,6 +130,8 @@ Game.prototype.loop = function() {
     this.timeScale = this.deltaTime / (1000 / this.fps);
     this.timeAccumulator += this.deltaTime;
 
+    this.ECS.runSystem("input");
+
     if (!this.paused)
         this.update();
 
@@ -157,7 +158,7 @@ Game.prototype.updatePhysics = function() {
     var self = this;
     var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        self.ecs.runSystem("physics");
+        self.ECS.runSystem("physics");
         this.state.players.forEach(function(player, id) {
             playerInput = self.inputList.get(id);
             if (playerInput) {

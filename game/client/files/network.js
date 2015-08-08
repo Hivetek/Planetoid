@@ -47,7 +47,7 @@ Network.prototype.init = function(url) {
 
     this.primus.on("entities", function(data) {
         // Accept the entities
-        Core.override(ECS.entities, data);
+        //Core.override(g.ECS.entities, data);
     });
 
     this.primus.on("ping", function(ping){

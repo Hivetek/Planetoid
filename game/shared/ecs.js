@@ -10,25 +10,28 @@ if (typeof global !== "undefined") {
  * =========
  */
 
-var ECS = {};
+function ECS(game) {
+    this.game = game;
 
-ECS.init = function(game) {
-    ECS.game = game;
+    this.entities = {};
+    this.components = {};
+    this.systems = {};
+
+    this.nextId = 0;
+
+    this.entityCount = 0;
+    this.componentCount = 0;
+    this.systemCount = 0;
+}
+
+ECS.prototype.init = function() {};
+
+
+ECS.prototype.getNextId = function() {
+    this.nextId++;
+    return this.nextId;
 };
 
-ECS.entities = {};
-ECS.components = {};
-ECS.systems = {};
-
-ECS.nextId = 0;
-ECS.getNextId = function() {
-    ECS.nextId++;
-    return ECS.nextId;
-};
-
-ECS.entityCount = 0;
-ECS.componentCount = 0;
-ECS.systemCount = 0;
 
 
 /*
@@ -37,22 +40,22 @@ ECS.systemCount = 0;
  * ------------
  */
 
-ECS.entityExists = function(id) {
-    return ECS.entities.hasOwnProperty(id);
+ECS.prototype.entityExists = function(id) {
+    return this.entities.hasOwnProperty(id);
 };
 
-ECS.getEntity = function(id) {
-    if (ECS.entityExists(id)) {
-        return ECS.entities[id];
+ECS.prototype.getEntity = function(id) {
+    if (this.entityExists(id)) {
+        return this.entities[id];
     } else {
         throw new ECS.EntityDoesNotExist(id);
     }
 };
 
-ECS.createEntity = function(id, setup) {
-    id = id || ECS.getNextId();
+ECS.prototype.createEntity = function(id, setup) {
+    id = id || this.getNextId();
 
-    if (ECS.entityExists(id)) {
+    if (this.entityExists(id)) {
         console.log("Entity with id " + id + " already exists.");
         console.log("My course of action: ¯\_(ツ)_/¯");
     }
@@ -62,16 +65,16 @@ ECS.createEntity = function(id, setup) {
         components: {}
     };
 
-    ECS.entities[id] = entity;
+    this.entities[id] = entity;
 
-    ECS.entityCount++;
+    this.entityCount++;
 
     return entity;
 };
 
-ECS.deleteEntity = function(id) {
-    delete ECS.entities[id];
-    ECS.entityCount--;
+ECS.prototype.deleteEntity = function(id) {
+    delete this.entities[id];
+    this.entityCount--;
 };
 
 
@@ -81,19 +84,19 @@ ECS.deleteEntity = function(id) {
  * ---------------
  */
 
-ECS.componentExists = function(name) {
-    return ECS.components.hasOwnProperty(name);
+ECS.prototype.componentExists = function(name) {
+    return this.components.hasOwnProperty(name);
 };
 
-ECS.getComponent = function(name) {
-    if (ECS.componentExists(name)) {
-        return ECS.components[name];
+ECS.prototype.getComponent = function(name) {
+    if (this.componentExists(name)) {
+        return this.components[name];
     } else {
         throw new ECS.ComponentDoesNotExist(name);
     }
 };
 
-ECS.createComponent = function(name, defaults, dependencies) {
+ECS.prototype.createComponent = function(name, defaults, dependencies) {
     defaults = defaults || {};
     dependencies = dependencies || [];
     if (!Core.isPlainObject(defaults)) {
@@ -102,22 +105,22 @@ ECS.createComponent = function(name, defaults, dependencies) {
     if (!Core.isArray(dependencies)) {
         throw new ECS.ComponentError(name, "dependencies is not an array");
     }
-    ECS.components[name] = {
+    this.components[name] = {
         defaults: defaults,
         dependencies: dependencies
     };
-    ECS.componentCount++;
-    return ECS.components[name];
+    this.componentCount++;
+    return this.components[name];
 };
 
-ECS.deleteComponent = function(name) {
-    delete ECS.components[name];
-    ECS.componentCount--;
+ECS.prototype.deleteComponent = function(name) {
+    delete this.components[name];
+    this.componentCount--;
 };
 
-ECS.addComponent = function(id, componentName, componentData) {
-    var entity = ECS.getEntity(id);
-    var component = ECS.getComponent(componentName);
+ECS.prototype.addComponent = function(id, componentName, componentData) {
+    var entity = this.getEntity(id);
+    var component = this.getComponent(componentName);
 
     if (component.dependencies.length > 0) {
         var i,
@@ -125,7 +128,7 @@ ECS.addComponent = function(id, componentName, componentData) {
         dep;
         for (i = 0; i < len; i++) {
             dep = component.dependencies[i];
-            if (!ECS.hasComponent(id, dep)) {
+            if (!this.hasComponent(id, dep)) {
                 throw new ECS.MissingDependencyError(componentName, dep);
             }
         }
@@ -136,22 +139,22 @@ ECS.addComponent = function(id, componentName, componentData) {
     entity.components[componentName] = data;
 };
 
-ECS.removeComponent = function(id, componentName) {
-    var entity = ECS.getEntity(id);
+ECS.prototype.removeComponent = function(id, componentName) {
+    var entity = this.getEntity(id);
     delete entity.components[componentName];
 };
 
-ECS.hasComponent = function(id, componentName) {
-    return ECS.entityExists(id) && ECS.getEntity(id).components.hasOwnProperty(componentName);
+ECS.prototype.hasComponent = function(id, componentName) {
+    return this.entityExists(id) && this.getEntity(id).components.hasOwnProperty(componentName);
 };
 
-ECS.hasAllComponents = function(id, componentList) {
+ECS.prototype.hasAllComponents = function(id, componentList) {
     var i,
         len = componentList.length,
         comp;
     for (i = 0; i < len; i++) {
         comp = componentList[i];
-        if (!ECS.hasComponent(id, comp)) {
+        if (!this.hasComponent(id, comp)) {
             return false;
         }
     }
@@ -159,13 +162,13 @@ ECS.hasAllComponents = function(id, componentList) {
     return true;
 };
 
-ECS.hasAnyComponents = function(id, componentList) {
+ECS.prototype.hasAnyComponents = function(id, componentList) {
     var i,
         len = componentList.length,
         comp;
     for (i = 0; i < len; i++) {
         comp = componentList[i];
-        if (ECS.hasComponent(id, comp)) {
+        if (this.hasComponent(id, comp)) {
             return true;
         }
     }
@@ -173,17 +176,18 @@ ECS.hasAnyComponents = function(id, componentList) {
     return false;
 };
 
-ECS.addComponents = function(id, componentMap) {
+ECS.prototype.addComponents = function(id, componentMap) {
     for (var componentName in componentMap) {
         if (componentMap.hasOwnProperty(conponentName)) {
-            ECS.addComponent(id, componentName, componentMap[componentName]);
+            this.addComponent(id, componentName, componentMap[componentName]);
         }
     }
 };
 
-ECS.removeComponents = function(id, componentList) {
+ECS.prototype.removeComponents = function(id, componentList) {
+    var self = this;
     componentList.forEach(function(comp) {
-        ECS.removeComponent(id, comp);
+        this.removeComponent(id, comp);
     });
 };
 
@@ -194,38 +198,38 @@ ECS.removeComponents = function(id, componentList) {
  * ------------
  */
 
-ECS.systemExists = function(name) {
-    return ECS.systems.hasOwnProperty(name);
+ECS.prototype.systemExists = function(name) {
+    return this.systems.hasOwnProperty(name);
 };
 
-ECS.getSystem = function(name) {
-    if (ECS.systemExists(name)) {
-        return ECS.systems[name];
+ECS.prototype.getSystem = function(name) {
+    if (this.systemExists(name)) {
+        return this.systems[name];
     } else {
         throw new ECS.SystemDoesNotExist(name);
     }
 };
 
-ECS.addSystem = function(name, func) {
-    ECS.systems[name] = func;
-    ECS.systemCount++;
+ECS.prototype.addSystem = function(name, func) {
+    this.systems[name] = func;
+    this.systemCount++;
     return func;
 };
 
-ECS.removeSystem = function(name) {
-    delete ECS.systems[name];
-    ECS.systemCount--;
+ECS.prototype.removeSystem = function(name) {
+    delete this.systems[name];
+    this.systemCount--;
 };
 
-ECS.runSystem = function(name, args) {
-    var system = ECS.getSystem(name)
+ECS.prototype.runSystem = function(name, args) {
+    var system = this.getSystem(name)
     if (system) {
         args = args || [];
         if (!Core.isArray(args)) {
             throw new ECS.SystemError(name, "runSystem: args is not an array");
         }
-        args.unshift(ECS.entities);
-        system.apply(ECS, args);
+        args.unshift(this.entities);
+        system.apply(this, args);
     }
 };
 
@@ -236,10 +240,10 @@ ECS.runSystem = function(name, args) {
  * ----------
  */
 
-ECS.entityConstructor = function(setup) {
+ECS.prototype.entityConstructor = function(setup) {
     var constr = function(params) {
         params = params || {};
-        var entity = ECS.createEntity();
+        var entity = this.createEntity();
         if (Core.isFunction(setup)) {
             setup.apply(this, [params]);
         }
@@ -248,8 +252,8 @@ ECS.entityConstructor = function(setup) {
     return constr;
 };
 
-ECS.namedEntityConstructor = function(name, setup) {
-    var constr = ECS.entityConstructor(setup);
+ECS.prototype.namedEntityConstructor = function(name, setup) {
+    var constr = this.entityConstructor(setup);
     window[name] = constr;
     return constr;
 };

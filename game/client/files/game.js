@@ -64,8 +64,8 @@ Game.prototype.init = function() {
     this.ctx = this.canvas.getContext('2d');
     this.HUDctx = this.HUDcanvas.getContext('2d');
 
-    ECS.init(this);
-    Box.component();
+    this.ECS = new ECS(this);
+    Box.component(this);
     var box = Box({
         x: 0,
         y: -2000,
@@ -73,7 +73,7 @@ Game.prototype.init = function() {
             x: 0,
             y: -2000
         }
-    });
+    }, this);
 
     this.events.trigger("init::end");
 
@@ -167,8 +167,8 @@ Game.prototype.loop = function() {
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
 
-    ECS.runSystem("input");
-    ECS.runSystem("playerControlled");
+    this.ECS.runSystem("input");
+    this.ECS.runSystem("playerControlled");
 
     if (!this.paused) {
         this.update();
@@ -176,7 +176,7 @@ Game.prototype.loop = function() {
 
     this.draw(this.ctx);
     this.drawHUD(this.HUDctx);
-    ECS.runSystem("render", [this.ctx]);
+    this.ECS.runSystem("render", [this.ctx]);
 
     this.lastTime = this.currentTime;
 
@@ -267,7 +267,7 @@ Game.prototype.updateInput = function() {
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
         this.updatePhysicsTick();
-        ECS.runSystem("physics");
+        this.ECS.runSystem("physics");
         this.timeAccumulator -= config.game.physTick;
     }
 };

@@ -7,42 +7,42 @@ if (typeof global !== "undefined") {
     var Input = require('./input.js');
 }
 
-function Box(params) {
+function Box(params, game) {
     params = params || {};
-    var entity = ECS.createEntity();
-    ECS.addComponent(entity.id, "box", params);
-    ECS.addComponent(entity.id, "render", params);
-    ECS.addComponent(entity.id, "position", params);
-    ECS.addComponent(entity.id, "physics", params);
-    ECS.addComponent(entity.id, "jetpack", params);
-    ECS.addComponent(entity.id, "living", params);
-    ECS.addComponent(entity.id, "input", params);
-    ECS.addComponent(entity.id, "playerControlled", params);
+    var entity = game.ECS.createEntity();
+    game.ECS.addComponent(entity.id, "box", params);
+    game.ECS.addComponent(entity.id, "render", params);
+    game.ECS.addComponent(entity.id, "position", params);
+    game.ECS.addComponent(entity.id, "physics", params);
+    game.ECS.addComponent(entity.id, "jetpack", params);
+    game.ECS.addComponent(entity.id, "living", params);
+    game.ECS.addComponent(entity.id, "input", params);
+    game.ECS.addComponent(entity.id, "playerControlled", params);
     return entity;
 }
 
-Box.component = function() {
-    ECS.createComponent("box", {
+Box.component = function(game) {
+    game.ECS.createComponent("box", {
         size: 50
     });
 
-    ECS.createComponent("render");
+    game.ECS.createComponent("render");
 
-    ECS.createComponent("position", {
+    game.ECS.createComponent("position", {
         x: 0,
         y: 0
     });
 
-    ECS.createComponent("jetpack", {
+    game.ECS.createComponent("jetpack", {
         fuel: 100
     });
 
-    ECS.createComponent("living", {
+    game.ECS.createComponent("living", {
         health: 100,
         isAlive: true
     });
 
-    ECS.createComponent("physics", {
+    game.ECS.createComponent("physics", {
         gravity: true,
         collision: true,
         friction: true,
@@ -59,26 +59,27 @@ Box.component = function() {
         m: 1
     }, ["position"]);
 
-    ECS.createComponent("input", {
+    game.ECS.createComponent("input", {
         curr: Input.InputStructure(),
         prev: Input.InputStructure()
     });
-    ECS.createComponent("playerControlled", {}, ["input"]);
+    game.ECS.createComponent("playerControlled", {}, ["input"]);
 
-    ECS.addSystem("render", function(entities, ctx) {
-        var player = ECS.game.player;
+    game.ECS.addSystem("render", function(entities, ctx) {
+        var ecs = this;
+        var player = game.player;
         for (var id in entities) {
             var entity = entities[id];
 
-            if (ECS.hasComponent(id, "render")) {
+            if (ecs.hasComponent(id, "render")) {
 
-                if (ECS.hasAllComponents(id, ["box", "position"])) {
+                if (ecs.hasAllComponents(id, ["box", "position"])) {
                     var box = entity.components.box;
                     var pos = entity.components.position;
                     ctx.fillStyle = 'rgba(255,0,0,0.2)';
                     ctx.fillRect(
-                        pos.x - ECS.game.cameraX - box.size,
-                        pos.y - ECS.game.cameraY - box.size,
+                        pos.x - game.cameraX - box.size,
+                        pos.y - game.cameraY - box.size,
                         box.size * 2,
                         box.size * 2
                     );
@@ -88,12 +89,13 @@ Box.component = function() {
         }
     });
 
-    ECS.addSystem("physics", function(entities) {
+    game.ECS.addSystem("physics", function(entities) {
+        var ecs = this;
         var dt = config.game.physTick / 1000;
         var dt2 = dt * dt;
         for (var id in entities) {
             var entity = entities[id];
-            if (ECS.hasComponent(id, "physics")) {
+            if (ecs.hasComponent(id, "physics")) {
                 // Garantied to exist
                 var body = entity.components.physics;
                 var pos  = entity.components.position; // Dependency of physics
@@ -108,7 +110,7 @@ Box.component = function() {
                 if (living) {
                     // Only living can shoot. Also check for input component. Also check for input component
                     if (input && input.curr.mouse.left && !input.prev.mouse.left && living.isAlive) {
-                        //ECS.game.events.trigger("player::fired", this.id);
+                        //game.events.trigger("player::fired", this.id);
                         if (jetpack) {
                             jetpack.fuel = 0;
                         }
@@ -117,7 +119,7 @@ Box.component = function() {
                     // Detect death
                     if (living.hp <= 0) {
                         if (living.isAlive) {
-                            //ECS.game.events.trigger("player::killed", this.id);
+                            //game.events.trigger("player::killed", this.id);
                         }
                         living.isAlive = false;
                     }
@@ -164,7 +166,7 @@ Box.component = function() {
                 if (body.collision) {
                     // We know how to do collision detection with
                     // a box and the planet.
-                    if (ECS.hasComponent(id, "box")) {
+                    if (ecs.hasComponent(id, "box")) {
                         var box = entity.components.box;
                         if (d <= config.game.planetSize + box.size) { // On the ground
                             body.grounded = true;
@@ -258,9 +260,9 @@ Box.component = function() {
         }
     });
 
-    ECS.addSystem("input", function(entities) {
+    game.ECS.addSystem("input", function(entities) {
         for (var id in entities) {
-            if (ECS.hasComponent(id, "input")) {
+            if (this.hasComponent(id, "input")) {
                 var input = entities[id].components.input;
 
                 // Predict the next current input to be the same as the old current,
@@ -270,16 +272,16 @@ Box.component = function() {
         }
     });
 
-    ECS.addSystem("playerControlled", function(entities) {
+    game.ECS.addSystem("playerControlled", function(entities) {
         for (var id in entities) {
-            if (ECS.hasComponent(id, "playerControlled")) {
+            if (this.hasComponent(id, "playerControlled")) {
                 var input = entities[id].components.input; // Input is a dependency of playerControlled
 
                 // Update the current input of the entity 
-                input.curr = Input.fromUserInput(ECS.game);
+                input.curr = Input.fromUserInput(game);
 
                 // Send the new input to the server
-                ECS.game.network.primus.send("entityinput", input.curr);
+                game.network.primus.send("entityinput", input.curr);
             }
         }
     });
