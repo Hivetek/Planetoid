@@ -121,6 +121,7 @@ ECS.prototype.deleteComponent = function(name) {
 ECS.prototype.addComponent = function(id, componentName, componentData) {
     var entity = this.getEntity(id);
     var component = this.getComponent(componentName);
+    componentData = componentData || {};
 
     if (component.dependencies.length > 0) {
         var i,

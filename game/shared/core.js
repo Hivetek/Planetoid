@@ -15,6 +15,22 @@ Core.clone = function(obj) {
     return c;
 };
 
+Core.extend = function(obj, other) {
+    if (typeof obj !== "object") throw new TypeError("Core.extend: obj is not an object");
+    if (typeof other !== "object") throw new TypeError("Core.extend: other is not an object");
+
+    for (var key in other) {
+        var val = other[key];
+        if (obj.hasOwnProperty(key) && typeof obj[key] === "object") {
+            Core.extend(obj[key], val);
+        } else {
+            obj[key] = val;
+        }
+    }
+
+    return obj;
+};
+
 Core.override = function(obj, override) {
     if (typeof obj !== "object") throw new TypeError("Core.override: obj is not an object");
     if (typeof override !== "object") throw new TypeError("Core.override: override is not an object");

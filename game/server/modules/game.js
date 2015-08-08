@@ -56,14 +56,6 @@ Game.prototype.init = function() {
     });
 
     Box.component(this);
-    var box = Box({
-        x: 0,
-        y: -2000,
-        ppos: {
-            x: 0,
-            y: -2000
-        }
-    }, this);
 
     var g = this;
     this.events.on("player::fired", function(id) {
@@ -90,7 +82,7 @@ Game.prototype.loop = function() {
     if (!this.paused)
         this.update();
 
-    //this.network.sendSnapshot();
+    this.network.sendSnapshot();
 
     this.lastTime = this.currentTime;
 
@@ -115,6 +107,7 @@ Game.prototype.updatePhysics = function() {
 Game.prototype.snapshot = function() {
     var self = this;
     return {
+        entities: self.ECS.entities,
         timestamp: self.getTime()
     };
 };

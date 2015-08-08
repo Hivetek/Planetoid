@@ -7,9 +7,9 @@ if (typeof global !== "undefined") {
     var Input = require('./input.js');
 }
 
-function Box(params, game) {
+function Box(params, game, id) {
     params = params || {};
-    var entity = game.ECS.createEntity();
+    var entity = game.ECS.createEntity(id);
     game.ECS.addComponent(entity.id, "box", params);
     game.ECS.addComponent(entity.id, "render", params);
     game.ECS.addComponent(entity.id, "position", params);
@@ -17,7 +17,6 @@ function Box(params, game) {
     game.ECS.addComponent(entity.id, "jetpack", params);
     game.ECS.addComponent(entity.id, "living", params);
     game.ECS.addComponent(entity.id, "input", params);
-    game.ECS.addComponent(entity.id, "playerControlled", params);
     return entity;
 }
 
@@ -281,7 +280,7 @@ Box.component = function(game) {
                 input.curr = Input.fromUserInput(game);
 
                 // Send the new input to the server
-                game.network.primus.send("entityinput", input.curr);
+                game.network.primus.send("input", input.curr);
             }
         }
     });

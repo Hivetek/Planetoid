@@ -16,7 +16,7 @@ function Game() {
     Object.defineProperty(g, "player", {
         get: function() {
             if (g.id) {
-                return g.ECS.getEntity(1);
+                return g.ECS.getEntity(g.id);
             } else {
                 throw new TypeError("Game.id has not been set");
             }
@@ -38,11 +38,11 @@ function Game() {
     this.fpsSamples = [];
     this.fpsSampleIndex = 0;
 
-    this.paused = false;
+    this.started = false;
+    this.paused  = false;
 
     this.inputId = 0;
 
-    this.pendingSnapshots = [];
     this.ECS = new ECS(this);
 }
 
@@ -57,25 +57,6 @@ Game.prototype.init = function() {
     this.HUDctx = this.HUDcanvas.getContext('2d');
 
     Box.component(this);
-    var box = Box({
-        x: 0,
-        y: -2000,
-        ppos: {
-            x: 0,
-            y: -2000
-        }
-    }, this);
-
-    this.events.trigger("init::end");
-
-    var g = this;
-    requestAnimFrame(function() {
-        g.events.trigger("loop::begin");
-        g.startTime = g.getTime();
-        g.currentTime = g.startTime;
-        g.lastTime = g.currentTime;
-        g.loop();
-    });
 
     this.network.primus.on("remote::player::killed", function(id) {
         console.log(id + " was killed");
@@ -91,6 +72,33 @@ Game.prototype.init = function() {
 
     this.events.on("player::fired", function(id) {
         console.log("Pew!");
+    });
+
+    this.events.on("primus::id", function(id) {
+        // Tie id to the game object
+        g.id = id;
+
+        // Make that entity controllable
+        g.ECS.addComponent(id, "playerControlled");
+
+        // If game is not already started, start it
+        if (!g.started) {
+            g.events.trigger("startgame"); // Alternatively, this could be g.start();
+        }
+    });
+
+    this.events.trigger("init::end");
+};
+
+Game.prototype.start = function() {
+    this.started = true;
+    var g = this;
+    requestAnimFrame(function() {
+        g.events.trigger("loop::begin");
+        g.startTime = g.getTime();
+        g.currentTime = g.startTime;
+        g.lastTime = g.currentTime;
+        g.loop();
     });
 };
 
@@ -191,6 +199,19 @@ Game.prototype.update = function() {
 Game.prototype.updateInput = function() {
     //this.addInput(Input.fromUserInput(this)); // Capture current state of mouse and keyboard
     //this.network.primus.send("input", this.input); // Send the new input to the server
+};
+
+Game.prototype.acceptSnapshot = function(snap) {
+    // Override entities with those from the server
+    // TODO: In the future only changes should be sent.
+    //       Find a way to track these server side and update client side accordingly.
+    //       Also make sure that client side can have minor local changes
+    //       such as having the players own character to be player controlled.
+    //Core.extend(this.ECS.entities, snap.entities);
+    this.ECS.entities = snap.entities;
+    if (this.id) {
+        this.ECS.addComponent(this.id, "playerControlled");
+    }
 };
 
 Game.prototype.updatePhysics = function() {

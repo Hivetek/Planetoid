@@ -134,11 +134,11 @@ var App = (function() {
                 bindHTML();
 
                 game.network.init(server.url);
-                game.events.on("primus::open", function() {
-                    game.events.on("primus::id", function() {
-                        game.bindAllEvents();
-                        game.init(); // Start the game
-                    });
+                game.bindAllEvents();
+                game.init();
+
+                game.events.on("startgame", function() {
+                    game.start();
                 });
             });
         });

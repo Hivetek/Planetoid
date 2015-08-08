@@ -1,6 +1,7 @@
 var config = require('shared/config');
 var Core = require('shared/core');
 var Input = require('shared/input');
+var Box = require('shared/box');
 var Primus = require('primus')
   , http = require('http');
 
@@ -26,16 +27,22 @@ Network.prototype.init = function() {
     var self = this;
     var g = this.game;
 
-    var defaultInput = new Input({}, g);
-
     // Primus connection
     primus.on("connection", function(spark) {
         g.log("New connection: " + spark.id);
 
         // Handle new player
+        var box = Box({
+            x: 0,
+            y: -2000,
+            ppos: {
+                x: 0,
+                y: -2000
+            }
+        }, g, spark.id);
 
-        spark.on("entityinput", function(input) {
-            Core.override(g.ECS.entities[1].components.input.curr, input);
+        spark.on("input", function(input) {
+            Core.override(g.ECS.entities[spark.id].components.input.curr, input);
         });
 
         spark.on("ping", function(ping){
@@ -43,9 +50,11 @@ Network.prototype.init = function() {
         });
 
         // Write the initial/current state of the cube to the client
-        //self.sendInitSnapshot();
+        self.sendInitSnapshot();
 
+        // When the player disconnects
         spark.on("end", function() {
+            delete g.ECS.entities[spark.id];
             g.log("Ended connection: " + spark.id);
         });
 
@@ -78,7 +87,7 @@ Network.prototype.sendSnapshot = function() {
     var self = this;
     var snap = this.game.snapshot();
     this.primus.forEach(function(spark, id, connections) {
-        spark.send("entities", self.game.ECS.entities);
+        spark.send("snapshot", snap);
     });
 }
 
