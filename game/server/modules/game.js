@@ -19,14 +19,6 @@ function Game() {
     // - trigger("event", data)
     this.events = events(this);
 
-    // Input
-    this.inputList = new HashList(this);
-
-    // State
-    // - Create state buffer (game.states)
-    // - Creates input short-hand (game.state)
-    State.init(this);
-
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
@@ -41,6 +33,8 @@ function Game() {
     this.fps = 60;
 
     this.paused = false;
+
+    this.ECS = new ECS(this);
 }
 
 Game.prototype.init = function() {
@@ -57,23 +51,10 @@ Game.prototype.init = function() {
     var self = this;
     this.events.on("player::killed", function(id) {
         setTimeout(function() {
-            var p = self.state.players.get(id);
-            if (!p)
-                return;
-            p.hp = 100;
-            p.isAlive = true;
-            var v = Math.random() * 2 * Math.PI;
-            var d = 100 + config.game.planetSize;
-            p.pos.x = config.game.planetX + d * Math.cos(v);
-            p.pos.y = config.game.planetY + d * Math.sin(v);
-            p.ppos.x = p.pos.x;
-            p.ppos.y = p.pos.y;
-
             self.network.primus.send("remote::player::respawn", id);
         }, 2000);
     });
 
-    this.ECS = new ECS(this);
     Box.component(this);
     var box = Box({
         x: 0,
@@ -87,33 +68,7 @@ Game.prototype.init = function() {
     var g = this;
     this.events.on("player::fired", function(id) {
         console.log("Pew!");
-        var p = g.state.players.get(id);
-        var x1 = p.pos.x;
-        var y1 = p.pos.y;
-
-        var x2 = x1 + Math.cos(p.dir) * 2000;
-        var y2 = y1 + Math.sin(p.dir) * 2000;
-
-        g.state.players.forEach(function(player) {
-            if (player !== p) {
-                //Collision check
-                var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
-                var v2 = {x: x2 - x1, y: y2 - y1};
-
-                var m = VectorMath.magnitude(v2);
-                var d = VectorMath.dot(v1, v2) / (m * m);
-                //Intersection point
-                var ip = {x: x1 + d * v2.x, y: y1 + d * v2.y};
-                var dist = VectorMath.magnitude({x: player.pos.x - ip.x, y: player.pos.y - ip.y});
-
-                if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
-                    console.log(player.id + " was hit!");
-                    player.hp = 0;
-                }
-            }
-        });
     });
-
 
     this.events.trigger("loop::begin");
     this.startTime = this.getTime();
@@ -135,13 +90,9 @@ Game.prototype.loop = function() {
     if (!this.paused)
         this.update();
 
-    this.network.sendSnapshot();
+    //this.network.sendSnapshot();
 
     this.lastTime = this.currentTime;
-
-    this.inputList.forEach(function(inp) {
-        inp.prevInput = inp.input;
-    });
 
     //this.timeEnd("loop");
     var g = this;
@@ -155,16 +106,8 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.updatePhysics = function() {
-    var self = this;
-    var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
-        self.ECS.runSystem("physics");
-        this.state.players.forEach(function(player, id) {
-            playerInput = self.inputList.get(id);
-            if (playerInput) {
-                player.update(playerInput.input, playerInput.prevInput);
-            }
-        });
+        this.ECS.runSystem("physics");
         this.timeAccumulator -= config.game.physTick;
     }
 }
@@ -172,8 +115,6 @@ Game.prototype.updatePhysics = function() {
 Game.prototype.snapshot = function() {
     var self = this;
     return {
-        state: self.state.export(),
-        input: self.inputList.export(),
         timestamp: self.getTime()
     };
 };

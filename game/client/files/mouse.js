@@ -8,7 +8,6 @@ function Mouse(game) {
     this.left = false;
     this.middle = false;
     this.right = false;
-    this.dir = 0;
 }
 
 Mouse.prototype.export = function() {
@@ -16,18 +15,13 @@ Mouse.prototype.export = function() {
     return {
         left: m.left,
         middle: m.middle,
-        right: m.right,
-        dir: m.dir
+        right: m.right
     };
 };
 
 Mouse.prototype.move = function(event) {
     this.x = event.clientX;
     this.y = event.clientY;
-    var p = this.game.player;
-    var x = p.pos.x - this.game.cameraX;
-    var y = p.pos.y - this.game.cameraY;
-    this.dir = Math.atan2(this.y - y, this.x - x);
 };
 
 Mouse.prototype.down = function(event) {
@@ -63,16 +57,16 @@ Mouse.prototype.listen = function() {
     var self = this;
     document.addEventListener('mousemove', function(event) {
         self.move(event);
-        self.game.updateInput();
+        //self.game.updateInput();
     }, false);
     window.addEventListener('mousedown', function(event) {
         self.down(event);
-        self.game.updateInput();
-        self.game.network.primus.send("remote::mousedown");
+        //self.game.updateInput();
+        //self.game.network.primus.send("remote::mousedown");
     }, false);
     window.addEventListener('mouseup', function(event) {
         self.up(event);
-        self.game.updateInput();
-        self.game.network.primus.send("remote::mouseup");
+        //self.game.updateInput();
+        //self.game.network.primus.send("remote::mouseup");
     }, false);
 };

@@ -30,21 +30,6 @@ Network.prototype.init = function(url) {
         });
     });
 
-    this.primus.on("init", function(data) {
-        g.events.trigger("primus::init", data);
-        console.log("Initial state from server:");
-        console.log(data);
-        g.state.import(data.state);
-        console.log("Initial game state:");
-        console.log(g.state);
-    });
-
-    this.primus.on("update", function(data) {
-        g.events.trigger("primus::update", data);
-        g.pendingSnapshots.push(data);
-        g.inputList.import(data.input);
-    });
-
     this.primus.on("entities", function(data) {
         // Accept the entities
         Core.override(g.ECS.entities, data);
