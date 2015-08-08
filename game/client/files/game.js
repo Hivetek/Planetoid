@@ -195,6 +195,9 @@ Game.prototype.loop = function() {
 };
 
 Game.prototype.update = function() {
+    /*
+    // Server Reconciliation
+    //
     // If we have received snapshots from the server
     // we must accept the most recent snapshot and re-apply
     // our inputs from that inputId onwards
@@ -229,6 +232,7 @@ Game.prototype.update = function() {
         }
         this.pendingSnapshots = [];
     }
+    */
 
     //while (!this.physicsQueue.isEmpty) {
     //    var i = this.physicsQueue.deq();
