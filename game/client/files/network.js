@@ -45,6 +45,11 @@ Network.prototype.init = function(url) {
         g.inputList.import(data.input);
     });
 
+    this.primus.on("entities", function(data) {
+        // Accept the entities
+        Core.override(ECS.entities, data);
+    });
+
     this.primus.on("ping", function(ping){
         self.ping = g.currentTime-ping;
         self.lastPing = g.currentTime;

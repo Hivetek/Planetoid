@@ -4,6 +4,7 @@ if (typeof global !== "undefined") {
     var Core = require('./core.js');
     var ECS = require('./ecs.js');
     var VectorMath = require('./vectorMath.js');
+    var Input = require('./input.js');
 }
 
 function Box(params) {
@@ -59,8 +60,8 @@ Box.component = function() {
     }, ["position"]);
 
     ECS.createComponent("input", {
-        curr: InputStructure(),
-        prev: InputStructure()
+        curr: Input.InputStructure(),
+        prev: Input.InputStructure()
     });
     ECS.createComponent("playerControlled", {}, ["input"]);
 
@@ -260,16 +261,25 @@ Box.component = function() {
     ECS.addSystem("input", function(entities) {
         for (var id in entities) {
             if (ECS.hasComponent(id, "input")) {
-                var entity = entities[id];
-                var input = entity.components.input;
+                var input = entities[id].components.input;
 
                 // Predict the next current input to be the same as the old current,
                 // meaning that the new previous is the old current.
                 input.prev = input.curr;
+            }
+        }
+    });
 
-                if (ECS.hasComponent(id, "playerControlled")) {
-                    input.curr = Input.fromUserInput(ECS.game);
-                }
+    ECS.addSystem("playerControlled", function(entities) {
+        for (var id in entities) {
+            if (ECS.hasComponent(id, "playerControlled")) {
+                var input = entities[id].components.input; // Input is a dependency of playerControlled
+
+                // Update the current input of the entity 
+                input.curr = Input.fromUserInput(ECS.game);
+
+                // Send the new input to the server
+                ECS.game.network.primus.send("entityinput", input.curr);
             }
         }
     });
@@ -277,5 +287,5 @@ Box.component = function() {
 
 // Export module in NodeJS
 if (typeof global !== "undefined") {
-    module.exports = Player;
+    module.exports = Box;
 }

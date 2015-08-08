@@ -5,31 +5,6 @@ if (typeof global !== "undefined") {
     var Player = require('./player');
 }
 
-function InputStructure() {
-    return {
-        mouse: MouseStructure(),
-        keys : KeysStructure()
-    };
-}
-
-function MouseStructure() {
-    return {
-        x: 0,
-        y: 0,
-        left: false,
-        middle: false,
-        right: false
-    };
-}
-
-function KeysStructure() {
-    return {
-        up: false,
-        left: false,
-        right: false,
-        down: false
-    };
-}
 
 /**
  * Input
@@ -116,6 +91,32 @@ Input.fromUserInput = function(game) {
     o.mouse = game.mouse.export();
     o.keys  = game.keyboard.export();
     return new Input(o, game);
+}
+
+Input.InputStructure = function() {
+    return {
+        mouse: Input.MouseStructure(),
+        keys : Input.KeysStructure()
+    };
+}
+
+Input.MouseStructure = function() {
+    return {
+        x: 0,
+        y: 0,
+        left: false,
+        middle: false,
+        right: false
+    };
+}
+
+Input.KeysStructure = function() {
+    return {
+        up: false,
+        left: false,
+        right: false,
+        down: false
+    };
 }
 
 // Export module in NodeJS

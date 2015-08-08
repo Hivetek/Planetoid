@@ -49,6 +49,10 @@ Network.prototype.init = function() {
             playerInput.input = input;
         });
 
+        spark.on("entityinput", function(input) {
+            Core.override(g.ecs.entities[1].components.input.curr, input);
+        });
+
         spark.on("ping", function(ping){
             spark.send("ping", ping);
         });
@@ -93,6 +97,7 @@ Network.prototype.sendSnapshot = function() {
         playerInput = self.game.inputList.get(id);
         snap.inputId = playerInput.input.id;
         spark.send('update', snap);
+        spark.send("entities", self.game.ecs.entities);
     });
 }
 

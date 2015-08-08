@@ -168,6 +168,7 @@ Game.prototype.loop = function() {
     this.fpsSampleIndex++;
 
     ECS.runSystem("input");
+    ECS.runSystem("playerControlled");
 
     if (!this.paused) {
         this.update();

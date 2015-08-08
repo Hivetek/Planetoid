@@ -10,6 +10,9 @@ var Network = require("app/network");
 var Player = require("shared/player");
 var HashList = require("shared/hashlist");
 
+var ECS = require("shared/ecs");
+var Box = require("shared/box");
+
 function Game() {
     // Event system
     // - on("event" callback)
@@ -68,6 +71,18 @@ Game.prototype.init = function() {
 
             self.network.primus.send("remote::player::respawn", id);
         }, 2000);
+    });
+
+    this.ecs = ECS;
+    ECS.init(this);
+    Box.component();
+    var box = Box({
+        x: 0,
+        y: -2000,
+        ppos: {
+            x: 0,
+            y: -2000
+        }
     });
 
     var g = this;
@@ -142,6 +157,7 @@ Game.prototype.updatePhysics = function() {
     var self = this;
     var playerInput;
     while (this.timeAccumulator > config.game.physTick) {
+        self.ecs.runSystem("physics");
         this.state.players.forEach(function(player, id) {
             playerInput = self.inputList.get(id);
             if (playerInput) {
