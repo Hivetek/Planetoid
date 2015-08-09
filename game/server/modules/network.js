@@ -41,8 +41,12 @@ Network.prototype.init = function() {
             }
         }, g, spark.id);
 
+        var playerEntity = g.ECS.getEntity(spark.id);
+        var player = playerEntity.components;
+
         spark.on("input", function(input) {
-            Core.override(g.ECS.entities[spark.id].components.input.curr, input);
+            Core.override(player.input.prev, player.input.curr);
+            Core.override(player.input.curr, input);
         });
 
         spark.on("ping", function(ping){

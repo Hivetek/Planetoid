@@ -77,7 +77,7 @@ Game.prototype.loop = function() {
     this.timeScale = this.deltaTime / (1000 / this.fps);
     this.timeAccumulator += this.deltaTime;
 
-    this.ECS.runSystem("input");
+    //this.ECS.runSystem("input");
 
     if (!this.paused)
         this.update();
