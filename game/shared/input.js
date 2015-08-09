@@ -24,9 +24,9 @@ Input.init = function(game, size) {};
 Input.InputStructure = function(game) {
     game = game || Input.fakeGame;
     return {
-        mouse: Input.MouseStructure(game.mouse   || Input.fakeMouse),
-        keys : Input.KeysStructure(game.keyboard || Input.fakeKeyboard),
-        id: game.getInputId(),
+        mouse:     Input.MouseStructure(game.mouse   || Input.fakeMouse),
+        keys:      Input.KeysStructure(game.keyboard || Input.fakeKeyboard),
+        id:        game.getInputId(),
         timestamp: game.getTime()
     };
 }
@@ -54,7 +54,7 @@ Input.fakeMouse    = {};
 Input.fakeKeyboard = {is: function(_) {return undefined;}};
 Input.fakeGame     = {
     getInputId: function() { return -1; },
-    getTime:    function() { return -1; },
+    getTime:    function() { return -1; }
 };
 
 // Export module in NodeJS
