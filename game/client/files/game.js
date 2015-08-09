@@ -12,17 +12,6 @@ function Game() {
     // - Creates current input short-hand (game.input)
     Input.initWithUserInput(this, config.game.inputBufferSize);
 
-    // Add short-hand for the controlled player
-    Object.defineProperty(g, "player", {
-        get: function() {
-            if (g.id) {
-                return g.ECS.getEntity(g.id);
-            } else {
-                throw new TypeError("Game.id has not been set");
-            }
-        }
-    });
-
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
@@ -75,15 +64,19 @@ Game.prototype.init = function() {
     });
 
     this.events.on("primus::id", function(id) {
-        // Tie id to the game object
-        g.id = id;
+        if (id) {
+            // Tie id to the game object
+            g.id = id;
 
-        // Make that entity controllable
-        g.ECS.addComponent(id, "playerControlled");
+            // We have to do the same thing as we do when we accept a snapshot.
+            g.postAcceptSnapshot();
 
-        // If game is not already started, start it
-        if (!g.started) {
-            g.events.trigger("startgame"); // Alternatively, this could be g.start();
+            // If game is not already started, start it
+            if (!g.started) {
+                g.events.trigger("startgame"); // Alternatively, this could be g.start();
+            }
+        } else {
+            throw new Game.InvalidIDError("primus::id event passed id '"+id+"'");
         }
     });
 
@@ -192,8 +185,8 @@ Game.prototype.update = function() {
 
     this.updatePhysics();
 
-    this.cameraX = this.player.components.position.x - this.canvas.width / 2;
-    this.cameraY = this.player.components.position.y - this.canvas.height / 2;
+    this.cameraX = this.player.position.x - this.canvas.width / 2;
+    this.cameraY = this.player.position.y - this.canvas.height / 2;
 };
 
 Game.prototype.updateInput = function() {
@@ -209,7 +202,14 @@ Game.prototype.acceptSnapshot = function(snap) {
     //       such as having the players own character to be player controlled.
     //Core.extend(this.ECS.entities, snap.entities);
     this.ECS.entities = snap.entities;
+
+    this.postAcceptSnapshot();
+};
+
+Game.prototype.postAcceptSnapshot = function() {
     if (this.id) {
+        this.playerEntity = this.ECS.getEntity(this.id);
+        this.player = this.playerEntity.components;
         this.ECS.addComponent(this.id, "playerControlled");
     }
 };
@@ -283,18 +283,18 @@ Game.prototype.drawHUD = function(ctx) {
     avgFPS = Math.round((avgFPS / this.fpsSamples.length) * 100) / 100;
     ctx.fillText("FPS: " + avgFPS, 20, 84);
 
-    ctx.fillText("X: " + this.player.components.position.x, 20, 108);
-    ctx.fillText("Y: " + this.player.components.position.y, 20, 132);
-    ctx.fillText("ΔX: " + (this.player.components.position.x - this.player.components.physics.ppos.x), 20, 156);
-    ctx.fillText("ΔY: " + (this.player.components.position.y - this.player.components.physics.ppos.y), 20, 180);
+    ctx.fillText("X: " + this.player.position.x, 20, 108);
+    ctx.fillText("Y: " + this.player.position.y, 20, 132);
+    ctx.fillText("ΔX: " + (this.player.position.x - this.player.physics.ppos.x), 20, 156);
+    ctx.fillText("ΔY: " + (this.player.position.y - this.player.physics.ppos.y), 20, 180);
 
     // Display player HP & Fuel
-    if (this.player.components.living.health > 0) {
+    if (this.player.living.health > 0) {
         ctx.fillStyle = "#FF0000";
-        ctx.fillRect(20, 5, this.player.components.living.health, 10);
+        ctx.fillRect(20, 5, this.player.living.health, 10);
     }
     ctx.fillStyle = "#00FF00";
-    ctx.fillRect(20, 25, this.player.components.jetpack.fuel, 10);
+    ctx.fillRect(20, 25, this.player.jetpack.fuel, 10);
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 5, 100, 10);
@@ -353,6 +353,25 @@ Game.prototype.bindAllEvents = function() {
     this.events.trigger("allEventsBound");
 };
 
+
+/*
+ * ------------
+ *    Errors
+ * ------------
+ */
+
+Game.InvalidIDError = function(msg) {
+    this.name = "InvalidIDError";
+    this.message = msg;
+}
+Game.InvalidIDError.prototype = Object.create(Error.prototype);
+
+
+Game.GameNotInitializedError= function(msg) {
+    this.name = "GameNotInitializedError";
+    this.message = msg;
+}
+Game.GameNotInitializedError.prototype = Object.create(Error.prototype);
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
