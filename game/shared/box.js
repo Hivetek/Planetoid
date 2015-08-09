@@ -277,7 +277,7 @@ Box.component = function(game) {
                 var input = entities[id].components.input; // Input is a dependency of playerControlled
 
                 // Update the current input of the entity 
-                input.curr = Input.fromUserInput(game);
+                input.curr = Input.InputStructure(game);
 
                 // Send the new input to the server
                 game.network.primus.send("input", input.curr);

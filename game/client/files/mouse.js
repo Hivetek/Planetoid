@@ -10,15 +10,6 @@ function Mouse(game) {
     this.right = false;
 }
 
-Mouse.prototype.export = function() {
-    var m = this;
-    return {
-        left: m.left,
-        middle: m.middle,
-        right: m.right
-    };
-};
-
 Mouse.prototype.move = function(event) {
     this.x = event.clientX;
     this.y = event.clientY;
