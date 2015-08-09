@@ -21,33 +21,30 @@ Network.prototype.init = function(url) {
     this.primus.on("open", function() {
         console.log("Connection opened");
         g.events.trigger("primus::open");
-
-        // Ask the server for the client's id
-        p.id(function(id) {
-            // Tie it to the game object
-            g.id = id;
-            g.events.trigger("primus::id", id);
-        });
     });
 
-    this.primus.on("init", function(data) {
-        g.events.trigger("primus::init", data);
-        console.log("Initial state from server:");
-        console.log(data);
-        g.state.import(data.state);
-        console.log("Initial game state:");
-        console.log(g.state);
+    this.primus.on("snapshot", function(snap) {
+        g.acceptSnapshot(snap);
     });
 
-    this.primus.on("update", function(data) {
-        g.events.trigger("primus::update", data);
-        g.pendingSnapshots.push(data);
-        g.inputList.import(data.input);
+    this.primus.on("init", function(snap) {
+        g.events.trigger("primus::init");
+        g.acceptSnapshot(snap);
+        self.requestId();
     });
 
     this.primus.on("ping", function(ping){
         self.ping = g.currentTime-ping;
         self.lastPing = g.currentTime;
         self.pingReceived = true;
+    });
+};
+
+Network.prototype.requestId = function() {
+    var p = this.primus
+        g = this.game;
+    // Ask the server for the client's id
+    p.id(function(id) {
+        g.events.trigger("primus::id", id);
     });
 };

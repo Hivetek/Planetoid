@@ -10,15 +10,6 @@ function Keyboard(game) {
     this.events = {};
 }
 
-Keyboard.prototype.export = function() {
-    var obj = {};
-    obj.up    = this.is(38) || this.is("up")    || false;
-    obj.left  = this.is(37) || this.is("left")  || false;
-    obj.right = this.is(39) || this.is("right") || false;
-    obj.down  = this.is(40) || this.is("down")  || false;
-    return obj;
-}
-
 // Add event listeners
 Keyboard.prototype.listen = function() {
     var self = this;

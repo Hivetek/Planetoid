@@ -12,22 +12,6 @@ function Game() {
     // - Creates current input short-hand (game.input)
     Input.initWithUserInput(this, config.game.inputBufferSize);
 
-    // State
-    // - Creates state buffer (game.states)
-    // - Creates current state short-hand (game.state)
-    State.init(this, config.game.stateBufferSize);
-
-    // Add short-hand for the controlled player
-    Object.defineProperty(g, "player", {
-        get: function() {
-            if (g.id) {
-                return g.state.players.get(g.id);
-            } else {
-                throw new TypeError("Game.id has not been set");
-            }
-        }
-    });
-
     // Network
     // - Connects to server using Primus
     this.network = new Network(this);
@@ -43,15 +27,12 @@ function Game() {
     this.fpsSamples = [];
     this.fpsSampleIndex = 0;
 
-    this.paused = false;
+    this.started = false;
+    this.paused  = false;
 
     this.inputId = 0;
 
-    this.physicsQueue = new RingBuffer(config.game.inputBufferSize);
-
-    this.inputList = new HashList(this);
-
-    this.pendingSnapshots = [];
+    this.ECS = new ECS(this);
 }
 
 Game.prototype.init = function() {
@@ -64,41 +45,14 @@ Game.prototype.init = function() {
     this.ctx = this.canvas.getContext('2d');
     this.HUDctx = this.HUDcanvas.getContext('2d');
 
-    this.events.trigger("init::end");
-
-    var g = this;
-    requestAnimFrame(function() {
-        g.events.trigger("loop::begin");
-        g.startTime = g.getTime();
-        g.currentTime = g.startTime;
-        g.lastTime = g.currentTime;
-        g.loop();
-    });
-
-    this.particles = [];
-    this.streaks = [];
+    Box.component(this);
 
     this.network.primus.on("remote::player::killed", function(id) {
         console.log(id + " was killed");
-        var p = g.state.players.get(id);
-        var rd = Math.random() * Math.PI * 2;
-        var r = Math.random() * config.game.player.r;
-        var x = p.pos.x + Math.cos(rd) * r;
-        var y = p.pos.y + Math.sin(rd) * r;
-
-        for (var i = 0; i < 50; i++) {
-            g.particles.push(new Particle(config.particles.blood, x, y, 0, g));
-        }
-        console.log(g.particles.length);
     });
-
 
     this.network.primus.on("remote::player::respawn", function(id) {
         g.events.trigger("player::spawn", id);
-        var p = g.state.players.get(id);
-        for (var i = 0; i < 50; i++) {
-            g.particles.push(new Particle(config.particles.smoke, p.pos.x, p.pos.y, 0, g));
-        }
     });
 
     this.events.on("player::spawn", function(id) {
@@ -107,38 +61,37 @@ Game.prototype.init = function() {
 
     this.events.on("player::fired", function(id) {
         console.log("Pew!");
-        var p = g.state.players.get(id);
-        var x1 = p.pos.x;
-        var y1 = p.pos.y;
+    });
 
-        var x2 = x1 + Math.cos(p.dir) * 2000;
-        var y2 = y1 + Math.sin(p.dir) * 2000;
+    this.events.on("primus::id", function(id) {
+        if (id) {
+            // Tie id to the game object
+            g.id = id;
 
-        for (var i = 0; i < 100; i++) {
-            var t = Math.random();
-            var vx = x2 - x1;
-            var vy = y2 - y1;
-            g.particles.push(new Particle(config.particles.smokestreak, x1 + t * vx, y1 + t * vy, p.dir, g));
-        }
+            // We have to do the same thing as we do when we accept a snapshot.
+            g.postAcceptSnapshot();
 
-        g.state.players.forEach(function(player) {
-            if (player !== p) {
-                //Collision check
-                var v1 = {x: player.pos.x - x1, y: player.pos.y - y1};
-                var v2 = {x: x2 - x1, y: y2 - y1};
-
-                var m = VectorMath.magnitude(v2);
-                var d = VectorMath.dot(v1, v2) / (m * m);
-                //Intersection point
-                var ip = {x: x1 + d * v2.x, y: y1 + d * v2.y};
-                var dist = VectorMath.magnitude({x: player.pos.x - ip.x, y: player.pos.y - ip.y});
-
-                if (dist < config.game.player.r && d * m < 1000 + config.game.player.r && d * m > -config.game.player.r) {
-                    console.log(player.id + " was hit!");
-                    player.hp = 0;
-                }
+            // If game is not already started, start it
+            if (!g.started) {
+                g.events.trigger("startgame"); // Alternatively, this could be g.start();
             }
-        });
+        } else {
+            throw new Game.InvalidIDError("primus::id event passed id '"+id+"'");
+        }
+    });
+
+    this.events.trigger("init::end");
+};
+
+Game.prototype.start = function() {
+    this.started = true;
+    var g = this;
+    requestAnimFrame(function() {
+        g.events.trigger("loop::begin");
+        g.startTime = g.getTime();
+        g.currentTime = g.startTime;
+        g.lastTime = g.currentTime;
+        g.loop();
     });
 };
 
@@ -156,19 +109,18 @@ Game.prototype.loop = function() {
     this.fpsSamples[this.fpsSampleIndex] = this.fps;
     this.fpsSampleIndex++;
 
-    if (!this.paused)
+    this.ECS.runSystem("input");
+    this.ECS.runSystem("playerControlled");
+
+    if (!this.paused) {
         this.update();
+    }
 
     this.draw(this.ctx);
     this.drawHUD(this.HUDctx);
+    this.ECS.runSystem("render", [this.ctx]);
 
     this.lastTime = this.currentTime;
-
-    this.inputList.forEach(function(inp) {
-        inp.prevInput = inp.input;
-    });
-
-    this.prevInput = this.input;
 
     var g = this;
     //console.timeEnd("loop");
@@ -178,6 +130,9 @@ Game.prototype.loop = function() {
 };
 
 Game.prototype.update = function() {
+    /*
+    // Server Reconciliation
+    //
     // If we have received snapshots from the server
     // we must accept the most recent snapshot and re-apply
     // our inputs from that inputId onwards
@@ -212,6 +167,7 @@ Game.prototype.update = function() {
         }
         this.pendingSnapshots = [];
     }
+    */
 
     //while (!this.physicsQueue.isEmpty) {
     //    var i = this.physicsQueue.deq();
@@ -229,48 +185,44 @@ Game.prototype.update = function() {
 
     this.updatePhysics();
 
-    this.cameraX = this.player.pos.x - this.canvas.width / 2;
-    this.cameraY = this.player.pos.y - this.canvas.height / 2;
-
-    this.streaks.forEach(function(streak) {
-        if (streak.life > 0)
-            streak.life--;
-    });
+    this.cameraX = this.player.position.x - this.canvas.width / 2;
+    this.cameraY = this.player.position.y - this.canvas.height / 2;
 };
 
 Game.prototype.updateInput = function() {
-    this.addInput(Input.fromUserInput(this)); // Capture current state of mouse and keyboard
-    this.network.primus.send("input", this.input); // Send the new input to the server
+    //this.addInput(Input.fromUserInput(this)); // Capture current state of mouse and keyboard
+    //this.network.primus.send("input", this.input); // Send the new input to the server
+};
+
+Game.prototype.acceptSnapshot = function(snap) {
+    // Override entities with those from the server
+    // TODO: In the future only changes should be sent.
+    //       Find a way to track these server side and update client side accordingly.
+    //       Also make sure that client side can have minor local changes
+    //       such as having the players own character to be player controlled.
+    //Core.extend(this.ECS.entities, snap.entities);
+    this.ECS.entities = snap.entities;
+
+    this.postAcceptSnapshot();
+};
+
+Game.prototype.postAcceptSnapshot = function() {
+    if (this.id) {
+        this.playerEntity = this.ECS.getEntity(this.id);
+        this.player = this.playerEntity.components;
+        this.ECS.addComponent(this.id, "playerControlled");
+    }
 };
 
 Game.prototype.updatePhysics = function() {
     while (this.timeAccumulator > config.game.physTick) {
-        this.updatePhysicsTick();
+        this.ECS.runSystem("physics");
         this.timeAccumulator -= config.game.physTick;
     }
 };
 
-Game.prototype.updatePhysicsTick = function() {
-    var self = this;
-    var playerInput;
-    this.state.players.forEach(function(player, id) {
-        if (id !== self.id) {
-            playerInput = self.inputList.get(id);
-            if (playerInput) {
-                player.update(playerInput.input, playerInput.prevInput);
-            }
-        }
-    });
-    this.particles.forEach(function(part) {
-        part.update();
-    });
-    this.player.update(this.input, this.prevInput);
-};
-
 Game.prototype.draw = function(ctx) {
     var g = this;
-    drawCalls = [];
-    drawCalls.push(this.player.draw(ctx));
 
     this.clearCanvas(ctx, this.canvas);
 
@@ -298,18 +250,6 @@ Game.prototype.draw = function(ctx) {
         ctx.stroke();
     }
 
-    //Draw streaks
-    ctx.lineWidth = 3;
-    this.streaks.forEach(function(streak) {
-        if (streak.life > 0) {
-            ctx.strokeStyle = "rgba(255, 0, 0, " + (streak.life / 30) + ")";
-            ctx.beginPath();
-            ctx.moveTo(streak.x1 - g.cameraX, streak.y1 - g.cameraY);
-            ctx.lineTo(streak.x2 - g.cameraX, streak.y2 - g.cameraY);
-            ctx.stroke();
-        }
-    });
-
     // Draw planet
     ctx.fillStyle = "#000";
     ctx.beginPath();
@@ -325,16 +265,6 @@ Game.prototype.draw = function(ctx) {
     }
     ctx.closePath();
     ctx.fill();
-
-    //Draw players
-    this.state.players.forEach(function(player) {
-        player.draw(ctx);
-    });
-
-    //Draw particles
-    this.particles.forEach(function(part) {
-        part.draw(ctx);
-    });
 };
 
 Game.prototype.drawHUD = function(ctx) {
@@ -353,18 +283,18 @@ Game.prototype.drawHUD = function(ctx) {
     avgFPS = Math.round((avgFPS / this.fpsSamples.length) * 100) / 100;
     ctx.fillText("FPS: " + avgFPS, 20, 84);
 
-    ctx.fillText("X: " + this.player.pos.x, 20, 108);
-    ctx.fillText("Y: " + this.player.pos.y, 20, 132);
-    ctx.fillText("ΔX: " + (this.player.pos.x - this.player.ppos.x), 20, 156);
-    ctx.fillText("ΔY: " + (this.player.pos.y - this.player.ppos.y), 20, 180);
+    ctx.fillText("X: " + this.player.position.x, 20, 108);
+    ctx.fillText("Y: " + this.player.position.y, 20, 132);
+    ctx.fillText("ΔX: " + (this.player.position.x - this.player.physics.ppos.x), 20, 156);
+    ctx.fillText("ΔY: " + (this.player.position.y - this.player.physics.ppos.y), 20, 180);
 
     // Display player HP & Fuel
-    if (this.player.hp > 0) {
+    if (this.player.living.health > 0) {
         ctx.fillStyle = "#FF0000";
-        ctx.fillRect(20, 5, this.player.hp, 10);
+        ctx.fillRect(20, 5, this.player.living.health, 10);
     }
     ctx.fillStyle = "#00FF00";
-    ctx.fillRect(20, 25, this.player.fuel, 10);
+    ctx.fillRect(20, 25, this.player.jetpack.fuel, 10);
 
     ctx.strokeStyle = "#000";
     ctx.strokeRect(20, 5, 100, 10);
@@ -423,6 +353,25 @@ Game.prototype.bindAllEvents = function() {
     this.events.trigger("allEventsBound");
 };
 
+
+/*
+ * ------------
+ *    Errors
+ * ------------
+ */
+
+Game.InvalidIDError = function(msg) {
+    this.name = "InvalidIDError";
+    this.message = msg;
+}
+Game.InvalidIDError.prototype = Object.create(Error.prototype);
+
+
+Game.GameNotInitializedError= function(msg) {
+    this.name = "GameNotInitializedError";
+    this.message = msg;
+}
+Game.GameNotInitializedError.prototype = Object.create(Error.prototype);
 
 window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||

@@ -3,7 +3,37 @@ if (typeof global !== "undefined") {
     var config = require('./config.js');
     var Core = require('./core.js');
     var VectorMath = require('./vectorMath.js');
+    var ECS = require('./ecs.js');
 }
+
+/*
+function Player(params) {
+    var entity = ECS.createEntity();
+    ECS.addComponent(entity.id, "player", params);
+    return entity;
+}
+
+ECS.createComponent("player", {
+    pos: {
+        x: 0,
+        y: 0
+    },
+    dir: 0,
+    a: {
+        x: 0,
+        y: 0
+    },
+    m: config.game.player.mass,
+    fuel: 100,
+    hp: 100,
+    ppos: {
+        x: 0,
+        y: 0
+    },
+    grounded: false,
+    isAlive: false
+});
+*/
 
 function Player(o, game) {
     if (!this.id) {

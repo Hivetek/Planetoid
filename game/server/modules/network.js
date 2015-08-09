@@ -1,6 +1,7 @@
 var config = require('shared/config');
 var Core = require('shared/core');
 var Input = require('shared/input');
+var Box = require('shared/box');
 var Primus = require('primus')
   , http = require('http');
 
@@ -26,27 +27,26 @@ Network.prototype.init = function() {
     var self = this;
     var g = this.game;
 
-    var defaultInput = new Input({}, g);
-
     // Primus connection
     primus.on("connection", function(spark) {
         g.log("New connection: " + spark.id);
 
-        var pObj = {
-            id: spark.id,
-            isAlive: true
-        };
-        var p = new Player(pObj, g);
+        // Handle new player
+        var box = Box({
+            x: 0,
+            y: -2000,
+            ppos: {
+                x: 0,
+                y: -2000
+            }
+        }, g, spark.id);
 
-        g.state.players.add(spark.id, p);
-
-        g.inputList.add(spark.id, {input: defaultInput, prevInput: defaultInput});
+        var playerEntity = g.ECS.getEntity(spark.id);
+        var player = playerEntity.components;
 
         spark.on("input", function(input) {
-            var playerInput = g.inputList.get(spark.id);
-            //playerInput.addInput(input); // Use this line instead when the input system works properly on server side.
-            //playerInput.prevInput = playerInput.input; // Set the current input to be the previous
-            playerInput.input = input;
+            Core.override(player.input.prev, player.input.curr);
+            Core.override(player.input.curr, input);
         });
 
         spark.on("ping", function(ping){
@@ -56,9 +56,10 @@ Network.prototype.init = function() {
         // Write the initial/current state of the cube to the client
         self.sendInitSnapshot();
 
+        // When the player disconnects
         spark.on("end", function() {
+            delete g.ECS.entities[spark.id];
             g.log("Ended connection: " + spark.id);
-            g.state.players.remove(spark.id);
         });
 
 
@@ -90,9 +91,7 @@ Network.prototype.sendSnapshot = function() {
     var self = this;
     var snap = this.game.snapshot();
     this.primus.forEach(function(spark, id, connections) {
-        playerInput = self.game.inputList.get(id);
-        snap.inputId = playerInput.input.id;
-        spark.send('update', snap);
+        spark.send("snapshot", snap);
     });
 }
 

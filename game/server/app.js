@@ -12,6 +12,7 @@ var staticServer = require("app/staticserver");
 staticServer.listen(config.staticServer.port);
 
 // Start the game
+game.init();
 game.start();
 
 game.log("Server is running!".green);
