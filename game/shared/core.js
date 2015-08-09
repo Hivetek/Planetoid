@@ -2,13 +2,41 @@
  * Core library
  */
 Core = {};
+
+Core.isNodeJS = (typeof global !== "undefined");
+Core.isBrowser = !Core.isNodeJS;
+
+Core.getTime = (function(){
+    if (Core.isNodeJS) {
+        function getNanoSeconds() {
+            var hrTime = process.hrtime();
+            return (hrTime[0] * 1e+9 + hrTime[1]);
+        }
+        var startTime = getNanoSeconds();
+        return function() {
+            return (getNanoSeconds() - startTime) / 1e+6;
+        };
+    } else {
+        // Determine if performance is available
+        if (window.performance && window.performance.now) {
+            return performance.now.bind(performance);
+        } else {
+            return Date.now;
+        }
+    }
+})();
+
 Core.clone = function(obj) {
+    return JSON.parse(JSON.stringify(obj));
+};
+
+Core.cloneWithoutGame = function(obj) {
     if (!obj) return null;
     if (obj.game || (obj.hasOwnProperty && obj.hasOwnProperty("game"))) {
         var g = obj.game;
         delete obj.game;
     }
-    var c = JSON.parse(JSON.stringify(obj))
+    var c = Core.clone(obj);
     if (g) {
         obj.game = g;
     }
@@ -206,6 +234,6 @@ Core.class2type = {};
 
 
 // Export module in NodeJS
-if (typeof global !== "undefined") {
+if (Core.isNodeJS) {
     module.exports = Core;
 }
