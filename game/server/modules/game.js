@@ -46,8 +46,6 @@ Game.prototype.init = function() {
 
     // Add init code between here
 
-    this.events.trigger("init::end");
-
     var self = this;
     this.events.on("player::killed", function(id) {
         setTimeout(function() {
@@ -62,11 +60,7 @@ Game.prototype.init = function() {
         console.log("Pew!");
     });
 
-    this.events.trigger("loop::begin");
-    this.startTime = this.getTime();
-    this.currentTime = this.startTime;
-    this.lastTime = this.currentTime;
-    this.loop();
+    this.events.trigger("init::end");
 };
 
 
@@ -128,7 +122,11 @@ Game.prototype.getInputId = function() {
 };
 
 Game.prototype.start = function() {
-    this.init();
+    this.events.trigger("loop::begin");
+    this.startTime = this.getTime();
+    this.currentTime = this.startTime;
+    this.lastTime = this.currentTime;
+    this.loop();
 };
 
 Game.prototype.log = function() {
